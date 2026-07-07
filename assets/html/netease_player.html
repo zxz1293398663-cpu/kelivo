@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="referrer" content="no-referrer">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --bg-base: #121212;
+            --bg-card: #1c1c1e;
+            --text-main: #ffffff;
+            --text-sub: #8e8e93;
+            --border-c: rgba(255, 255, 255, 0.08);
+            --hover-bg: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(30, 30, 30, 0.75);
+            --modal-bg: rgba(0, 0, 0, 0.8);
+            --netred: #ff3a3a;
+            --disc-bg: #0a0a0a;
+            --scroll-thumb: rgba(255, 255, 255, 0.2);
+        }
+        
+        .light-mode {
+            --bg-base: #f2f2f7;
+            --bg-card: #ffffff;
+            --text-main: #000000;
+            --text-sub: #8e8e93;
+            --border-c: rgba(0, 0, 0, 0.08);
+            --hover-bg: rgba(0, 0, 0, 0.06);
+            --glass-bg: rgba(250, 250, 250, 0.75);
+            --modal-bg: rgba(0, 0, 0, 0.4);
+            --disc-bg: #222222;
+            --scroll-thumb: rgba(0, 0, 0, 0.2);
+        }
+
+        * { font-family: 'Noto Sans SC', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+        input, textarea { user-select: text; -webkit-user-select: text; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+        
+        /* 优雅的细滚动条 */
+        .scrollable { overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; }
+        .scrollable::-webkit-scrollbar { width: 4px; }
+        .scrollable::-webkit-scrollbar-track { background: transparent; }
+        .scrollable::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 4px; }
+        
+        /* 拖拽区域 */
+        .drag-zone { position: absolute; top: 0; left: 0; right: 0; height: 28px; z-index: 9999; cursor: grab; }
+        .drag-zone:active { cursor: grabbing; }
+
+        /* 动画过渡 */
+        .page-enter { animation: slideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .page-exit { animation: slideOut 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes slideOut { from { transform: translateX(0); } to { transform: translateX(100%); } }
+
+        /* 旋转动画 */
+        .spin-slow { animation: spin 20s linear infinite; }
+        .spin-paused { animation-play-state: paused; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* 质感底色 */
+        .glass-bg { background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); }
+        .lyric-mask { mask-image: linear-gradient(transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(transparent, black 15%, black 85%, transparent); }
+        .vinyl-disc {
+            background:
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,.11) 0 1px, transparent 2px 16%, rgba(255,255,255,.06) 16.5% 17.5%, transparent 18%),
+                repeating-radial-gradient(circle at 50% 50%, #151515 0 2px, #0d0d0d 3px 5px, #191919 6px 7px),
+                linear-gradient(145deg, #262626, #050505 52%, #1d1d1d);
+            box-shadow: inset 0 0 12px rgba(255,255,255,.06), inset 0 0 34px rgba(0,0,0,.78), 0 18px 42px rgba(0,0,0,.38);
+        }
+        .vinyl-disc::after {
+            content: '';
+            position: absolute;
+            inset: 9%;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,.05);
+            box-shadow: inset 0 0 0 18px rgba(255,255,255,.012), inset 0 0 0 52px rgba(0,0,0,.16);
+            pointer-events: none;
+        }
+        .vinyl-cover { box-shadow: 0 0 0 9px #0b0b0b, 0 0 0 10px rgba(255,255,255,.06), 0 8px 18px rgba(0,0,0,.45); }
+        .light-mode .vinyl-disc { box-shadow: inset 0 0 12px rgba(255,255,255,.08), inset 0 0 30px rgba(0,0,0,.55), 0 18px 38px rgba(0,0,0,.18); }
+        #detail-scroll::-webkit-scrollbar-track { background: var(--bg-base); }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        netred: 'var(--netred)', 
+                        bgbase: 'var(--bg-base)', 
+                        card: 'var(--bg-card)', 
+                        textmain: 'var(--text-main)',
+                        textsub: 'var(--text-sub)',
+                        borderc: 'var(--border-c)',
+                        hoverbg: 'var(--hover-bg)',
+                        modalbg: 'var(--modal-bg)',
+                        discbg: 'var(--disc-bg)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-bgbase text-textmain relative flex flex-col transition-colors duration-300" id="ne-root">
+
+    <!-- 顶部拖拽条 -->
+    <div class="drag-zone" id="drag-zone"></div>
+
+    <!-- 全局头部 -->
+    <div class="h-[55px] flex justify-between items-center px-4 pt-5 shrink-0 relative z-40 bg-transparent">
+        <button id="theme-toggle" class="w-8 h-8 rounded-full hover:bg-hoverbg flex items-center justify-center transition text-textmain" onclick="toggleTheme()">
+            <i id="theme-icon" class="ti ti-moon text-xl"></i>
+        </button>
+        <div id="header-now-playing" class="flex flex-col items-center cursor-pointer text-textmain transition-opacity duration-200" onclick="togglePlayerView()">
+            <div id="header-title" class="text-[14px] font-bold truncate max-w-[200px]"> Kelivo Player </div>
+            <div id="header-artist" class="text-[10px] text-textsub truncate max-w-[200px]"> Discover Music </div>
+        </div>
+        <div class="flex items-center gap-1">
+            <button id="header-search-btn" class="w-8 h-8 rounded-full hover:bg-hoverbg flex items-center justify-center transition text-textmain" onclick="showSearchPanel()">
+                <i class="ti ti-search text-xl"></i>
+            </button>
+            <button class="w-8 h-8 rounded-full hover:bg-hoverbg flex items-center justify-center transition text-textmain" onclick="sendHost({type:'close'})">
+                <i class="ti ti-x text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 视图容器 -->
+    <div class="flex-1 relative overflow-hidden">
+        
+        <!-- ================= PAGE 1: 核心播放界面 ================= -->
+        <div id="page-player" class="absolute inset-0 flex flex-col transition-opacity duration-300 opacity-100 z-10">
+            <!-- 唱片视图 -->
+            <div id="view-disc" class="flex-1 relative flex justify-center items-center cursor-pointer transition-all duration-500" onclick="togglePlayerView()">
+                <div id="disc-anim" class="vinyl-disc w-[286px] h-[286px] rounded-full flex justify-center items-center spin-slow spin-paused relative">
+                    <img id="cover-art" src="" class="vinyl-cover w-[58%] h-[58%] rounded-full object-cover relative z-10 bg-netred" />
+                </div>
+            </div>
+            
+            <!-- 歌词视图 -->
+            <div id="view-lrc" class="absolute left-0 right-0 top-0 bottom-[105px] flex flex-col opacity-0 scale-95 pointer-events-none transition-all duration-500 z-20 cursor-pointer" onclick="togglePlayerView()">
+                <div id="lrc-box" class="flex-1 overflow-y-auto text-center py-10 px-6 scrollable lyric-mask">
+                    <div class="text-textsub text-sm py-2 transition-all duration-300">正在加载歌词...</div>
+                </div>
+            </div>
+
+            <!-- 播放控制区 -->
+            <div class="h-[105px] shrink-0 flex flex-col justify-end pb-3 relative z-30">
+                <!-- 进度条 -->
+                <div class="flex items-center px-5 gap-3 text-[10px] text-textsub mb-3">
+                    <span id="time-curr" class="w-8 text-right">0:00</span>
+                    <div class="flex-1 h-1 bg-borderc rounded-full relative cursor-pointer group" id="prog-track">
+                        <div id="prog-bar" class="absolute top-0 left-0 h-full bg-netred rounded-full w-0">
+                            <div class="absolute right-[-4px] top-[-3px] w-2.5 h-2.5 bg-textmain rounded-full shadow opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        </div>
+                    </div>
+                    <span id="time-total" class="w-8 text-left">0:00</span>
+                </div>
+                <!-- 按钮 -->
+                <div class="flex items-center justify-center gap-8 px-6">
+                    <button id="repeat-btn" class="text-textsub hover:text-textmain transition" onclick="cycleRepeatMode()"><i id="repeat-icon" class="ti ti-repeat text-xl"></i></button>
+                    <button onclick="playPrev()" class="text-textmain hover:text-netred transition"><i class="ti ti-player-skip-back-filled text-3xl"></i></button>
+                    <button id="play-btn" onclick="togglePlay()" class="w-[54px] h-[54px] rounded-full border-2 border-borderc flex items-center justify-center text-textmain hover:border-netred hover:text-netred transition bg-hoverbg">
+                        <i id="play-icon" class="ti ti-player-play-filled text-2xl"></i>
+                    </button>
+                    <button onclick="playNext()" class="text-textmain hover:text-netred transition"><i class="ti ti-player-skip-forward-filled text-3xl"></i></button>
+                    <button class="text-textsub hover:text-textmain transition" onclick="showQueueDrawer()"><i class="ti ti-playlist text-xl"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 2: 个人主页 (我的) ================= -->
+        <div id="page-profile" class="absolute inset-0 flex flex-col transition-opacity duration-300 opacity-0 pointer-events-none z-20 bg-bgbase">
+            <div class="flex-1 scrollable px-4 pt-2 pb-6" id="profile-scroll">
+                
+                <!-- 个人信息插槽 -->
+                <div id="slot-user-info" class="bg-card rounded-2xl p-4 border border-borderc shadow-lg flex flex-col items-center text-center gap-3 text-textmain">
+                    <div class="w-16 h-16 rounded-full bg-hoverbg flex items-center justify-center text-textsub border border-borderc shrink-0">
+                        <i class="ti ti-user text-2xl"></i>
+                    </div>
+                    <div class="flex flex-col cursor-pointer" onclick="showLoginModal()">
+                        <div class="text-base font-bold flex items-center gap-1">未登录 <i class="ti ti-chevron-right text-xs text-textsub"></i></div>
+                        <div class="text-xs text-textsub mt-1">点击登录网易云获取歌单</div>
+                    </div>
+                </div>
+
+                <!-- 歌单列表插槽 -->
+                <div class="mt-6">
+                    <div class="text-[14px] font-bold mb-3 px-1 flex items-center gap-2 text-textmain">
+                        <i class="ti ti-books text-netred text-lg"></i> 我的歌单
+                    </div>
+                    <div id="slot-playlists" class="bg-card rounded-2xl border border-borderc shadow-lg overflow-hidden flex flex-col min-h-[100px]">
+                        <div class="p-8 text-center text-textsub text-xs">请先登录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE 3: 歌单详情页 (右侧滑入) ================= -->
+        <div id="view-playlist-detail" class="fixed inset-0 flex flex-col z-50 bg-bgbase hidden page-enter text-white">
+            <!-- 这个页面由于有封面大图做背景，保持全深色比较好看 -->
+            <div id="detail-bg-blur" class="absolute inset-0 bg-cover bg-center opacity-40 blur-[40px] z-0 pointer-events-none"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/40 to-[#121212] z-0 pointer-events-none"></div>
+            
+            <!-- 详情页头部 -->
+            <div class="h-[50px] flex justify-between items-center px-4 shrink-0 relative z-20 pt-2">
+                <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10" onclick="hidePlaylistDetail()"><i class="ti ti-chevron-left text-2xl text-white"></i></button>
+                <div class="text-sm font-medium text-white">歌单</div>
+                <button class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition text-white" onclick="toggleTheme()">
+                    <i id="detail-theme-icon" class="ti ti-moon text-xl"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 scrollable relative z-20" id="detail-scroll">
+                <!-- 歌单信息 -->
+                <div class="flex gap-4 px-5 mt-2 mb-6">
+                    <div class="w-28 h-28 rounded-2xl shrink-0 border border-white/10 relative overflow-hidden bg-[#1c1c1e]">
+                        <img id="detail-cover" class="w-full h-full object-cover" src="" />
+                        <div class="absolute top-1 right-1 bg-black/50 backdrop-blur px-1.5 py-0.5 rounded-full flex items-center gap-1 text-[9px] text-white">
+                            <i class="ti ti-player-play text-[10px]"></i> <span id="detail-playcount"></span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col justify-center flex-1">
+                        <div id="detail-title" class="font-bold text-[15px] leading-snug line-clamp-2 text-white"></div>
+                        <div class="flex items-center gap-2 mt-3">
+                            <img id="detail-creator-avatar" class="w-6 h-6 rounded-full object-cover border border-white/20" src="" />
+                            <span id="detail-creator-name" class="text-xs text-white/80"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 歌曲列表 -->
+                <div class="bg-bgbase rounded-t-[28px] min-h-[500px] overflow-x-hidden pb-10 relative z-10">
+                    <div class="sticky top-0 bg-bgbase z-30 flex items-center px-4 py-4 border-b border-borderc cursor-pointer" onclick="playAllCurrentDetail()">
+                        <div class="w-8 h-8 rounded-full bg-netred flex items-center justify-center mr-3">
+                            <i class="ti ti-player-play-filled text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold text-[15px] text-textmain">播放全部</span>
+                        <span id="detail-trackcount" class="text-xs text-textsub ml-2 font-normal"></span>
+                    </div>
+                    <div id="slot-tracks" class="flex flex-col pb-6 text-textmain"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= 搜索面板 ================= -->
+    <div id="panel-search" class="absolute inset-0 z-50 bg-bgbase hidden flex-col text-textmain">
+        <div class="h-[56px] shrink-0 flex items-center gap-3 px-4 pt-3 border-b border-borderc">
+            <button class="w-8 h-8 rounded-full hover:bg-hoverbg flex items-center justify-center" onclick="hideSearchPanel()"><i class="ti ti-chevron-left text-2xl"></i></button>
+            <div class="flex-1 h-9 rounded-full bg-hoverbg border border-borderc flex items-center gap-2 px-3">
+                <i class="ti ti-search text-textsub"></i>
+                <input id="search-input" class="flex-1 bg-transparent outline-none text-sm placeholder-textsub" placeholder="搜索歌曲、歌手" onkeydown="if(event.key==='Enter') searchSongs()">
+            </div>
+            <button class="text-sm font-medium text-netred px-1" onclick="searchSongs()">搜索</button>
+        </div>
+        <div id="search-results" class="flex-1 scrollable px-2 py-3">
+            <div class="h-full flex flex-col items-center justify-center text-textsub text-xs gap-3">
+                <i class="ti ti-music-search text-4xl"></i>
+                <div>输入关键词，搜索网易云音乐</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 播放队列抽屉 ================= -->
+    <div id="queue-mask" class="absolute inset-0 bg-black/45 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300" onclick="hideQueueDrawer()"></div>
+    <div id="queue-drawer" class="absolute right-0 top-0 bottom-0 w-[86%] max-w-[360px] bg-bgbase z-50 translate-x-full transition-transform duration-300 flex flex-col text-textmain border-l border-borderc">
+        <div class="h-[58px] shrink-0 flex items-center justify-between px-4 pt-3 border-b border-borderc">
+            <div>
+                <div class="text-base font-bold">当前播放</div>
+                <div id="queue-count" class="text-[11px] text-textsub mt-0.5">0 首</div>
+            </div>
+            <button class="w-8 h-8 rounded-full hover:bg-hoverbg flex items-center justify-center" onclick="hideQueueDrawer()"><i class="ti ti-x text-xl"></i></button>
+        </div>
+        <div class="px-4 py-3 flex items-center gap-2 border-b border-borderc text-xs">
+            <button id="drawer-repeat-btn" class="px-3 py-1.5 rounded-full bg-hoverbg text-textsub hover:text-textmain transition" onclick="cycleRepeatMode()"><i id="drawer-repeat-icon" class="ti ti-repeat mr-1"></i><span id="drawer-repeat-label">列表循环</span></button>
+        </div>
+        <div id="queue-list" class="flex-1 scrollable py-2">
+            <div class="p-8 text-center text-textsub text-xs">暂无播放队列</div>
+        </div>
+    </div>
+
+    <!-- ================= 底部极简双 Tab ================= -->
+    <div class="h-[55px] shrink-0 glass-bg border-t border-borderc z-30 flex relative pb-safe">
+        <div id="tab-player" class="flex-1 flex flex-col items-center justify-center text-netred cursor-pointer transition tab-btn active" onclick="switchTab('player', this)">
+            <i class="ti ti-vinyl text-[22px] mb-0.5"></i>
+            <span class="text-[10px] font-medium">播放</span>
+        </div>
+        <div id="tab-profile" class="flex-1 flex flex-col items-center justify-center text-textsub cursor-pointer hover:text-textmain transition tab-btn" onclick="switchTab('profile', this)">
+            <i class="ti ti-user-circle text-[22px] mb-0.5"></i>
+            <span class="text-[10px] font-medium">我的</span>
+        </div>
+    </div>
+
+    <!-- ================= 登录选择弹窗 ================= -->
+    <div id="modal-login" class="absolute inset-0 bg-modalbg backdrop-blur-sm z-50 flex flex-col justify-end hidden opacity-0 transition-opacity duration-300 text-textmain">
+        <div class="bg-card w-full rounded-t-3xl p-6 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[85%]" id="modal-login-sheet">
+            <div class="flex justify-between items-center mb-4 shrink-0">
+                <h3 class="text-lg font-bold">登录网易云音乐</h3>
+                <i class="ti ti-x text-xl text-textsub cursor-pointer p-1 hover:text-textmain transition" onclick="hideLoginModal()"></i>
+            </div>
+            
+            <div class="flex-1 scrollable overflow-y-auto pb-4">
+                <!-- 扫码主推 -->
+                <div class="mb-5 flex flex-col items-center bg-hoverbg rounded-2xl p-5 border border-borderc">
+                    <div class="text-sm font-medium mb-4 flex items-center gap-1"><i class="ti ti-qrcode"></i> 官方扫码登录</div>
+                    <div id="qr-container" class="w-40 h-40 bg-white/10 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+                        <i class="ti ti-loader animate-spin text-2xl text-textsub"></i>
+                    </div>
+                    <div id="qr-status" class="text-xs text-textsub text-center font-medium">获取二维码中...</div>
+                </div>
+
+                <!-- 手机号/验证码登录 -->
+                <div class="bg-hoverbg border border-borderc rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center gap-2 mb-1 px-1">
+                        <i class="ti ti-device-mobile text-netred text-lg"></i> 
+                        <span class="text-sm font-medium">手机号快捷登录</span>
+                    </div>
+                    <input type="text" id="inp-phone" class="w-full bg-bgbase border border-borderc rounded-lg px-3 py-2.5 text-sm outline-none focus:border-netred transition text-textmain placeholder-textsub" placeholder="输入手机号">
+                    
+                    <div class="flex gap-2">
+                        <input type="password" id="inp-pwd" class="flex-1 bg-bgbase border border-borderc rounded-lg px-3 py-2.5 text-sm outline-none focus:border-netred transition text-textmain placeholder-textsub" placeholder="密码 或 4位验证码">
+                        <button id="btn-send-code" class="bg-borderc hover:bg-hoverbg text-textmain transition px-3 rounded-lg text-xs font-medium whitespace-nowrap w-[90px]" onclick="sendCaptcha()">获取验证码</button>
+                    </div>
+                    
+                    <div id="login-err" class="text-netred text-xs text-center h-4 font-medium mt-1"></div>
+                    <button class="w-full bg-netred/20 text-netred hover:bg-netred hover:text-white transition py-2.5 rounded-lg text-sm font-bold mt-1" onclick="doPhoneLogin()">立即登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JavaScript ================= -->
+    <script>
+        // 拖拽与通信
+        window.sendHost = function(m) {
+            const s = JSON.stringify(m);
+            try { KelivoHost.postMessage(s); } catch(e) {}
+            try { window.chrome.webview.postMessage(s); } catch(e) {}
+        };
+
+        const THEME_KEY = 'NOVA_MUSIC_THEME';
+        const rootEl = document.getElementById('ne-root');
+        const themeIcon = document.getElementById('theme-icon');
+        const detailThemeIcon = document.getElementById('detail-theme-icon');
+
+        function applyTheme(theme) {
+            const isLight = theme === 'light';
+            rootEl.classList.toggle('light-mode', isLight);
+            if (themeIcon) themeIcon.className = `ti ${isLight ? 'ti-sun' : 'ti-moon'} text-xl`;
+            if (detailThemeIcon) detailThemeIcon.className = `ti ${isLight ? 'ti-sun' : 'ti-moon'} text-xl`;
+        }
+
+        window.toggleTheme = () => {
+            const next = rootEl.classList.contains('light-mode') ? 'dark' : 'light';
+            localStorage.setItem(THEME_KEY, next);
+            applyTheme(next);
+        };
+
+        applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+
+        const dragZone = document.getElementById('drag-zone');
+        let isDragging = false, sx = 0, sy = 0;
+        dragZone.addEventListener('mousedown', e => { isDragging = true; sx = e.clientX; sy = e.clientY; });
+        document.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            const dx = e.clientX - sx, dy = e.clientY - sy;
+            sx = e.clientX; sy = e.clientY;
+            sendHost({ type: 'drag', dx, dy });
+        });
+        document.addEventListener('mouseup', () => isDragging = false);
+
+        // Fetch 带超时
+        function fetchWithTimeout(url, ms = 5000, opts = {}) {
+            const c = new AbortController();
+            const t = setTimeout(() => c.abort(), ms);
+            return fetch(url, { ...opts, signal: c.signal }).then(r => { clearTimeout(t); return r; }).catch(e => { clearTimeout(t); throw e; });
+        }
+
+        const API = 'https://api-enhanced-seven-cyan.vercel.app';
+        const DEFAULT_COVER = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#ff4b4b"/><stop offset="1" stop-color="#c20f18"/></linearGradient></defs><rect width="320" height="320" rx="160" fill="url(#g)"/><circle cx="160" cy="160" r="92" fill="rgba(255,255,255,.08)"/><circle cx="160" cy="160" r="34" fill="#111"/><path d="M133 110v108c0 16-13 27-31 27-15 0-27-8-27-20 0-14 14-23 32-20 5 1 9 2 13 4V94l119-24v104c0 16-13 27-31 27-15 0-27-8-27-20 0-14 14-23 32-20 5 1 9 2 13 4V96l-93 18z" fill="white" opacity=".92"/></svg>`);
+        const LAST_TRACK_KEY = 'NOVA_MUSIC_LAST_TRACK_V1';
+        const PLAY_PREF_KEY = 'NOVA_MUSIC_PLAY_PREF_V1';
+        let state = {
+            uid: null, profile: null, playlists: [],
+            currentTracks: [], trackIndex: 0, searchTracks: [],
+            repeatMode: 'list', shuffle: false,
+            audio: new Audio(), isPlaying: false, lrcs: []
+        };
+        state.audio.crossOrigin = "anonymous";
+
+        // ================= 播放器引擎 =================
+        function fmt(s){ return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
+        
+        const uiHeaderTitle = document.getElementById('header-title');
+        const uiHeaderArtist = document.getElementById('header-artist');
+        const uiHeaderNowPlaying = document.getElementById('header-now-playing');
+        const uiCover = document.getElementById('cover-art');
+        const uiDiscAnim = document.getElementById('disc-anim');
+        const uiPlayIcon = document.getElementById('play-icon');
+        const uiProgBar = document.getElementById('prog-bar');
+        const uiTimeCurr = document.getElementById('time-curr');
+        const uiTimeTotal = document.getElementById('time-total');
+        const uiLrcBox = document.getElementById('lrc-box');
+        uiCover.src = DEFAULT_COVER;
+        
+        let scrolling = false, stimer = null;
+
+        state.audio.onplay = () => {
+            state.isPlaying = true;
+            uiPlayIcon.className = 'ti ti-player-pause-filled text-2xl';
+            uiDiscAnim.classList.remove('spin-paused');
+        };
+        state.audio.onpause = () => {
+            state.isPlaying = false;
+            uiPlayIcon.className = 'ti ti-player-play-filled text-2xl';
+            uiDiscAnim.classList.add('spin-paused');
+        };
+        state.audio.onended = () => {
+            if (state.repeatMode === 'one') {
+                state.audio.currentTime = 0;
+                state.audio.play().catch(()=>{});
+            } else playNext();
+        };
+        state.audio.ontimeupdate = () => {
+            if(state.audio.duration) {
+                uiProgBar.style.width = ((state.audio.currentTime/state.audio.duration)*100)+'%';
+                uiTimeCurr.innerText = fmt(state.audio.currentTime);
+                uiTimeTotal.innerText = fmt(state.audio.duration);
+                syncLrc();
+            }
+        };
+
+        document.getElementById('prog-track').onclick = e => {
+            if(state.audio.duration) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                state.audio.currentTime = state.audio.duration * ((e.clientX - rect.left) / rect.width);
+            }
+        };
+        uiLrcBox.onscroll = () => { scrolling=true; clearTimeout(stimer); stimer=setTimeout(()=>scrolling=false, 2000); };
+
+        function togglePlay() {
+            if (!state.audio.src && state.currentTracks.length) {
+                loadSong(state.currentTracks[state.trackIndex || 0]);
+                return;
+            }
+            if (!state.audio.src) return;
+            state.audio.paused ? state.audio.play() : state.audio.pause();
+        }
+        function playNext() {
+            if(state.currentTracks.length) {
+                if (state.shuffle && state.currentTracks.length > 1) {
+                    let next = state.trackIndex;
+                    while (next === state.trackIndex) next = Math.floor(Math.random() * state.currentTracks.length);
+                    state.trackIndex = next;
+                } else {
+                    state.trackIndex = (state.trackIndex+1) % state.currentTracks.length;
+                }
+                loadSong(state.currentTracks[state.trackIndex]);
+            }
+        }
+        function playPrev() {
+            if(state.currentTracks.length) {
+                state.trackIndex = (state.trackIndex-1+state.currentTracks.length) % state.currentTracks.length;
+                loadSong(state.currentTracks[state.trackIndex]);
+            }
+        }
+
+        function loadPlayPrefs() {
+            try {
+                const p = JSON.parse(localStorage.getItem(PLAY_PREF_KEY) || '{}');
+                state.repeatMode = p.repeatMode || (p.shuffle ? 'shuffle' : 'list');
+                state.shuffle = state.repeatMode === 'shuffle';
+            } catch(e) {}
+            updatePlayModeUi();
+        }
+        function savePlayPrefs() {
+            localStorage.setItem(PLAY_PREF_KEY, JSON.stringify({ repeatMode: state.repeatMode, shuffle: state.shuffle }));
+        }
+        function updatePlayModeUi() {
+            const repeatBtn = document.getElementById('repeat-btn');
+            const repeatIcon = document.getElementById('repeat-icon');
+            const drawerRepeatBtn = document.getElementById('drawer-repeat-btn');
+            const drawerRepeatLabel = document.getElementById('drawer-repeat-label');
+            const drawerRepeatIcon = document.getElementById('drawer-repeat-icon');
+            const activeRepeat = state.repeatMode !== 'list';
+            const modeIcon = state.repeatMode === 'shuffle' ? 'ti-arrows-shuffle' : (state.repeatMode === 'one' ? 'ti-repeat-once' : 'ti-repeat');
+            const modeLabel = state.repeatMode === 'shuffle' ? '随机播放' : (state.repeatMode === 'one' ? '单曲循环' : '列表循环');
+            repeatBtn?.classList.toggle('text-netred', activeRepeat);
+            repeatBtn?.classList.toggle('text-textsub', !activeRepeat);
+            if (repeatIcon) repeatIcon.className = `ti ${modeIcon} text-xl`;
+            if (drawerRepeatIcon) drawerRepeatIcon.className = `ti ${modeIcon} mr-1`;
+            if (drawerRepeatLabel) drawerRepeatLabel.innerText = modeLabel;
+            drawerRepeatBtn?.classList.toggle('text-netred', activeRepeat);
+            drawerRepeatBtn?.classList.toggle('text-textsub', !activeRepeat);
+        }
+        window.cycleRepeatMode = () => {
+            state.repeatMode = state.repeatMode === 'list' ? 'one' : (state.repeatMode === 'one' ? 'shuffle' : 'list');
+            state.shuffle = state.repeatMode === 'shuffle';
+            savePlayPrefs();
+            updatePlayModeUi();
+        };
+        window.toggleShuffle = () => {
+            state.repeatMode = state.repeatMode === 'shuffle' ? 'list' : 'shuffle';
+            state.shuffle = state.repeatMode === 'shuffle';
+            savePlayPrefs();
+            updatePlayModeUi();
+        };
+
+        function saveLastTrack(t) {
+            if (!t || !t.name) return;
+            localStorage.setItem(LAST_TRACK_KEY, JSON.stringify({ track: t, queue: state.currentTracks, index: state.trackIndex }));
+        }
+        function renderTrackPreview(t) {
+            if (!t) return;
+            uiHeaderTitle.innerText = t.name || 'Kelivo Player';
+            uiHeaderArtist.innerText = t.artist || 'Discover Music';
+            if (t.coverId && t.coverId.includes('files.catbox.moe/k265vj')) t.coverId = DEFAULT_COVER;
+            if (t.coverId) uiCover.src = t.coverId;
+            uiLrcBox.innerHTML = '<div class="text-textsub text-sm py-2 transition-all duration-300">点击播放，继续上次的音乐</div>';
+        }
+        function restoreLastTrack() {
+            try {
+                const last = JSON.parse(localStorage.getItem(LAST_TRACK_KEY) || 'null');
+                if (!last?.track) return;
+                state.currentTracks = Array.isArray(last.queue) && last.queue.length ? last.queue : [last.track];
+                state.trackIndex = Math.min(Math.max(last.index || 0, 0), state.currentTracks.length - 1);
+                renderTrackPreview(state.currentTracks[state.trackIndex]);
+                renderQueue();
+            } catch(e) {}
+        }
+
+        async function loadSong(t) {
+            if (!t) return;
+            uiHeaderTitle.innerText = t.name;
+            uiHeaderArtist.innerText = t.artist;
+            uiLrcBox.innerHTML = '<div class="text-white/40 text-sm py-2">歌词加载中...</div>';
+            state.audio.pause();
+            uiPlayIcon.className = 'ti ti-player-play-filled text-2xl';
+            uiDiscAnim.classList.remove('spin-paused');
+            
+            let cv = t.coverId || DEFAULT_COVER;
+            if (t.id) {
+                try {
+                    const sd = await fetchWithTimeout(`${API}/song/detail?ids=${t.id}`, 3000).then(j=>j.json());
+                    if (sd.songs && sd.songs[0]?.al?.picUrl) cv = sd.songs[0].al.picUrl;
+                } catch(e){}
+            }
+            if (cv.includes('files.catbox.moe/k265vj')) cv = DEFAULT_COVER;
+            uiCover.src = cv;
+            t.coverId = cv;
+            saveLastTrack(t);
+            renderQueue();
+
+            let url = '';
+            if (t.id) {
+                try {
+                    const u1 = await fetchWithTimeout(`https://api.qijieya.cn/meting/?type=url&id=${t.id}`, 3000).then(j=>j.json()).catch(()=>null);
+                    if (u1 && u1.url) url = u1.url;
+                    if (!url) {
+                        const u2 = await fetchWithTimeout(`https://music-api.gdstudio.xyz/api.php?types=url&id=${t.id}&source=netease`, 3000).then(j=>j.json()).catch(()=>null);
+                        if (u2 && u2.url) url = u2.url;
+                    }
+                } catch(e){}
+                fetchLrc(t.id);
+            }
+            if(url) {
+                state.audio.src = url;
+                state.audio.play().catch(()=>{});
+            } else {
+                uiHeaderTitle.innerText += ' (无音源)';
+            }
+        }
+
+        async function fetchLrc(id) {
+            try {
+                const [r1, r2] = await Promise.allSettled([
+                    fetchWithTimeout(`https://music-api.gdstudio.xyz/api.php?types=lyric&id=${id}&source=netease`, 3500).then(j=>j.json()),
+                    fetchWithTimeout(apiUrl(`/lyric?id=${id}`), 3500, {credentials:'include'}).then(j=>j.json())
+                ]);
+                const a = r1.status === 'fulfilled' ? r1.value : {};
+                const b = r2.status === 'fulfilled' ? r2.value : {};
+                const lyric = a?.lyric || a?.lrc?.lyric || b?.lrc?.lyric || '';
+                const translated = a?.tlyric?.lyric || a?.tlyric || a?.trans || a?.translate || b?.tlyric?.lyric || '';
+                if (lyric) {
+                    state.lrcs = mergeLrc(lyric, translated);
+                    renderLrc();
+                } else uiLrcBox.innerHTML = '<div class="text-textsub text-sm py-2">纯音乐，请欣赏</div>';
+            } catch(e) { uiLrcBox.innerHTML = '<div class="text-textsub text-sm py-2">歌词获取失败</div>'; }
+        }
+        function escapeHtml(s) {
+            return String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        }
+        function parseLrc(t) {
+            const r=[]; const re=/^\[(\d+):(\d+)(\.\d+)?\](.*)$/;
+            String(t || '').split('\n').forEach(x=>{
+                const m=x.trim().match(re);
+                if(m && m[4].trim()) r.push({t:parseInt(m[1])*60+parseInt(m[2])+(m[3]?parseFloat("0"+m[3]):0),txt:m[4].trim()});
+            });
+            return r;
+        }
+        function extractCreditLines(lyric) {
+            const credits = [];
+            const seen = new Set();
+            const timeTagRe = /^\[(\d+):(\d+)(\.\d+)?\](.*)$/;
+            const metaTagRe = /^\[[a-zA-Z]+:(.*)\]$/;
+            const creditRe = /(作\s*词|填\s*词|作\s*曲|编\s*曲|谱\s*曲|制作人|Lyricist|Composer|Arranger|Producer)/i;
+            String(lyric || '').split('\n').forEach(raw => {
+                const line = raw.trim();
+                if (!line) return;
+                let text = line;
+                const timed = line.match(timeTagRe);
+                if (timed) text = timed[4].trim();
+                const meta = text.match(metaTagRe);
+                if (meta) text = meta[1].trim();
+                if (!text || !creditRe.test(text)) return;
+                text = text.replace(/\s*[:：]\s*/g, '：').replace(/\s+/g, ' ').trim();
+                if (!text || seen.has(text)) return;
+                seen.add(text);
+                credits.push({ t: 0, txt: text, credit: true });
+            });
+            return credits;
+        }
+        function mergeLrc(lyric, translated) {
+            const base = parseLrc(lyric);
+            const trs = parseLrc(translated);
+            const existingTexts = new Set(base.map(line => line.txt));
+            const credits = extractCreditLines(lyric).filter(line => !existingTexts.has(line.txt));
+            if (!trs.length) return credits.concat(base);
+            base.forEach(line => {
+                const tr = trs.find(x => Math.abs(x.t - line.t) < 0.35);
+                if (tr && tr.txt && tr.txt !== line.txt) line.tr = tr.txt;
+            });
+            return credits.concat(base);
+        }
+        function renderLrc() {
+            uiLrcBox.innerHTML='';
+            state.lrcs.forEach(l=>{
+                const d=document.createElement('div');
+                d.className='text-textsub text-[13px] py-2.5 transition-all duration-300 cursor-pointer hover:bg-hoverbg rounded-lg mx-4';
+                d.innerHTML=`<div>${escapeHtml(l.txt)}</div>${l.tr ? `<div class="text-[11px] text-textsub font-normal mt-1 leading-snug" style="opacity:.78">${escapeHtml(l.tr)}</div>` : ''}`;
+                d.onclick=()=>{state.audio.currentTime=l.t; state.audio.play();};
+                uiLrcBox.appendChild(d);
+            });
+        }
+        function syncLrc() {
+            if(!state.lrcs.length) return;
+            const t = state.audio.currentTime;
+            let idx = state.lrcs.findIndex(l=>l.t>t)-1;
+            if(idx < -1) idx = state.lrcs.length-1;
+            if(idx < 0) idx = 0;
+            Array.from(uiLrcBox.children).forEach((el,i)=>{
+                if(i===idx) {
+                    el.className = 'text-textmain text-[16px] font-bold py-2.5 scale-105 transition-all duration-300 cursor-pointer mx-4 shadow-sm';
+                    if(!scrolling) uiLrcBox.scrollTo({top:el.offsetTop - uiLrcBox.clientHeight/2 + el.clientHeight/2, behavior:'smooth'});
+                } else {
+                    el.className = 'text-textsub text-[13px] py-2.5 transition-all duration-300 cursor-pointer hover:bg-hoverbg rounded-lg mx-4';
+                }
+            });
+        }
+
+        // ================= 界面视图切换 =================
+        function setHeaderNowPlayingVisible(show) {
+            if (!uiHeaderNowPlaying) return;
+            uiHeaderNowPlaying.classList.toggle('opacity-0', !show);
+            uiHeaderNowPlaying.classList.toggle('pointer-events-none', !show);
+        }
+
+        window.togglePlayerView = () => {
+            const disc = document.getElementById('view-disc');
+            const lrc = document.getElementById('view-lrc');
+            if (disc.classList.contains('opacity-0')) {
+                disc.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+                lrc.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+            } else {
+                disc.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
+                lrc.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+            }
+        };
+
+        window.switchTab = (tab, el) => {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('text-textmain', 'text-white', 'text-netred', 'active');
+                btn.classList.add('text-textsub');
+            });
+            el.classList.remove('text-textsub');
+            el.classList.add('text-netred', 'active');
+            
+            if (tab === 'player') {
+                document.getElementById('page-player').classList.remove('opacity-0', 'pointer-events-none');
+                document.getElementById('page-profile').classList.add('opacity-0', 'pointer-events-none');
+                setHeaderNowPlayingVisible(true);
+            } else {
+                document.getElementById('page-player').classList.add('opacity-0', 'pointer-events-none');
+                document.getElementById('page-profile').classList.remove('opacity-0', 'pointer-events-none');
+                setHeaderNowPlayingVisible(false);
+                loadProfileTab();
+            }
+        };
+
+        // ================= 搜索与播放队列 =================
+        window.showSearchPanel = () => {
+            const p = document.getElementById('panel-search');
+            p.classList.remove('hidden');
+            p.classList.add('flex');
+            setHeaderNowPlayingVisible(false);
+            setTimeout(() => document.getElementById('search-input')?.focus(), 80);
+        };
+        window.hideSearchPanel = () => {
+            const p = document.getElementById('panel-search');
+            p.classList.add('hidden');
+            p.classList.remove('flex');
+            setHeaderNowPlayingVisible(document.getElementById('tab-player')?.classList.contains('active'));
+        };
+
+        function normalizeSong(s) {
+            return {
+                name: s.name || '未知歌曲',
+                artist: (s.ar || s.artists || []).map(a => a.name).join('/') || '未知歌手',
+                id: s.id,
+                coverId: s.al?.picUrl || s.album?.picUrl || ''
+            };
+        }
+        window.searchSongs = async () => {
+            const q = document.getElementById('search-input').value.trim();
+            const slot = document.getElementById('search-results');
+            if (!q) return;
+            slot.innerHTML = '<div class="py-20 text-center text-textsub text-xs"><i class="ti ti-loader animate-spin text-2xl block mb-3"></i>搜索中...</div>';
+            try {
+                let data = null;
+                const urls = [
+                    apiUrl(`/cloudsearch?keywords=${encodeURIComponent(q)}&limit=30`),
+                    apiUrl(`/search?keywords=${encodeURIComponent(q)}&type=1&limit=30`),
+                ];
+                for (const url of urls) {
+                    const r = await fetchWithTimeout(url, 6000, {credentials:'include'}).then(j=>j.json()).catch(()=>null);
+                    const songs = r?.result?.songs || [];
+                    if (songs.length) { data = songs; break; }
+                }
+                if (!data?.length) {
+                    slot.innerHTML = '<div class="py-20 text-center text-textsub text-xs">没有搜到相关歌曲</div>';
+                    return;
+                }
+                state.searchTracks = data.map(normalizeSong);
+                slot.innerHTML = state.searchTracks.map((t, i) => `
+                    <div class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-hoverbg active:scale-[0.99] cursor-pointer transition" onclick="playSearchResult(${i})">
+                        <div class="w-10 h-10 rounded-lg bg-hoverbg flex items-center justify-center overflow-hidden shrink-0 border border-borderc">
+                            ${t.coverId ? `<img src="${t.coverId}?param=80y80" class="w-full h-full object-cover">` : '<i class="ti ti-music text-textsub"></i>'}
+                        </div>
+                        <div class="flex-1 overflow-hidden">
+                            <div class="text-[14px] font-medium truncate">${t.name}</div>
+                            <div class="text-[11px] text-textsub truncate mt-0.5">${t.artist}</div>
+                        </div>
+                        <i class="ti ti-player-play text-textsub"></i>
+                    </div>`).join('');
+            } catch(e) {
+                slot.innerHTML = '<div class="py-20 text-center text-netred text-xs">搜索失败，请稍后再试</div>';
+            }
+        };
+        window.playSearchResult = (i) => {
+            if (!state.searchTracks[i]) return;
+            state.currentTracks = state.searchTracks.slice();
+            state.trackIndex = i;
+            loadSong(state.currentTracks[i]);
+            hideSearchPanel();
+            switchTab('player', document.getElementById('tab-player'));
+        };
+
+        window.showQueueDrawer = () => {
+            renderQueue();
+            const mask = document.getElementById('queue-mask');
+            const drawer = document.getElementById('queue-drawer');
+            mask.classList.remove('hidden');
+            void mask.offsetWidth;
+            mask.classList.remove('opacity-0');
+            drawer.classList.remove('translate-x-full');
+        };
+        window.hideQueueDrawer = () => {
+            const mask = document.getElementById('queue-mask');
+            const drawer = document.getElementById('queue-drawer');
+            mask.classList.add('opacity-0');
+            drawer.classList.add('translate-x-full');
+            setTimeout(() => mask.classList.add('hidden'), 300);
+        };
+        function renderQueue() {
+            const list = document.getElementById('queue-list');
+            const count = document.getElementById('queue-count');
+            if (count) count.innerText = `${state.currentTracks.length} 首`;
+            updatePlayModeUi();
+            if (!list) return;
+            if (!state.currentTracks.length) {
+                list.innerHTML = '<div class="p-8 text-center text-textsub text-xs">暂无播放队列</div>';
+                return;
+            }
+            list.innerHTML = state.currentTracks.map((t, i) => `
+                <div class="flex items-center gap-3 px-4 py-3 hover:bg-hoverbg cursor-pointer transition ${i===state.trackIndex ? 'text-netred' : 'text-textmain'}" onclick="state.trackIndex=${i}; loadSong(state.currentTracks[${i}]); hideQueueDrawer();">
+                    <div class="w-5 text-xs text-center ${i===state.trackIndex ? 'text-netred' : 'text-textsub'}">${i===state.trackIndex ? '<i class="ti ti-volume"></i>' : i+1}</div>
+                    <div class="flex-1 overflow-hidden">
+                        <div class="text-[13px] font-medium truncate">${t.name}</div>
+                        <div class="text-[11px] text-textsub truncate">${t.artist}</div>
+                    </div>
+                </div>`).join('');
+        }
+
+        // ================= API 与 个人主页逻辑 =================
+        function restoreLogin() {
+            try {
+                const s = JSON.parse(localStorage.getItem('NOVA_IOS_LOGIN_V2'));
+                if (s && s.uid) { state.uid = s.uid; state.profile = s.profile; return true; }
+            } catch(e){}
+            return false;
+        }
+
+        function saveLogin(uid, profile) {
+            state.uid = uid; state.profile = profile;
+            localStorage.setItem('NOVA_IOS_LOGIN_V2', JSON.stringify({uid, profile}));
+        }
+
+        window.doLogout = () => {
+            localStorage.removeItem('NOVA_IOS_LOGIN_V2');
+            state.uid = null; state.profile = null;
+            renderUserSlot();
+            document.getElementById('slot-playlists').innerHTML = '<div class="p-8 text-center text-textsub text-xs">请先登录</div>';
+        };
+
+        async function loadProfileTab() {
+            if (restoreLogin()) {
+                await refreshProfileDetail();
+                renderUserSlot();
+                fetchAndRenderPlaylists(state.uid);
+            } else {
+                // 自动唤起登录弹窗
+                renderUserSlot();
+                showLoginModal();
+            }
+        }
+
+        async function refreshProfileDetail() {
+            if (!state.uid) return;
+            const detail = await fetchWithTimeout(apiUrl(`/user/detail?uid=${state.uid}`), 5000, {credentials:'include'}).then(j=>j.json()).catch(()=>null);
+            if (detail) {
+                state.profile = {
+                    ...(detail.profile || state.profile || {}),
+                    level: detail.level ?? state.profile?.level,
+                    listenSongs: detail.listenSongs ?? state.profile?.listenSongs,
+                    createDays: detail.createDays ?? state.profile?.createDays,
+                };
+                saveLogin(state.uid, state.profile);
+            }
+        }
+
+        function renderUserSlot() {
+            const slot = document.getElementById('slot-user-info');
+            if (!state.uid) {
+                slot.innerHTML = `
+                    <div class="w-16 h-16 rounded-full bg-hoverbg flex items-center justify-center text-textsub border border-borderc shrink-0">
+                        <i class="ti ti-user text-2xl"></i>
+                    </div>
+                    <div class="flex flex-col cursor-pointer text-textmain text-center" onclick="showLoginModal()">
+                        <div class="text-base font-bold flex items-center justify-center gap-1">点击登录 <i class="ti ti-chevron-right text-xs text-textsub"></i></div>
+                        <div class="text-[11px] text-textsub mt-1">登录网易云获取个人歌单数据</div>
+                    </div>`;
+                return;
+            }
+            const p = state.profile || {};
+            const ava = p.avatarUrl || 'https://files.catbox.moe/k265vj.png';
+            const nick = p.nickname || ('User_' + state.uid);
+            const levelText = p.level ? `Lv.${p.level}` : 'Lv.--';
+            const listenText = p.listenSongs ? `${p.listenSongs} 首听歌` : '听歌数据同步中';
+            slot.innerHTML = `
+                <div class="w-20 h-20 rounded-full bg-card border-2 border-netred/70 shadow-lg overflow-hidden shrink-0">
+                    <img src="${ava}" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex flex-col items-center text-center text-textmain w-full">
+                    <div class="text-[17px] font-bold text-center w-full truncate">${nick}</div>
+                    <div class="grid grid-cols-3 gap-2 w-full mt-3 text-[11px]">
+                        <div class="rounded-xl bg-hoverbg py-2"><b class="block text-textmain">${p.follows || 0}</b><span class="text-textsub">关注</span></div>
+                        <div class="rounded-xl bg-hoverbg py-2"><b class="block text-textmain">${p.followeds || 0}</b><span class="text-textsub">粉丝</span></div>
+                        <div class="rounded-xl bg-hoverbg py-2"><b class="block text-textmain">${levelText}</b><span class="text-textsub">等级</span></div>
+                    </div>
+                    <div class="mt-2 text-[11px] text-textsub">${listenText}</div>
+                </div>
+                <button class="mt-1 px-3 py-1.5 rounded-full hover:bg-hoverbg text-textsub text-[11px]" onclick="doLogout()"><i class="ti ti-logout mr-1"></i>退出登录</button>`;
+        }
+
+        async function fetchAndRenderPlaylists(uid) {
+            const slot = document.getElementById('slot-playlists');
+            slot.innerHTML = '<div class="p-8 text-center text-textsub text-xs flex flex-col items-center gap-2"><i class="ti ti-loader animate-spin text-xl"></i> 拉取歌单中...</div>';
+            try {
+                let d = null;
+                let lastError = '';
+                const urls = [
+                    `${API}/user/playlist?uid=${uid}&timestamp=${Date.now()}`,
+                    apiUrl(`/user/playlist?uid=${uid}`),
+                ];
+                for (const url of urls) {
+                    try {
+                        const res = await fetchWithTimeout(url, 6000, {credentials:'include'}).then(j=>j.json());
+                        console.log('user playlist response:', res);
+                        if (res.playlist && res.playlist.length > 0) { d = res; break; }
+                        lastError = res.message || res.msg || `code ${res.code || 'unknown'}`;
+                    } catch(e) { lastError = e.message || 'network error'; }
+                }
+                if (!d) throw new Error(lastError || 'empty playlist response');
+                if (d.playlist && d.playlist.length > 0) {
+                    state.playlists = d.playlist;
+                    let html = '';
+                    d.playlist.forEach(pl => {
+                        html += `
+                        <div class="flex items-center gap-3 p-3 hover:bg-hoverbg cursor-pointer transition active:scale-[0.98]" onclick="openPlaylistDetail('${pl.id}')">
+                            <div class="w-[52px] h-[52px] rounded-lg bg-bgbase overflow-hidden shrink-0 shadow-md border border-borderc relative">
+                                <img src="${pl.coverImgUrl}?param=100y100" class="w-full h-full object-cover" />
+                                <div class="absolute inset-0 bg-black/10"></div>
+                            </div>
+                            <div class="flex flex-col flex-1 overflow-hidden justify-center text-textmain">
+                                <div class="text-[14px] font-medium truncate tracking-wide">${pl.name}</div>
+                                <div class="text-[11px] text-textsub mt-0.5 truncate">${pl.trackCount}首音乐</div>
+                            </div>
+                            <i class="ti ti-chevron-right text-textsub text-sm pr-2"></i>
+                        </div>`;
+                    });
+                    slot.innerHTML = html;
+                } else slot.innerHTML = '<div class="p-8 text-center text-textsub text-xs">暂无歌单</div>';
+            } catch(e) { slot.innerHTML = `<div class="p-8 text-center text-netred text-xs">加载失败：${e.message || '请重试'}</div>`; }
+        }
+
+        // ================= 登录弹窗与扫码 =================
+        const elModal = document.getElementById('modal-login');
+        const elSheet = document.getElementById('modal-login-sheet');
+        let qrTimer = null;
+
+        window.showLoginModal = () => {
+            elModal.classList.remove('hidden');
+            void elModal.offsetWidth;
+            elModal.classList.remove('opacity-0');
+            elSheet.classList.remove('translate-y-full');
+            document.getElementById('login-err').innerText = '';
+            startQR();
+        };
+        window.hideLoginModal = () => {
+            elModal.classList.add('opacity-0');
+            elSheet.classList.add('translate-y-full');
+            setTimeout(() => elModal.classList.add('hidden'), 300);
+            if(qrTimer) clearInterval(qrTimer);
+            if(captchaTimer) clearInterval(captchaTimer);
+        };
+
+        function apiUrl(path) {
+            const sep = path.includes('?') ? '&' : '?';
+            const cookie = localStorage.getItem('NOVA_COOKIE') || '';
+            return `${API}${path}${sep}timestamp=${Date.now()}${cookie ? `&cookie=${encodeURIComponent(cookie)}` : ''}`;
+        }
+
+        async function finishLogin(raw, statusEl) {
+            if (raw && raw.cookie) localStorage.setItem('NOVA_COOKIE', raw.cookie);
+            let uid = raw?.account?.id || raw?.profile?.userId || null;
+            let profile = raw?.profile || null;
+            if (!uid) {
+                const st = await fetchWithTimeout(apiUrl('/login/status'), 5000, {credentials:'include'}).then(j=>j.json()).catch(()=>null);
+                uid = st?.data?.account?.id || null;
+                profile = st?.data?.profile || profile;
+            }
+            if (!uid) {
+                statusEl.innerText = '授权成功，但接口没有返回账号信息，请换验证码登录';
+                return false;
+            }
+            if (!profile) {
+                const pr = await fetchWithTimeout(apiUrl(`/user/detail?uid=${uid}`), 5000, {credentials:'include'}).then(j=>j.json()).catch(()=>null);
+                profile = pr?.profile || { nickname: 'User' };
+            }
+            saveLogin(uid, profile);
+            hideLoginModal();
+            loadProfileTab();
+            return true;
+        }
+
+        async function startQR() {
+            const qc = document.getElementById('qr-container');
+            const qs = document.getElementById('qr-status');
+            qc.innerHTML = '<i class="ti ti-loader animate-spin text-2xl text-textsub"></i>';
+            qs.innerText = '获取二维码中...';
+            if(qrTimer) clearInterval(qrTimer);
+            try {
+                const k = await fetchWithTimeout(apiUrl('/login/qr/key'), 5000, {credentials:'include'}).then(j=>j.json());
+                const key = k.data.unikey;
+                const img = await fetchWithTimeout(apiUrl(`/login/qr/create?key=${key}&qrimg=true`), 5000, {credentials:'include'}).then(j=>j.json());
+                qc.innerHTML = `<img src="${img.data.qrimg}" class="w-full h-full object-cover">`;
+                qs.innerText = '请使用网易云音乐 APP 扫码';
+                
+                qrTimer = setInterval(async () => {
+                    try {
+                        const ck = await fetchWithTimeout(apiUrl(`/login/qr/check?key=${key}`), 4000, {credentials:'include'}).then(j=>j.json());
+                        if (ck.code === 803) {
+                            clearInterval(qrTimer);
+                            qs.innerText = '扫码成功！获取信息中...';
+                            await finishLogin(ck, qs);
+                        } else if (ck.code === 800) {
+                            clearInterval(qrTimer); qs.innerText = '二维码过期，请重新打开弹窗';
+                        } else if (ck.code === 802) {
+                            qs.innerText = '已扫码，请在手机上确认授权';
+                        }
+                    } catch(e) {}
+                }, 2000);
+            } catch(e) { qs.innerText = '获取二维码失败，请使用下方方式'; }
+        }
+
+        let captchaTimer = null;
+        window.sendCaptcha = async () => {
+            const p = document.getElementById('inp-phone').value.trim();
+            const err = document.getElementById('login-err');
+            const btn = document.getElementById('btn-send-code');
+            if(!p || !/^1\d{10}$/.test(p)) { err.innerText = '请输入正确的11位手机号'; return; }
+            if (btn.disabled) return;
+            
+            err.innerText = '发送中...';
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            
+            try {
+                const d = await fetchWithTimeout(apiUrl(`/captcha/sent?phone=${p}&ctcode=86`), 5000, {credentials:'include'}).then(j=>j.json());
+                if (d.code === 200) {
+                    err.innerText = '验证码已发送！';
+                    document.getElementById('inp-pwd').type = 'text'; // 改为明文方便填验证码
+                    let count = 60;
+                    btn.innerText = `${count}s`;
+                    captchaTimer = setInterval(() => {
+                        count--;
+                        if (count <= 0) {
+                            clearInterval(captchaTimer);
+                            btn.innerText = '获取验证码';
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        } else {
+                            btn.innerText = `${count}s`;
+                        }
+                    }, 1000);
+                } else {
+                    err.innerText = d.message || '发送失败，请检查手机号';
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            } catch(e) {
+                err.innerText = '网络异常，请重试';
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        };
+
+        window.doPhoneLogin = async () => {
+            const p = document.getElementById('inp-phone').value.trim();
+            const w = document.getElementById('inp-pwd').value.trim();
+            const err = document.getElementById('login-err');
+            if(!p || !w) { err.innerText = '手机号和密码/验证码不能为空'; return; }
+            err.innerText = '登录中...';
+            
+            // 自动判断是验证码还是密码：纯数字且<=6位一律当作验证码
+            const isCaptcha = w.length <= 6 && /^\d+$/.test(w);
+            const url = apiUrl(`/login/cellphone?phone=${encodeURIComponent(p)}&ctcode=86&${isCaptcha ? 'captcha' : 'password'}=${encodeURIComponent(w)}`);
+
+            try {
+                const d = await fetchWithTimeout(url, 8000, {credentials:'include'}).then(j=>j.json());
+                if(d.code===200) await finishLogin(d, err);
+                else err.innerText = d.message || '登录失败，请检查账号和验证码';
+            } catch(e) { err.innerText = '网络异常'; }
+        };
+
+        // ================= 歌单详情页逻辑 =================
+        window.openPlaylistDetail = async (id) => {
+            const pl = state.playlists.find(p => p.id == id);
+            if (!pl) return;
+            const view = document.getElementById('view-playlist-detail');
+            view.classList.remove('page-exit');
+            view.classList.add('page-enter');
+            view.classList.remove('hidden');
+            setHeaderNowPlayingVisible(false);
+            
+            document.getElementById('detail-bg-blur').style.backgroundImage = `url('${pl.coverImgUrl}')`;
+            document.getElementById('detail-cover').src = pl.coverImgUrl;
+            document.getElementById('detail-title').innerText = pl.name;
+            document.getElementById('detail-playcount').innerText = Math.floor((pl.playCount||0)/10000) + '万';
+            document.getElementById('detail-creator-avatar').src = pl.creator?.avatarUrl || '';
+            document.getElementById('detail-creator-name').innerText = pl.creator?.nickname || 'User';
+            document.getElementById('detail-trackcount').innerText = `(${pl.trackCount}首)`;
+            
+            const tSlot = document.getElementById('slot-tracks');
+            tSlot.innerHTML = '<div class="py-16 text-center text-textsub"><i class="ti ti-loader animate-spin text-3xl"></i><div class="mt-3 text-xs">拉取歌曲中...</div></div>';
+            
+            try {
+                let songs = [];
+                const [r1, r2] = await Promise.allSettled([
+                    fetchWithTimeout(apiUrl(`/playlist/track/all?id=${id}&limit=100`), 5000, {credentials:'include'}).then(j=>j.json()),
+                    fetchWithTimeout(apiUrl(`/playlist/detail?id=${id}`), 5000, {credentials:'include'}).then(j=>j.json())
+                ]);
+                if (r1.status === 'fulfilled' && r1.value.songs) songs = r1.value.songs;
+                else if (r2.status === 'fulfilled' && r2.value.playlist?.tracks) songs = r2.value.playlist.tracks;
+                
+                if (songs.length > 0) {
+                    state.currentTracks = songs.map(s => ({ name: s.name, artist: (s.ar||[]).map(a=>a.name).join('/'), id: s.id, coverId: s.al?.picUrl || '' }));
+                    let html = '';
+                    state.currentTracks.forEach((t, i) => {
+                        html += `
+                        <div class="flex items-center gap-4 px-5 py-3 hover:bg-hoverbg cursor-pointer active:bg-hoverbg transition" onclick="state.trackIndex=${i}; loadSong(state.currentTracks[${i}]); switchTab('player', document.getElementById('tab-player')); hidePlaylistDetail();">
+                            <div class="w-5 text-center text-[13px] font-medium text-textsub/60">${i+1}</div>
+                            <div class="flex flex-col flex-1 overflow-hidden">
+                                <div class="text-[14px] text-textmain truncate font-medium">${t.name}</div>
+                                <div class="text-[11px] text-textsub truncate mt-0.5">${t.artist}</div>
+                            </div>
+                            <i class="ti ti-player-play text-textsub"></i>
+                        </div>`;
+                    });
+                    tSlot.innerHTML = html;
+                } else tSlot.innerHTML = '<div class="py-16 text-center text-textsub text-sm">暂无歌曲或需 VIP</div>';
+            } catch(e) { tSlot.innerHTML = '<div class="py-16 text-center text-netred text-sm">加载失败，请重试</div>'; }
+        };
+
+        window.hidePlaylistDetail = () => {
+            const view = document.getElementById('view-playlist-detail');
+            setHeaderNowPlayingVisible(false);
+            view.classList.remove('page-enter');
+            view.classList.add('page-exit');
+            setTimeout(() => {
+                view.classList.add('hidden');
+                view.classList.remove('page-exit');
+                setHeaderNowPlayingVisible(document.getElementById('tab-player')?.classList.contains('active'));
+            }, 300);
+        };
+        window.playAllCurrentDetail = () => {
+            if (state.currentTracks.length > 0) {
+                state.trackIndex = 0;
+                loadSong(state.currentTracks[0]);
+                switchTab('player', document.getElementById('tab-player'));
+                hidePlaylistDetail();
+            }
+        };
+
+        loadPlayPrefs();
+        restoreLastTrack();
+
+    </script>
+</body>
+</html>

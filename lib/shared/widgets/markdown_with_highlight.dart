@@ -4,6 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:gpt_markdown/custom_widgets/markdown_config.dart'
     show GptMarkdownConfig;
+import 'package:flutter/foundation.dart';
+import 'package:html/dom.dart' as html_dom;
+import 'package:html/parser.dart' as html_parser;
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_windows/webview_windows.dart' as winweb;
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter_highlight/themes/github.dart';
 import 'package:flutter_highlight/themes/atom-one-dark-reasonable.dart';
 import 'package:flutter/rendering.dart';
@@ -21,12 +27,14 @@ import '../../utils/sandbox_path_resolver.dart';
 import '../../utils/clipboard_images.dart';
 import '../../features/chat/pages/image_viewer_page.dart';
 import '../../features/chat/pages/html_preview_page.dart';
+import '../pages/webview_page.dart';
 import 'snackbar.dart';
 import 'ios_tactile.dart';
 import 'mermaid_bridge.dart';
 import 'export_capture_scope.dart';
 import 'mermaid_image_cache.dart';
 import 'plantuml_block.dart';
+import 'special_tag_widgets.dart';
 import 'package:path/path.dart' as p;
 import 'package:Kelivo/l10n/app_localizations.dart';
 import 'package:Kelivo/theme/app_font_weights.dart';
@@ -124,7 +132,10 @@ class _MarkdownWithCodeHighlightState extends State<MarkdownWithCodeHighlight> {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final cs = Theme.of(context).colorScheme;
-    final sanitizedText = _sanitizeImageLinks(_renderText);
+    var sanitizedText = _stripClientTags(_sanitizeImageLinks(_renderText));
+    if (!widget.streaming && _looksLikeStandaloneHtml(sanitizedText)) {
+      return _InlineHtmlPreview(html: sanitizedText.trim());
+    }
     final imageUrls = _extractImageUrls(sanitizedText);
     final normalized = _preprocessFences(
       sanitizedText,
@@ -169,6 +180,8 @@ class _MarkdownWithCodeHighlightState extends State<MarkdownWithCodeHighlight> {
     components.insert(0, AtxHeadingMd());
     // Ensure fenced code blocks take precedence over headings and other blocks
     // so lines like "# comment" inside code fences are not parsed as headings.
+    components.insert(0, _SpecialTagBlockMd());
+    components.insert(0, BgmMusicCardMd());
     components.insert(0, ModernBlockQuote());
     components.insert(0, FencedCodeBlockMd(streaming: widget.streaming));
     components.insert(0, DetailsHtmlMd());
@@ -179,8 +192,11 @@ class _MarkdownWithCodeHighlightState extends State<MarkdownWithCodeHighlight> {
     inlineComponents.removeWhere(
       (c) => c is LatexMath || c is LatexMathMultiLine,
     );
+    // Add LaTeX text command renderer (e.g., \textbf, \textcolor)
+    inlineComponents.insert(0, LatexTextCommandMd());
     // Add whitelist-based HTML tag renderer (e.g., <br>)
     inlineComponents.insert(0, HtmlAnchorMd());
+    inlineComponents.insert(0, HtmlStyledSpanMd());
     inlineComponents.insert(0, AllowedHtmlTagsMd());
 
     // Conditionally add inline LaTeX/math renderers
@@ -2008,6 +2024,7 @@ class _CollapsibleCodeBlockState extends State<_CollapsibleCodeBlock> {
 
     final sp = context.read<SettingsProvider>();
     if (!sp.autoCollapseCodeBlock) return;
+    if (_isHtml(widget.language)) return;
     final threshold = sp.autoCollapseCodeBlockLines;
     if (_exceedsLineThreshold(widget.code, threshold)) {
       _expanded = false;
@@ -2019,6 +2036,7 @@ class _CollapsibleCodeBlockState extends State<_CollapsibleCodeBlock> {
     if (!_expanded) return;
     final sp = context.read<SettingsProvider>();
     if (!sp.autoCollapseCodeBlock) return;
+    if (_isHtml(widget.language)) return;
     final threshold = sp.autoCollapseCodeBlockLines;
 
     if (_exceedsLineThreshold(widget.code, threshold)) {
@@ -2247,6 +2265,7 @@ class _CollapsibleCodeBlockState extends State<_CollapsibleCodeBlock> {
 
   bool _isEffectivelyExpanded(SettingsProvider settings) {
     if (_manuallyToggled) return _expanded;
+    if (_isHtml(widget.language)) return true;
     if (!settings.autoCollapseCodeBlock) return true;
     return !_exceedsLineThreshold(
       widget.code,
@@ -2416,6 +2435,640 @@ class _CollapsibleCodeBlockState extends State<_CollapsibleCodeBlock> {
     if (s.isEmpty) return s;
     final end = _trimTrailingNewlinesEndIndex(s);
     return end == s.length ? s : s.substring(0, end);
+  }
+}
+
+class _InlineHtmlPreview extends StatefulWidget {
+  const _InlineHtmlPreview({required this.html});
+
+  final String html;
+
+  @override
+  State<_InlineHtmlPreview> createState() => _InlineHtmlPreviewState();
+}
+
+class _InlineHtmlPreviewState extends State<_InlineHtmlPreview> {
+  WebViewController? _flutterController;
+  winweb.WebviewController? _windowsController;
+  bool _windowsReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_useFlutterWebView) {
+      _flutterController = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.disabled)
+        ..setBackgroundColor(Colors.transparent)
+        ..loadHtmlString(_wrapHtml(widget.html));
+    } else if (_useWindowsWebView) {
+      _initWindowsWebView();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _InlineHtmlPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.html == widget.html) return;
+    final html = _wrapHtml(widget.html);
+    _flutterController?.loadHtmlString(html);
+    if (_windowsController != null) {
+      _loadWindowsHtml(html);
+    }
+  }
+
+  bool get _useFlutterWebView {
+    if (kIsWeb || Platform.isLinux || Platform.isWindows) return false;
+    return Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
+  }
+
+  bool get _useWindowsWebView => !kIsWeb && Platform.isWindows;
+
+  Future<void> _initWindowsWebView() async {
+    final controller = winweb.WebviewController();
+    await controller.initialize();
+    try {
+      await controller.setBackgroundColor(const Color(0x00000000));
+    } catch (_) {}
+    _windowsController = controller;
+    await _loadWindowsHtml(_wrapHtml(widget.html));
+    if (!mounted) return;
+    setState(() => _windowsReady = true);
+  }
+
+  Future<void> _loadWindowsHtml(String html) async {
+    final dir = await getTemporaryDirectory();
+    final file = File(
+      '${dir.path}/inline_html_preview_${DateTime.now().microsecondsSinceEpoch}.html',
+    );
+    await file.writeAsString(html, flush: true);
+    await _windowsController?.loadUrl(Uri.file(file.path).toString());
+  }
+
+  String _wrapHtml(String raw) {
+    final content = raw.toLowerCase().contains('<html')
+        ? raw
+        : '''
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html, body { margin: 0; padding: 0; background: transparent; }
+    body {
+      width: 320px; max-width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow-x: hidden; overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    body::-webkit-scrollbar { width: 4px; }
+    body::-webkit-scrollbar-track { background: transparent; }
+    body::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.35); border-radius: 2px; }
+    * { box-sizing: border-box; max-width: 320px; }
+  </style>
+</head>
+<body>$raw</body>
+</html>
+''';
+    return content;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_useFlutterWebView) {
+      final controller = _flutterController;
+      if (controller == null) {
+        return _StaticInlineHtmlPreview(html: widget.html);
+      }
+      return _HtmlPreviewFrame(child: WebViewWidget(controller: controller));
+    }
+    if (_useWindowsWebView) {
+      final controller = _windowsController;
+      if (controller == null || !_windowsReady) {
+        return _StaticInlineHtmlPreview(html: widget.html);
+      }
+      return _HtmlPreviewFrame(child: winweb.Webview(controller));
+    }
+    return _StaticInlineHtmlPreview(html: widget.html);
+  }
+}
+
+class _HtmlPreviewFrame extends StatelessWidget {
+  const _HtmlPreviewFrame({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      key: const ValueKey('inline-html-preview'),
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: SizedBox(width: 320, height: 640, child: child),
+        ),
+      ),
+    );
+  }
+}
+
+class _StaticInlineHtmlPreview extends StatelessWidget {
+  const _StaticInlineHtmlPreview({required this.html});
+
+  final String html;
+
+  static const Set<String> _ignoredTags = <String>{
+    'script',
+    'style',
+    'iframe',
+    'object',
+    'embed',
+    'meta',
+    'link',
+    'noscript',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final document = html_parser.parse(html);
+    final root = document.body ?? document.documentElement;
+    final rendered = _renderNodes(context, root?.nodes ?? const []);
+
+    return Padding(
+      key: const ValueKey('inline-html-preview'),
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: rendered.isEmpty
+          ? const SizedBox.shrink()
+          : Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 320),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: rendered,
+                ),
+              ),
+            ),
+    );
+  }
+
+  List<Widget> _renderNodes(BuildContext context, List<html_dom.Node> nodes) {
+    final widgets = <Widget>[];
+    for (final node in nodes) {
+      final widget = _renderNode(context, node);
+      if (widget != null) widgets.add(widget);
+    }
+    return widgets;
+  }
+
+  Widget? _renderNode(BuildContext context, html_dom.Node node) {
+    if (node is html_dom.Text) {
+      final text = node.text.trim();
+      if (text.isEmpty) return null;
+      return Text(text, style: DefaultTextStyle.of(context).style);
+    }
+    if (node is! html_dom.Element) return null;
+    final tag = node.localName?.toLowerCase() ?? '';
+    if (_ignoredTags.contains(tag)) return null;
+
+    final rendered = switch (tag) {
+      'h1' => _textBlock(context, node, 24, AppFontWeights.strong, 14),
+      'h2' => _textBlock(context, node, 21, AppFontWeights.semibold, 12),
+      'h3' => _textBlock(context, node, 18, AppFontWeights.semibold, 10),
+      'h4' => _textBlock(context, node, 16, AppFontWeights.semibold, 8),
+      'h5' || 'h6' => _textBlock(context, node, 14, AppFontWeights.semibold, 8),
+      'p' => _richTextBlock(context, node),
+      'strong' || 'b' || 'em' || 'i' || 'span' => _richTextBlock(context, node),
+      'br' => const SizedBox(height: 8),
+      'hr' => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Divider(height: 1),
+      ),
+      'ul' || 'ol' => _listBlock(context, node, ordered: tag == 'ol'),
+      'li' => _listItem(context, node, bullet: '•'),
+      'blockquote' => _blockquote(context, node),
+      'pre' || 'code' => _preBlock(context, node.text),
+      'table' => _tableBlock(context, node),
+      'thead' ||
+      'tbody' ||
+      'tr' ||
+      'td' ||
+      'th' => _richTextBlock(context, node),
+      'img' => _imageBlock(context, node),
+      'a' => _linkBlock(context, node),
+      _ => _containerBlock(context, node),
+    };
+    return _applyBoxStyle(context, node, rendered);
+  }
+
+  Widget _textBlock(
+    BuildContext context,
+    html_dom.Element element,
+    double fontSize,
+    FontWeight fontWeight,
+    double bottom,
+  ) {
+    final text = element.text.trim();
+    if (text.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottom),
+      child: Text(
+        text,
+        textAlign: _textAlignFromStyle(element),
+        style: _textStyleFromStyle(
+          context,
+          element,
+          TextStyle(fontSize: fontSize, fontWeight: fontWeight),
+        ),
+      ),
+    );
+  }
+
+  Widget _richTextBlock(BuildContext context, html_dom.Element element) {
+    final base = _textStyleFromStyle(
+      context,
+      element,
+      DefaultTextStyle.of(context).style.copyWith(height: 1.45),
+    );
+    final span = TextSpan(
+      style: base,
+      children: _inlineSpans(context, element.nodes, base),
+    );
+    if (span.toPlainText().trim().isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: SelectableText.rich(span, textAlign: _textAlignFromStyle(element)),
+    );
+  }
+
+  List<InlineSpan> _inlineSpans(
+    BuildContext context,
+    List<html_dom.Node> nodes,
+    TextStyle? inheritedStyle,
+  ) {
+    final spans = <InlineSpan>[];
+    for (final node in nodes) {
+      if (node is html_dom.Text) {
+        if (node.text.isNotEmpty) {
+          spans.add(TextSpan(text: node.text, style: inheritedStyle));
+        }
+        continue;
+      }
+      if (node is! html_dom.Element) continue;
+      final tag = node.localName?.toLowerCase() ?? '';
+      if (_ignoredTags.contains(tag)) continue;
+      if (tag == 'br') {
+        spans.add(const TextSpan(text: '\n'));
+        continue;
+      }
+      var nextStyle = _textStyleFromStyle(context, node, inheritedStyle);
+      if (tag == 'strong' || tag == 'b') {
+        nextStyle = nextStyle.copyWith(fontWeight: AppFontWeights.semibold);
+      } else if (tag == 'em' || tag == 'i') {
+        nextStyle = nextStyle.copyWith(fontStyle: FontStyle.italic);
+      } else if (tag == 'code') {
+        nextStyle = nextStyle.copyWith(
+          fontFamily: 'monospace',
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest,
+        );
+      }
+      spans.addAll(_inlineSpans(context, node.nodes, nextStyle));
+    }
+    return spans;
+  }
+
+  Widget _containerBlock(BuildContext context, html_dom.Element element) {
+    final children = _renderNodes(context, element.nodes);
+    if (children.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _listBlock(
+    BuildContext context,
+    html_dom.Element element, {
+    required bool ordered,
+  }) {
+    final items = element.children
+        .where((child) => child.localName?.toLowerCase() == 'li')
+        .toList();
+    if (items.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < items.length; i++)
+            _listItem(context, items[i], bullet: ordered ? '${i + 1}.' : '•'),
+        ],
+      ),
+    );
+  }
+
+  Widget _listItem(
+    BuildContext context,
+    html_dom.Element element, {
+    required String bullet,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 28, child: Text(bullet)),
+          Expanded(child: _richTextBlock(context, element)),
+        ],
+      ),
+    );
+  }
+
+  Widget _blockquote(BuildContext context, html_dom.Element element) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      decoration: BoxDecoration(
+        border: Border(left: BorderSide(color: cs.primary, width: 3)),
+      ),
+      child: _containerBlock(context, element),
+    );
+  }
+
+  Widget _preBlock(BuildContext context, String text) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: SelectableText(
+        text.trimRight(),
+        style: const TextStyle(fontFamily: 'monospace', height: 1.4),
+      ),
+    );
+  }
+
+  Widget _tableBlock(BuildContext context, html_dom.Element element) {
+    final rows = element.querySelectorAll('tr').where((row) {
+      return row.children.any((child) {
+        return const <String>{
+          'td',
+          'th',
+        }.contains(child.localName?.toLowerCase());
+      });
+    }).toList();
+    if (rows.isEmpty) return const SizedBox.shrink();
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        primary: false,
+        child: Table(
+          defaultColumnWidth: const IntrinsicColumnWidth(),
+          border: TableBorder.all(color: cs.outlineVariant),
+          children: [
+            for (final row in rows)
+              TableRow(
+                children: [
+                  for (final cell in row.children.where((child) {
+                    return const <String>{
+                      'td',
+                      'th',
+                    }.contains(child.localName?.toLowerCase());
+                  }))
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        cell.text.trim(),
+                        style: TextStyle(
+                          fontWeight: cell.localName?.toLowerCase() == 'th'
+                              ? AppFontWeights.semibold
+                              : null,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _imageBlock(BuildContext context, html_dom.Element element) {
+    final src = element.attributes['src']?.trim() ?? '';
+    final provider = src.isEmpty || !_isSafeInlineHtmlImageSrc(src)
+        ? null
+        : _imageProviderFor(src);
+    if (provider == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(
+          _radius(_styleMap(element)['border-radius']) ?? 10,
+        ),
+        child: Image(image: provider, fit: BoxFit.contain),
+      ),
+    );
+  }
+
+  Widget _linkBlock(BuildContext context, html_dom.Element element) {
+    final cs = Theme.of(context).colorScheme;
+    final uri = _safeExternalUri(element.attributes['href']?.trim());
+    final text = element.text.trim();
+    if (text.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: GestureDetector(
+        onTap: uri == null ? null : () async => launchUrl(uri),
+        child: Text(
+          text,
+          textAlign: _textAlignFromStyle(element),
+          style: _textStyleFromStyle(
+            context,
+            element,
+            TextStyle(color: cs.primary, decoration: TextDecoration.none),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _applyBoxStyle(
+    BuildContext context,
+    html_dom.Element element,
+    Widget child,
+  ) {
+    final style = _styleMap(element);
+    if (style.isEmpty) return child;
+    final margin = _edgeInsets(style['margin']);
+    final padding = _edgeInsets(style['padding']);
+    final bg = _backgroundColor(
+      style['background-color'] ?? style['background'],
+    );
+    final radius = _radius(style['border-radius']);
+    final borderColor = _borderColor(style['border']);
+    final width = (_cssPx(style['width']) ?? _cssPx(style['max-width']))
+        ?.clamp(0, 320)
+        .toDouble();
+
+    Widget styled = child;
+    if (padding != null ||
+        bg != null ||
+        radius != null ||
+        borderColor != null ||
+        width != null) {
+      styled = Container(
+        width: width,
+        padding: padding,
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: radius == null ? null : BorderRadius.circular(radius),
+          border: borderColor == null ? null : Border.all(color: borderColor),
+        ),
+        child: styled,
+      );
+    }
+    if (margin != null) styled = Padding(padding: margin, child: styled);
+    if (style['margin-left'] == 'auto' || style['margin-right'] == 'auto') {
+      styled = Center(child: styled);
+    }
+    return styled;
+  }
+
+  Map<String, String> _styleMap(html_dom.Element? element) {
+    final raw = element?.attributes['style'];
+    if (raw == null || raw.trim().isEmpty) return const <String, String>{};
+    final out = <String, String>{};
+    for (final part in raw.split(';')) {
+      final idx = part.indexOf(':');
+      if (idx <= 0) continue;
+      final key = part.substring(0, idx).trim().toLowerCase();
+      final value = part.substring(idx + 1).trim().toLowerCase();
+      if (key.isNotEmpty && value.isNotEmpty) out[key] = value;
+    }
+    return out;
+  }
+
+  TextStyle _textStyleFromStyle(
+    BuildContext context,
+    html_dom.Element? element,
+    TextStyle? base,
+  ) {
+    final style = _styleMap(element);
+    final color = _cssColor(style['color']);
+    final fontSize = _cssPx(style['font-size']);
+    final fontWeight = switch (style['font-weight']) {
+      'bold' || '600' || '700' || '800' || '900' => AppFontWeights.semibold,
+      _ => null,
+    };
+    final fontStyle = style['font-style'] == 'italic' ? FontStyle.italic : null;
+    return (base ?? DefaultTextStyle.of(context).style).copyWith(
+      color: color,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+    );
+  }
+
+  TextAlign? _textAlignFromStyle(html_dom.Element? element) {
+    return switch (_styleMap(element)['text-align']) {
+      'center' => TextAlign.center,
+      'right' => TextAlign.right,
+      'end' => TextAlign.end,
+      'justify' => TextAlign.justify,
+      _ => null,
+    };
+  }
+
+  EdgeInsets? _edgeInsets(String? value) {
+    if (value == null || value.isEmpty) return null;
+    final parts = value
+        .split(RegExp(r'\s+'))
+        .map(_cssPx)
+        .whereType<double>()
+        .toList();
+    if (parts.isEmpty) return null;
+    return switch (parts.length) {
+      1 => EdgeInsets.all(parts[0]),
+      2 => EdgeInsets.symmetric(vertical: parts[0], horizontal: parts[1]),
+      3 => EdgeInsets.fromLTRB(parts[1], parts[0], parts[1], parts[2]),
+      _ => EdgeInsets.fromLTRB(parts[3], parts[0], parts[1], parts[2]),
+    };
+  }
+
+  double? _radius(String? value) => _cssPx(value);
+
+  Color? _borderColor(String? value) {
+    if (value == null) return null;
+    final match = RegExp(r'#[0-9a-fA-F]{3,8}').firstMatch(value);
+    return match == null ? null : _cssColor(match.group(0));
+  }
+
+  Color? _backgroundColor(String? value) {
+    if (value == null) return null;
+    final match = RegExp(r'#[0-9a-fA-F]{3,8}').firstMatch(value);
+    return match == null ? _cssColor(value) : _cssColor(match.group(0));
+  }
+
+  Color? _cssColor(String? value) {
+    if (value == null || value.isEmpty) return null;
+    final v = value.trim().toLowerCase();
+    if (RegExp(r'^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$').hasMatch(v)) {
+      var h = v.substring(1);
+      if (h.length == 3) h = h.split('').map((c) => '$c$c').join();
+      if (h.length == 6) h = 'ff$h';
+      return Color(int.parse(h, radix: 16));
+    }
+    return switch (v) {
+      'white' => Colors.white,
+      'black' => Colors.black,
+      'red' => Colors.red,
+      'blue' => Colors.blue,
+      'green' => Colors.green,
+      'yellow' => Colors.yellow,
+      'transparent' => Colors.transparent,
+      _ => null,
+    };
+  }
+
+  double? _cssPx(String? value) {
+    if (value == null || value.isEmpty || value == 'auto') return null;
+    final match = RegExp(r'-?\d+(?:\.\d+)?').firstMatch(value);
+    if (match == null) return null;
+    return double.tryParse(match.group(0)!);
+  }
+
+  bool _isSafeInlineHtmlImageSrc(String src) {
+    final uri = Uri.tryParse(src);
+    if (uri == null) return false;
+    return uri.scheme == 'https' ||
+        uri.scheme == 'http' ||
+        src.startsWith('data:image/');
+  }
+
+  Uri? _safeExternalUri(String? href) {
+    if (href == null || href.isEmpty) return null;
+    final uri = Uri.tryParse(href);
+    if (uri == null) return null;
+    return switch (uri.scheme.toLowerCase()) {
+      'http' || 'https' => uri,
+      _ => null,
+    };
   }
 }
 
@@ -2703,6 +3356,38 @@ String _extensionWithoutDot(String extension) {
 bool _isHtml(String? lang) {
   final l = (lang ?? '').trim().toLowerCase();
   return l == 'html' || l == 'htm' || l == 'rawhtml' || l == 'raw_html';
+}
+
+/// Strips `<status_hub>` and `<relationship_map>` blocks (complete or partial)
+/// from displayed text so the raw construction code never reaches the chat UI.
+String _stripClientTags(String text) {
+  return text.replaceAllMapped(
+    RegExp(
+      r'<status_hub>[\s\S]*?<\/status_hub>|'
+      r'<status_hub>[\s\S]*|'
+      r'<\/status_hub>|'
+      r'<relationship_map>[\s\S]*?<\/relationship_map>|'
+      r'<relationship_map>[\s\S]*|'
+      r'<\/relationship_map>',
+      caseSensitive: false,
+    ),
+    (_) => '',
+  );
+}
+
+bool _looksLikeStandaloneHtml(String text) {
+  final trimmed = text.trimLeft();
+  if (trimmed.isEmpty || trimmed.startsWith('```')) return false;
+  final lower = trimmed.toLowerCase();
+  return lower.startsWith('<!doctype html') ||
+      lower.startsWith('<html') ||
+      lower.startsWith('<body') ||
+      lower.startsWith('<main') ||
+      lower.startsWith('<section') ||
+      lower.startsWith('<article') ||
+      lower.startsWith('<div') ||
+      lower.startsWith('<style') ||
+      lower.startsWith('<script');
 }
 
 @visibleForTesting
@@ -4458,6 +5143,8 @@ class FencedCodeBlockMd extends BlockMd {
       return _MermaidBlock(code: code, streaming: isStreamingFence);
     } else if (langLower == 'plantuml') {
       return PlantUMLBlock(code: code);
+    } else if (_isHtml(lang) && closed && !isStreamingFence) {
+      return _InlineHtmlPreview(html: code);
     }
     return _CollapsibleCodeBlock(
       language: lang,
@@ -4465,6 +5152,269 @@ class FencedCodeBlockMd extends BlockMd {
       streaming: isStreamingFence,
       closed: closed,
     );
+  }
+}
+
+class BgmMusicCardMd extends BlockMd {
+  @override
+  RegExp get exp => RegExp(expString, dotAll: true, multiLine: true);
+
+  @override
+  String get expString => r'^\s*<bgm>\s*当前\s*bgm\s*[：:]\s*(.*?)\s*</bgm>\s*$';
+
+  @override
+  Widget build(BuildContext context, String text, GptMarkdownConfig config) {
+    final match = exp.firstMatch(text.trim());
+    if (match == null) return const SizedBox.shrink();
+
+    final rawTrack = _decodeHtmlEntities((match.group(1) ?? '').trim());
+    if (rawTrack.isEmpty) return const SizedBox.shrink();
+
+    final parsed = _parseBgmTrack(rawTrack);
+    return _BgmMusicCard(title: parsed.$1, artist: parsed.$2);
+  }
+
+  (String, String?) _parseBgmTrack(String rawTrack) {
+    final separators = <String>[' - ', ' – ', ' — ', '-', '–', '—'];
+    for (final separator in separators) {
+      final index = rawTrack.lastIndexOf(separator);
+      if (index <= 0) continue;
+      final title = rawTrack.substring(0, index).trim();
+      final artist = rawTrack.substring(index + separator.length).trim();
+      if (title.isNotEmpty && artist.isNotEmpty) return (title, artist);
+    }
+    return (rawTrack, null);
+  }
+
+  String _decodeHtmlEntities(String input) {
+    return input
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'");
+  }
+}
+
+class _BgmMusicCard extends StatelessWidget {
+  const _BgmMusicCard({required this.title, required this.artist});
+
+  final String title;
+  final String? artist;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final titleStyle = theme.textTheme.titleSmall?.copyWith(
+      color: cs.onSurface,
+      fontWeight: AppFontWeights.heavy,
+      height: 1.2,
+    );
+    final artistStyle = theme.textTheme.bodySmall?.copyWith(
+      color: cs.onSurface.withValues(alpha: 0.62),
+      height: 1.25,
+    );
+    final l10n = AppLocalizations.of(context)!;
+
+    return SelectionContainer.disabled(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          key: const ValueKey('markdown-bgm-music-card'),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _openNeteaseMusic(context),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: const Color(0xFF262626),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.045),
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0xFF191919),
+                    blurRadius: 16,
+                    offset: Offset(8, 8),
+                  ),
+                  BoxShadow(
+                    color: Color(0xFF333333),
+                    blurRadius: 16,
+                    offset: Offset(-8, -8),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    DecoratedBox(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFF202020),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xFF151515),
+                            blurRadius: 8,
+                            offset: Offset(4, 4),
+                          ),
+                          BoxShadow(
+                            color: Color(0xFF343434),
+                            blurRadius: 8,
+                            offset: Offset(-4, -4),
+                          ),
+                        ],
+                      ),
+                      child: SizedBox.square(
+                        dimension: 44,
+                        child: Icon(
+                          Lucide.AudioWaveform,
+                          color: Colors.white.withValues(alpha: 0.82),
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: titleStyle,
+                          ),
+                          if ((artist ?? '').isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            Text(
+                              artist!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: artistStyle,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Tooltip(
+                      message: l10n.bgmMusicOpenNeteaseTooltip,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => _openNeteaseMusic(context),
+                        child: DecoratedBox(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFF202020),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF151515),
+                                blurRadius: 7,
+                                offset: Offset(3, 3),
+                              ),
+                              BoxShadow(
+                                color: Color(0xFF353535),
+                                blurRadius: 7,
+                                offset: Offset(-3, -3),
+                              ),
+                            ],
+                          ),
+                          child: SizedBox.square(
+                            dimension: 34,
+                            child: Icon(
+                              Lucide.Play,
+                              color: Colors.white.withValues(alpha: 0.84),
+                              size: 17,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openNeteaseMusic(BuildContext context) async {
+    try {
+      final html = await rootBundle.loadString(
+        'assets/html/netease_player.html',
+      );
+      final injected = html
+          .replaceAll('__KELIVO_SONG__', title)
+          .replaceAll('__KELIVO_ARTIST__', artist ?? '');
+      final encoded = base64Encode(utf8.encode(injected));
+      if (!context.mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => WebViewPage(contentBase64: encoded),
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      final query = [title, if ((artist ?? '').isNotEmpty) artist!].join(' ');
+      final url =
+          'https://music.163.com/#/search/m/?s=${Uri.encodeComponent(query)}';
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => WebViewPage(url: url)));
+    }
+  }
+}
+
+/// Block renderer for special tags (nova-os, kindle-bar, etc.).
+class _SpecialTagBlockMd extends BlockMd {
+  @override
+  RegExp get exp => RegExp(expString, dotAll: true, multiLine: true);
+
+  @override
+  String get expString => _specialTagBlockPattern;
+
+  static const String _specialTagBlockPattern =
+      r'^\s*(<(?:nova_os|kindle_bar|kindle_ui|status_card|wechat_moments_status|twitter_card)>[\s\S]*?<\/\1>)\s*$';
+
+  @override
+  Widget build(BuildContext context, String text, GptMarkdownConfig config) {
+    final m = exp.firstMatch(text);
+    if (m == null) return const SizedBox.shrink();
+    final fullTag = _decodeHtmlEntities(m.group(1) ?? '');
+
+    for (final tagName in _knownTags) {
+      if (tagName == 'nova_os' && fullTag.startsWith('<nova_os>')) {
+        final closeIdx = fullTag.indexOf('</nova_os>');
+        if (closeIdx == -1) continue;
+        final rawContent = fullTag.substring('<nova_os>'.length, closeIdx);
+        return buildTagWidget(context, '<nova_os>', rawContent);
+      }
+    }
+    return const SizedBox.shrink();
+  }
+
+  static const _knownTags = [
+    'nova_os',
+    'kindle_bar',
+    'kindle_ui',
+    'status_card',
+    'wechat_moments_status',
+    'twitter_card',
+  ];
+
+  String _decodeHtmlEntities(String input) {
+    return input
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'");
   }
 }
 
@@ -5479,6 +6429,625 @@ class HtmlAnchorMd extends InlineMd {
 
   static String _stripTags(String input) =>
       input.replaceAll(RegExp(r"<[^>]+>"), '').trim();
+}
+
+class HtmlStyledSpanMd extends InlineMd {
+  @override
+  RegExp get exp => RegExp(
+    r'''<span\s+[^>]*style\s*=\s*(['"])(.*?)\1[^>]*>([\s\S]*?)<\/span>''',
+    caseSensitive: false,
+    dotAll: true,
+  );
+
+  @override
+  InlineSpan span(BuildContext context, String text, GptMarkdownConfig config) {
+    final match = exp.firstMatch(text);
+    if (match == null) return TextSpan(text: text, style: config.style);
+    final style = match.group(2) ?? '';
+    final body = _plainText(match.group(3) ?? '');
+    final baseStyle = config.style ?? const TextStyle();
+    return TextSpan(
+      text: body,
+      style: baseStyle.copyWith(
+        color: _cssColor(style),
+        fontSize: _cssFontSize(style, baseStyle.fontSize ?? 15.5),
+      ),
+    );
+  }
+
+  static String _plainText(String input) =>
+      html_parser.parseFragment(input).text ?? '';
+
+  static Color? _cssColor(String style) {
+    final match = RegExp(
+      r'(^|;)\s*color\s*:\s*([^;]+)',
+      caseSensitive: false,
+    ).firstMatch(style);
+    if (match == null) return null;
+    final value = (match.group(2) ?? '').trim().toLowerCase();
+    switch (value) {
+      case 'red':
+        return Colors.red;
+      case 'blue':
+        return Colors.blue;
+      case 'green':
+        return Colors.green;
+      case 'black':
+        return Colors.black;
+      case 'white':
+        return Colors.white;
+      case 'yellow':
+        return Colors.yellow;
+      case 'purple':
+        return Colors.purple;
+      case 'orange':
+        return Colors.orange;
+      case 'pink':
+        return Colors.pink;
+      case 'gray':
+      case 'grey':
+        return Colors.grey;
+    }
+    if (value.startsWith('#')) return _hexColor(value);
+    final rgb = RegExp(
+      r'rgba?\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})',
+      caseSensitive: false,
+    ).firstMatch(value);
+    if (rgb != null) {
+      int channel(String? raw) => (int.tryParse(raw ?? '') ?? 0).clamp(0, 255);
+      return Color.fromARGB(
+        255,
+        channel(rgb.group(1)),
+        channel(rgb.group(2)),
+        channel(rgb.group(3)),
+      );
+    }
+    return null;
+  }
+
+  static Color? _hexColor(String value) {
+    final hex = value.substring(1);
+    if (!RegExp(r'^[0-9a-f]{3}([0-9a-f]{3})?$').hasMatch(hex)) return null;
+    final full = hex.length == 3
+        ? hex.split('').map((c) => '$c$c').join()
+        : hex;
+    final parsed = int.tryParse(full, radix: 16);
+    if (parsed == null) return null;
+    return Color(0xFF000000 | parsed);
+  }
+
+  static double? _cssFontSize(String style, double baseSize) {
+    final match = RegExp(
+      r'(^|;)\s*font-size\s*:\s*([^;]+)',
+      caseSensitive: false,
+    ).firstMatch(style);
+    if (match == null) return null;
+    final raw = match.group(2)?.trim().toLowerCase() ?? '';
+    final px = RegExp(r'^(\d+(?:\.\d+)?)\s*px$').firstMatch(raw);
+    if (px != null) return double.parse(px.group(1)!);
+    final em = RegExp(r'^(\d+(?:\.\d+)?)\s*em$').firstMatch(raw);
+    if (em != null) return baseSize * double.parse(em.group(1)!);
+    switch (raw) {
+      case 'xx-small':
+        return 10;
+      case 'x-small':
+        return 11;
+      case 'small':
+        return 12;
+      case 'medium':
+        return baseSize;
+      case 'large':
+        return 18;
+      case 'x-large':
+        return 24;
+      case 'xx-large':
+        return 32;
+      case 'xxx-large':
+        return 48;
+    }
+    return null;
+  }
+}
+
+/// LaTeX text commands outside math mode (\\textbf, \\textit, \\textsf,
+/// \\underline, \\textcolor, \\colorbox, \\fcolorbox, \\fbox, \\shadowbox,
+/// \\ovalbox, \\doublebox, \\scalebox, \\rotatebox, \\raisebox, \\definecolor).
+class LatexTextCommandMd extends InlineMd {
+  final Map<String, Color> _customColors = {};
+
+  @override
+  RegExp get exp => RegExp(
+    r'\\(textbf|textit|textsf|underline|'
+    r'textcolor|colorbox|fcolorbox|'
+    r'fbox|shadowbox|ovalbox|doublebox|'
+    r'scalebox|rotatebox|raisebox|definecolor)'
+    r'(?:\[([^\]]*)\])?'
+    r'(?:\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}\s*)+',
+  );
+
+  @override
+  InlineSpan span(BuildContext context, String text, GptMarkdownConfig config) {
+    final m = exp.firstMatch(text);
+    if (m == null) return TextSpan(text: text, style: config.style);
+    final cmd = m.group(1) ?? '';
+    final optArg = m.group(2);
+    final args = _extractBraceArgs(m.group(0) ?? '');
+    final baseStyle = config.style ?? const TextStyle();
+    return _handleCommand(context, cmd, optArg, args, baseStyle, config);
+  }
+
+  InlineSpan _handleCommand(
+    BuildContext context,
+    String cmd,
+    String? optArg,
+    List<String> args,
+    TextStyle baseStyle,
+    GptMarkdownConfig config,
+  ) {
+    switch (cmd) {
+      case 'textbf':
+        if (args.isEmpty) return TextSpan(text: r'\textbf', style: baseStyle);
+        return TextSpan(
+          children: MarkdownComponent.generate(
+            context,
+            args[0],
+            config.copyWith(
+              style: baseStyle.copyWith(fontWeight: FontWeight.bold),
+            ),
+            false,
+          ),
+          style: baseStyle.copyWith(fontWeight: FontWeight.bold),
+        );
+
+      case 'textit':
+        if (args.isEmpty) return TextSpan(text: r'\textit', style: baseStyle);
+        return TextSpan(
+          children: MarkdownComponent.generate(
+            context,
+            args[0],
+            config.copyWith(
+              style: baseStyle.copyWith(fontStyle: FontStyle.italic),
+            ),
+            false,
+          ),
+          style: baseStyle.copyWith(fontStyle: FontStyle.italic),
+        );
+
+      case 'textsf':
+        if (args.isEmpty) return TextSpan(text: r'\textsf', style: baseStyle);
+        final fallback = DefaultTextStyle.of(context).style;
+        final family = fallback.fontFamily ?? 'sans-serif';
+        return TextSpan(
+          children: MarkdownComponent.generate(
+            context,
+            args[0],
+            config.copyWith(style: baseStyle.copyWith(fontFamily: family)),
+            false,
+          ),
+          style: baseStyle.copyWith(fontFamily: family),
+        );
+
+      case 'underline':
+        if (args.isEmpty) {
+          return TextSpan(text: r'\underline', style: baseStyle);
+        }
+        return TextSpan(
+          children: MarkdownComponent.generate(
+            context,
+            args[0],
+            config.copyWith(
+              style: baseStyle.copyWith(
+                decoration: TextDecoration.underline,
+                decorationColor: baseStyle.color,
+              ),
+            ),
+            false,
+          ),
+          style: baseStyle.copyWith(
+            decoration: TextDecoration.underline,
+            decorationColor: baseStyle.color,
+          ),
+        );
+
+      case 'textcolor':
+        if (args.length < 2) {
+          return TextSpan(text: r'\textcolor', style: baseStyle);
+        }
+        final color = _resolveColor(args[0]);
+        return TextSpan(
+          children: MarkdownComponent.generate(
+            context,
+            args[1],
+            config.copyWith(
+              style: baseStyle.copyWith(color: color ?? baseStyle.color),
+            ),
+            false,
+          ),
+          style: baseStyle.copyWith(color: color ?? baseStyle.color),
+        );
+
+      case 'colorbox':
+        if (args.length < 2) {
+          return TextSpan(text: r'\colorbox', style: baseStyle);
+        }
+        final bgColor = _resolveColor(args[0]) ?? Colors.yellow;
+        return _buildBoxSpan(
+          context,
+          args[1],
+          baseStyle,
+          config,
+          bgColor: bgColor,
+        );
+
+      case 'fcolorbox':
+        if (args.length < 3) {
+          return TextSpan(text: r'\fcolorbox', style: baseStyle);
+        }
+        final borderColor = _resolveColor(args[0]) ?? Colors.red;
+        final bgColor = _resolveColor(args[1]) ?? Colors.yellow;
+        return _buildBoxSpan(
+          context,
+          args[2],
+          baseStyle,
+          config,
+          bgColor: bgColor,
+          borderColor: borderColor,
+        );
+
+      case 'fbox':
+        if (args.isEmpty) return TextSpan(text: r'\fbox', style: baseStyle);
+        return _buildBoxSpan(context, args[0], baseStyle, config);
+
+      case 'shadowbox':
+        if (args.isEmpty) {
+          return TextSpan(text: r'\shadowbox', style: baseStyle);
+        }
+        return _buildBoxSpan(context, args[0], baseStyle, config, shadow: true);
+
+      case 'ovalbox':
+        if (args.isEmpty) {
+          return TextSpan(text: r'\ovalbox', style: baseStyle);
+        }
+        return _buildBoxSpan(
+          context,
+          args[0],
+          baseStyle,
+          config,
+          borderRadius: 8.0,
+        );
+
+      case 'doublebox':
+        if (args.isEmpty) {
+          return TextSpan(text: r'\doublebox', style: baseStyle);
+        }
+        return _buildBoxSpan(
+          context,
+          args[0],
+          baseStyle,
+          config,
+          doubleBorder: true,
+        );
+
+      case 'scalebox':
+        if (args.isEmpty) {
+          return TextSpan(text: r'\scalebox', style: baseStyle);
+        }
+        final factor = double.tryParse(args[0]) ?? 1.0;
+        final vFactor = optArg != null
+            ? double.tryParse(optArg) ?? factor
+            : factor;
+        return _buildTransformSpan(
+          context,
+          args.length > 1 ? args[1] : args[0],
+          baseStyle,
+          config,
+          scaleX: factor,
+          scaleY: vFactor,
+        );
+
+      case 'rotatebox':
+        if (args.isEmpty) {
+          return TextSpan(text: r'\rotatebox', style: baseStyle);
+        }
+        final angle = double.tryParse(args[0]) ?? 0.0;
+        return _buildTransformSpan(
+          context,
+          args.length > 1 ? args[1] : args[0],
+          baseStyle,
+          config,
+          rotation: angle,
+        );
+
+      case 'raisebox':
+        if (args.isEmpty) {
+          return TextSpan(text: r'\raisebox', style: baseStyle);
+        }
+        final offset = _parseLength(args[0]);
+        return _buildTransformSpan(
+          context,
+          args.length > 1 ? args[1] : args[0],
+          baseStyle,
+          config,
+          raise: offset,
+        );
+
+      case 'definecolor':
+        if (args.length < 3) {
+          return TextSpan(text: r'\definecolor', style: baseStyle);
+        }
+        if (args[1] == 'rgb') {
+          final parts = args[2].split(',');
+          if (parts.length == 3) {
+            final r = (double.tryParse(parts[0].trim()) ?? 0).clamp(0, 1);
+            final g = (double.tryParse(parts[1].trim()) ?? 0).clamp(0, 1);
+            final b = (double.tryParse(parts[2].trim()) ?? 0).clamp(0, 1);
+            _customColors[args[0]] = Color.fromRGBO(
+              (r * 255).round(),
+              (g * 255).round(),
+              (b * 255).round(),
+              1,
+            );
+          }
+        }
+        return const TextSpan(text: '');
+
+      default:
+        return TextSpan(text: r'\$cmd', style: baseStyle);
+    }
+  }
+
+  /// Parse a LaTeX length like "5pt", "-3pt", "2ex" into a pixel offset.
+  /// Returns 0.0 if unparseable.
+  double _parseLength(String dimen) {
+    final m = RegExp(
+      r'^(-?\d+(?:\.\d+)?)\s*(pt|ex|em)?$',
+    ).firstMatch(dimen.trim());
+    if (m == null) return 0.0;
+    final value = double.tryParse(m.group(1) ?? '0') ?? 0.0;
+    final unit = m.group(2);
+    if (unit == null) return value;
+    // Rough pt→px (1pt ≈ 1.333px), ex→em→px approximations
+    switch (unit) {
+      case 'pt':
+        return value * 1.333;
+      case 'ex':
+        return value * 7.0;
+      case 'em':
+        return value * 15.5;
+      default:
+        return value;
+    }
+  }
+
+  /// Resolve a color name or hex string.
+  Color? _resolveColor(String spec) {
+    final lower = spec.trim().toLowerCase();
+    // Check named HTML colors
+    switch (lower) {
+      case 'red':
+        return Colors.red;
+      case 'blue':
+        return Colors.blue;
+      case 'green':
+        return Colors.green;
+      case 'black':
+        return Colors.black;
+      case 'white':
+        return Colors.white;
+      case 'yellow':
+        return Colors.yellow;
+      case 'purple':
+        return Colors.purple;
+      case 'orange':
+        return Colors.orange;
+      case 'pink':
+        return Colors.pink;
+      case 'gray':
+      case 'grey':
+        return Colors.grey;
+      case 'cyan':
+        return Colors.cyan;
+      case 'magenta':
+        return Colors.pink;
+      case 'brown':
+        return Colors.brown;
+      case 'lime':
+        return Colors.lime;
+      case 'indigo':
+        return Colors.indigo;
+      case 'teal':
+        return Colors.teal;
+      case 'violet':
+        return Colors.purple;
+      case 'olive':
+        return const Color(0xFF808000);
+    }
+    // Check custom defined colors
+    if (_customColors.containsKey(lower)) return _customColors[lower];
+    // Try hex
+    if (lower.startsWith('#')) {
+      return HtmlStyledSpanMd._hexColor(lower);
+    }
+    return null;
+  }
+
+  /// Build a TextSpan for simple style-only commands (no widget wrapping).
+  List<InlineSpan> _contentSpans(
+    BuildContext context,
+    String content,
+    TextStyle style,
+    GptMarkdownConfig config,
+  ) {
+    return MarkdownComponent.generate(
+      context,
+      content,
+      config.copyWith(style: style),
+      false,
+    );
+  }
+
+  /// Build a WidgetSpan for box-style commands.
+  WidgetSpan _buildBoxSpan(
+    BuildContext context,
+    String content,
+    TextStyle baseStyle,
+    GptMarkdownConfig config, {
+    Color? bgColor,
+    Color? borderColor,
+    bool shadow = false,
+    double borderRadius = 0.0,
+    bool doubleBorder = false,
+  }) {
+    final innerStyle = baseStyle.copyWith(fontSize: baseStyle.fontSize ?? 15.5);
+    final spans = _contentSpans(context, content, innerStyle, config);
+    final child = Text.rich(
+      TextSpan(children: spans, style: innerStyle),
+      textDirection: config.textDirection,
+      textScaler: config.textScaler,
+      overflow: TextOverflow.clip,
+    );
+
+    Widget box = child;
+
+    final border = borderColor != null
+        ? Border.all(color: borderColor, width: 1.0)
+        : Border.all(color: Colors.grey.shade400, width: 1.0);
+
+    if (doubleBorder) {
+      box = Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: bgColor,
+          border: Border.all(color: Colors.grey.shade400, width: 2.0),
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400, width: 1.0),
+            borderRadius: BorderRadius.circular(
+              borderRadius > 0 ? borderRadius - 2 : 0,
+            ),
+          ),
+          padding: const EdgeInsets.all(3),
+          child: child,
+        ),
+      );
+    } else {
+      box = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        decoration: BoxDecoration(
+          color: bgColor,
+          border: borderColor != null
+              ? border
+              : (shadow || borderRadius > 0 || bgColor != null
+                    ? null
+                    : Border.all(color: Colors.grey.shade400, width: 1.0)),
+          borderRadius: borderRadius > 0
+              ? BorderRadius.circular(borderRadius)
+              : null,
+          boxShadow: shadow
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 4,
+                    offset: const Offset(2, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: child,
+      );
+    }
+
+    return WidgetSpan(alignment: PlaceholderAlignment.middle, child: box);
+  }
+
+  /// Build a WidgetSpan for transform commands.
+  WidgetSpan _buildTransformSpan(
+    BuildContext context,
+    String content,
+    TextStyle baseStyle,
+    GptMarkdownConfig config, {
+    double scaleX = 1.0,
+    double scaleY = 1.0,
+    double rotation = 0.0,
+    double raise = 0.0,
+  }) {
+    final fontSize = baseStyle.fontSize ?? 15.5;
+    final innerStyle = baseStyle.copyWith(fontSize: fontSize);
+    final spans = _contentSpans(context, content, innerStyle, config);
+    final child = Text.rich(
+      TextSpan(children: spans, style: innerStyle),
+      textDirection: config.textDirection,
+      textScaler: config.textScaler,
+      overflow: TextOverflow.clip,
+    );
+
+    Widget transformed = child;
+
+    if (raise != 0.0) {
+      transformed = Transform.translate(
+        offset: Offset(0, -raise),
+        child: transformed,
+      );
+    }
+    if (rotation != 0.0) {
+      transformed = Transform.rotate(
+        angle: rotation * math.pi / 180.0,
+        child: transformed,
+      );
+    }
+    if (scaleX != 1.0 || scaleY != 1.0) {
+      transformed = Transform.scale(
+        scale: scaleX != scaleY ? 1.0 : scaleX,
+        child: scaleX != scaleY
+            ? FittedBox(
+                fit: BoxFit.fill,
+                child: SizedBox(
+                  width: scaleX > 0 ? null : 0,
+                  height: scaleY > 0 ? null : 0,
+                  child: transformed,
+                ),
+              )
+            : transformed,
+      );
+    }
+
+    return WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      child: transformed,
+    );
+  }
+
+  /// Extract text content from each top-level brace group in [text].
+  List<String> _extractBraceArgs(String text) {
+    final args = <String>[];
+    int i = 0;
+    while (i < text.length) {
+      if (text.codeUnitAt(i) == 0x7B) {
+        int depth = 1;
+        final start = i + 1;
+        int j = start;
+        while (j < text.length && depth > 0) {
+          if (text.codeUnitAt(j) == 0x5C && j + 1 < text.length) {
+            j += 2;
+            continue;
+          }
+          if (text.codeUnitAt(j) == 0x7B) {
+            depth++;
+          } else if (text.codeUnitAt(j) == 0x7D) {
+            depth--;
+          }
+          j++;
+        }
+        args.add(text.substring(start, j - 1));
+        i = j;
+      } else {
+        i++;
+      }
+    }
+    return args;
+  }
 }
 
 /// Whitelist-based HTML tag renderer.

@@ -38,6 +38,74 @@ import '../../../utils/markdown_media_sanitizer.dart';
 /// - Inlining local images for model context
 class MessageBuilderService {
   static const String internalMediaPathsKey = multimodalInternalMediaPathsKey;
+  static const String _htmlCardViewSystemInstruction = '''
+### 角色状态面板与关系图谱（原生 UI 组件）
+以下两个特殊标签会被客户端解析为原生界面组件，而非 HTML 网页。当回复涉及角色状态更新、场景切换、情感变化时，优先使用它们。
+
+**角色状态卡 `<status_hub>`：**
+用于展示当前场景中角色的即时状态。格式：
+```
+<status_hub>
+角色名
+地点: 当前地点
+想法: 内心独白
+---
+数值名称: 数值%
+另一数值: 数值%
+---
+模块标题: 模块内容
+</status_hub>
+```
+- 每个角色用 `|||` 分隔
+- 第一个 `---` 前是文字信息区（地点、想法等）
+- 两个 `---` 之间是数值条区（任何加 `%` 的数值都会渲染为进度条，如好感度、体力、魔力等）
+- 第二个 `---` 后是模块标签区（自由定义任意 key:value）
+- 支持多个角色同时展示
+
+**关系图谱 `<relationship_map>`：**
+用于展示角色之间的关系网络。格式：
+```
+<relationship_map>
+角色A|角色B|关系类型|亲密度%
+|||角色A|角色C|关系类型|亲密度%
+</relationship_map>
+```
+- 关系类型支持：lover（恋人）、family（家人）、friend（朋友）、rival（对手）、mentor（导师）等
+- 亲密度 0-100，影响线条粗细和颜色
+
+**使用场景区分：**
+- 角色状态、数值变化、内心想法、位置移动 → 用 `<status_hub>`
+- 角色之间的关系建立、变化、揭示 → 用 `<relationship_map>`
+- 手机界面、社交媒体、购物页面、视频播放器等视觉排版 → 用 HTML
+
+### 交互与特殊卡片渲染规则
+当用户要求你“查看/打开/展示”某个应用（如查看手机、查看朋友圈、查看外卖订单、查看贴吧等）时，你必须且只能输出一个完整的 fenced HTML 代码块，格式为从 ```html 开始到 ``` 结束。
+禁止在代码块外部包含任何文字、说明、状态或“这就是您要的”等 Markdown。
+HTML 内容需贴合当前剧情/角色设定生成（例如：查看外卖时，生成符合角色设定的外卖订单记录）。
+不要使用外部网络 HTML 模板资源，仅使用内联 CSS。当需要使用真实图片时，可以使用 [一只小猫的照片]、[一张风景图] 等文字占位符。
+请保持整体尺寸不超过 320px。不要出现任何拖动条，请将所有内容直接全部展示，不要布局到滚动截断或隐藏的区域。
+角色的主题色系统（可参考这些颜色）：#585eaa #21a675 #e0f0e9 #e3f9fd #b35c44 #ff7500 #6e511e #75878a #f3f9f1 #3d3b4f #000000 #ffffff #ffa631 #fa8c35 #eedeb0 #fff143 #7bcfa6 #a4e2c6 #a3d900 #c32136 #c83c23 #e4c6d0 #ffb3a7 #3de1ad #c3272b #8d4bbb #574266 #a1afc9 #4c8dae #2e4e7e #44cef6。
+请应用丰富的设计并添加阴影，需要在 body 元素增加边框（只允许出现你要展示的应用版面）。
+
+【应用软件生成专项指南】
+如果是[视频软件]：要有全屏占位图、右侧的点赞/评论/转发操作栏、底部的文案与音乐滚动条。
+如果是[外卖软件]：要有顶部的骑手地图占位、订单状态进度条、底部的菜单明细与特殊备注。或是角色的历史订单记录、他对这些订单的点评、商家或好友的回复（需要包含头像与昵称）。
+如果是[朋友圈/小红书/贴吧]：必须要有图文瀑布流或列表排版、点赞列表、评论盖楼区。
+如果是[购物软件]：要有角色的购买记录，对必需品/好物/奇葩物品的点评，以及友人或者商家的评论互动，可显示头像名字也可匿名。
+色彩系统要求：必须严格还原该 APP 的经典主题色（如微信的经典绿、抖音的黑底白字配红蓝交错、美团外卖黄等）。
+排版要求：务必整洁，UI 具有呼吸感。主文字大小不要超过 14px，评论区/次要信息等 11px-12px。
+
+### 剧情 HTML 模块穿插规则
+当回复是普通剧情、角色扮演、互动叙事或情绪描写时，可以根据当前剧情自然穿插 2 到 3 个 HTML 视觉模块；不要超过 3 个，避免影响正文阅读。
+HTML 模块必须与正文剧情、角色心理、场景物件或互动行为紧密相关，可插在剧情段落之间，不能集中堆在末尾，不能脱离上下文。
+每个模块都必须使用完整 fenced HTML 代码块包裹，格式必须从 ```html 开始并以 ``` 结束；不要使用 <orange> 包裹，因为客户端只会自动渲染 fenced HTML 代码块。
+普通剧情回复可以包含正文，但 HTML 代码块外不要解释“这是模块”“下面是HTML”等元说明。
+模块类型可以自由联想，包括但不限于：情绪日记、手写便签、留言板、待办清单、聊天记录、未读消息、社交动态、外卖订单、鲜花发票、快递签收单、网络小票、倒计时、闹钟提醒、天气卡片、GPS 导航、手机截图、转账记录、课堂笔记、涂鸦、搜索记录、词条解释、视频播放界面、音乐播放器、来电界面、梦境碎片、系统弹窗、情绪扫描图、古风花笺、飞剑传信、灵石账本、门派布令等。
+每个模块必须有真实具体内容，必须使用中文为主，包含具体文字、时间、地点、价格、物件、评论、互动痕迹或心理细节；禁止空模板、占位模板、只换色不换结构。
+每个模块宽度不得超过 320px，居中显示，文字必须完整可读；所有样式必须写成元素上的行内 style 属性，例如 <div style="background:#fff;padding:12px;border-radius:14px">；禁止使用 <style>、<html>、<head>、<body>、<script>、iframe、外部 JS 或外部 CSS。
+模块之间必须风格多样，避免连续使用相同排版；可以使用拟物细节、emoji、纸张折痕、胶带、便签、iOS/安卓 UI、手账、古风纸笺等视觉语言。
+如剧情很短或用户明确要求不要插入视觉模块，可以减少到 0 到 1 个；如剧情信息丰富，最多 3 个。
+''';
 
   MessageBuilderService({
     required this.chatService,
@@ -511,6 +579,7 @@ class MessageBuilderService {
     Assistant? assistant,
     String modelId,
   ) {
+    final systemParts = <String>[];
     if ((assistant?.systemPrompt.trim().isNotEmpty ?? false)) {
       final vars = PromptTransformer.buildPlaceholders(
         context: contextProvider,
@@ -523,7 +592,16 @@ class MessageBuilderService {
         assistant.systemPrompt,
         vars,
       );
-      apiMessages.insert(0, {'role': 'system', 'content': sys});
+      systemParts.add(sys);
+    }
+
+    systemParts.add(_htmlCardViewSystemInstruction.trim());
+
+    if (systemParts.isNotEmpty) {
+      apiMessages.insert(0, {
+        'role': 'system',
+        'content': systemParts.join('\n\n'),
+      });
     }
   }
 

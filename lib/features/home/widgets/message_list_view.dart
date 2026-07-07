@@ -19,6 +19,7 @@ import '../controllers/streaming_content_notifier.dart';
 import '../services/ask_user_interaction_service.dart';
 import '../utils/chat_layout_constants.dart';
 import 'model_icon.dart';
+import 'mini_map_status_hub.dart';
 
 /// Callback types for message list view actions
 typedef OnVersionChange = Future<void> Function(String groupId, int version);
@@ -120,6 +121,7 @@ class MessageListView extends StatefulWidget {
     this.onSpeakMessage,
     this.suggestions = const <String>[],
     this.onSuggestionTap,
+    this.onOpenFavorites,
     this.onRecoveredAskUserAnswer,
     this.onToggleSelection,
     this.onToggleReasoning,
@@ -187,6 +189,7 @@ class MessageListView extends StatefulWidget {
   final OnSpeakMessage? onSpeakMessage;
   final List<String> suggestions;
   final OnSuggestionTap? onSuggestionTap;
+  final VoidCallback? onOpenFavorites;
   final OnRecoveredAskUserAnswer? onRecoveredAskUserAnswer;
   final void Function(String messageId, bool selected)? onToggleSelection;
   final void Function(String messageId)? onToggleReasoning;
@@ -279,11 +282,13 @@ class _MessageListViewState extends State<MessageListView> {
         return ValueListenableBuilder<bool>(
           valueListenable: widget.isProcessingFiles,
           builder: (context, isProcessing, child) {
+            final statusEntries = parseMiniMapStatusHub(widget.messages);
+            final hasStatusHub = statusEntries.isNotEmpty;
             final list = ListView.builder(
               controller: widget.scrollController,
               padding: EdgeInsets.fromLTRB(
                 horizontalPad,
-                widget.topContentPadding,
+                widget.topContentPadding + (hasStatusHub ? 198 : 0),
                 horizontalPad,
                 widget.bottomContentPadding +
                     (widget.isPinnedIndicatorActive ? 12 : 0),
@@ -324,6 +329,13 @@ class _MessageListViewState extends State<MessageListView> {
             return Stack(
               children: [
                 userScrollAwareList,
+                if (hasStatusHub)
+                  Positioned(
+                    top: widget.topContentPadding,
+                    left: horizontalPad + 12,
+                    right: horizontalPad + 12,
+                    child: MiniMapStatusHubStrip(entries: statusEntries),
+                  ),
                 if (widget.isPinnedIndicatorActive &&
                     widget.buildPinnedStreamingIndicator != null)
                   widget.buildPinnedStreamingIndicator!(),
@@ -829,6 +841,7 @@ class _MessageListViewState extends State<MessageListView> {
           context,
           message,
           canDeleteAllVersions: total > 1,
+          onOpenFavorites: widget.onOpenFavorites,
         );
         if (action == MessageMoreAction.deleteCurrentVersion) {
           await widget.onDeleteMessage?.call(message, widget.byGroup);
@@ -886,6 +899,7 @@ class _MessageListViewState extends State<MessageListView> {
       isProcessingFiles: isProcessingFiles,
       suggestions: suggestions,
       onSuggestionTap: widget.onSuggestionTap,
+      onOpenFavorites: widget.onOpenFavorites,
       onRecoveredAskUserAnswer: widget.onRecoveredAskUserAnswer == null
           ? null
           : (part, result) =>

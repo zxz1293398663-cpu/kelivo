@@ -43,6 +43,7 @@ class HomeMobileScaffold extends StatelessWidget {
     required this.onCreateNewConversation,
     required this.onToggleTemporaryConversation,
     required this.onSelectModel,
+    required this.onOpenFavorites,
     required this.canToggleTemporaryConversation,
     required this.temporaryConversationEnabled,
     required this.globalSearchMode,
@@ -70,6 +71,7 @@ class HomeMobileScaffold extends StatelessWidget {
   final Future<void> Function() onCreateNewConversation;
   final Future<void> Function() onToggleTemporaryConversation;
   final VoidCallback onSelectModel;
+  final VoidCallback onOpenFavorites;
   final bool canToggleTemporaryConversation;
   final bool temporaryConversationEnabled;
   final bool globalSearchMode;
@@ -256,6 +258,15 @@ class HomeMobileScaffold extends StatelessWidget {
               ],
             ),
       actions: [
+        IosIconButton(
+          size: 20,
+          minSize: 44,
+          onTap: onOpenFavorites,
+          semanticLabel: AppLocalizations.of(
+            context,
+          )!.desktopNavFavoritesTooltip,
+          icon: Lucide.Heart,
+        ),
         IosIconButton(
           size: 20,
           minSize: 44,

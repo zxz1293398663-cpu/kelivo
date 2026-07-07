@@ -900,6 +900,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get desktopNavStorageTooltip => 'Storage';
 
   @override
+  String get desktopNavFavoritesTooltip => 'Favorites';
+
+  @override
+  String get desktopNavMusicTooltip => 'Music';
+
+  @override
   String get desktopNavGlobalSearchTooltip => 'Global Search';
 
   @override
@@ -907,6 +913,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get desktopNavSettingsTooltip => 'Settings';
+
+  @override
+  String get favoritesPageTitle => 'Favorites';
+
+  @override
+  String get favoritesAddTooltip => 'Add favorite card';
+
+  @override
+  String get favoritesEmptyTitle => 'No favorite cards yet';
+
+  @override
+  String get favoritesEmptyDescription =>
+      'Save side stories, HTML cards, prompts, and fragments you like. Edit them anytime and copy them as reference for the assistant.';
+
+  @override
+  String get favoritesAddCard => 'Add Card';
+
+  @override
+  String get favoritesEditCard => 'Edit Card';
+
+  @override
+  String get favoritesTitleLabel => 'Title';
+
+  @override
+  String get favoritesNoteLabel => 'Note';
+
+  @override
+  String get favoritesContentLabel => 'Content or HTML';
+
+  @override
+  String get favoritesCopyForAi => 'Reference card';
+
+  @override
+  String get favoritesManualSavedMessage => 'Added to Favorites.';
+
+  @override
+  String get favoritesOpenSavedCardsAction => 'Cards >';
+
+  @override
+  String get favoritesValidationMessage => 'Title and content are required.';
+
+  @override
+  String get favoritesDeleteTitle => 'Delete favorite card?';
+
+  @override
+  String favoritesDeleteMessage(Object title) {
+    return 'Delete “$title”? This cannot be undone.';
+  }
 
   @override
   String get desktopAvatarMenuUseEmoji => 'Use emoji';
@@ -1941,6 +1995,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get messageMoreSheetShare => 'Share';
+
+  @override
+  String get messageMoreSheetFavorite => 'Favorite';
 
   @override
   String get messageMoreSheetSelectMessages => 'Select Messages';
@@ -3595,6 +3652,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get miniMapScrollToBottomTooltip => 'Scroll to bottom';
 
   @override
+  String get miniMapPluginsTooltip => 'Plugins';
+
+  @override
+  String get miniMapNewsTooltip => 'News Generator';
+
+  @override
+  String get miniMapPluginsDescription =>
+      'Special tags detected in messages are rendered as interactive cards.';
+
+  @override
+  String get miniMapActivePlugins => 'Active Tag Styles';
+
+  @override
   String get searchServicesPageApiKeyRequiredStatus => 'API Key Required';
 
   @override
@@ -4371,6 +4441,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ttsFloatingCollapseTooltip => 'Collapse playback controls';
+
+  @override
+  String get bgmMusicOpenNeteaseTooltip => 'Open NetEase Cloud Music';
 
   @override
   String imageViewerPageShareFailedOpenFile(String message) {
@@ -5537,4 +5610,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String debugPageManyMessagesSeedText(String role, int index) {
     return '$role message #$index: quick random debug sample for testing list rendering, scrolling stability, message grouping, and conversation history performance.';
   }
+
+  @override
+  String get newsGeneratorNoProvider =>
+      'No AI provider configured. Please set up a model first.';
+
+  @override
+  String get newsTabWorld => 'World';
+
+  @override
+  String get newsTabLocal => 'Local';
+
+  @override
+  String get newsTabSocial => 'Social';
+
+  @override
+  String get newsGeneratorGenerate => 'Generate';
+
+  @override
+  String get newsGeneratorGenerating => 'Generating…';
+
+  @override
+  String get newsGeneratorEmptyHint =>
+      'Tap the button below to generate content.';
+
+  @override
+  String get newsGeneratorWorldPrompt =>
+      'Generate 3 world news headlines based on an imaginative fictional world. Use creative yet believable settings. Return in plain text, each headline on a new line starting with \"- \".';
+
+  @override
+  String get newsGeneratorLocalPrompt =>
+      'Generate 3 local news items set in a fictional town or community. Describe everyday events with local color. Return in plain text, each on a new line starting with \"- \".';
+
+  @override
+  String get newsGeneratorSocialPrompt =>
+      'Generate 4 social media posts from fictional characters reacting to recent events. Mix humor, drama, and casual observations. Return in plain text, each on a new line starting with \"- \".';
+
+  @override
+  String get musicPlayerUnavailable => 'Music player unavailable';
 }

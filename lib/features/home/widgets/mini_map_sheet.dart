@@ -155,9 +155,13 @@ class _MiniMapSheetState extends State<_MiniMapSheet>
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Pinned title
+
+                const SizedBox(height: 8),
+
+                // 记录 (即原来的迷你地图对话列表)
                 Row(
                   children: [
+                    const SizedBox(width: 16),
                     Icon(Lucide.Map, size: 18, color: cs.primary),
                     const SizedBox(width: 8),
                     Expanded(
@@ -195,10 +199,10 @@ class _MiniMapSheetState extends State<_MiniMapSheet>
                       ),
                     ),
                     _buildSearchToggle(context, searchWidth),
+                    const SizedBox(width: 8),
                   ],
                 ),
                 const SizedBox(height: 12),
-                // Scrollable content
                 Expanded(
                   child: widget.selecting && widget.selectionListenable != null
                       ? AnimatedBuilder(

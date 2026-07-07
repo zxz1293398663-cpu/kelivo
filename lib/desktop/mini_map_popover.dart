@@ -183,6 +183,7 @@ class _MiniMapPopoverState extends State<_MiniMapPopover>
                           selecting: widget.selecting,
                           selectedMessageIds: widget.selectedMessageIds,
                           selectionListenable: widget.selectionListenable,
+
                           onTapMessage: (id) {
                             if (_closing) return;
                             if (widget.selecting) {
@@ -362,39 +363,24 @@ class _MiniMapListState extends State<_MiniMapList> {
       );
     }
 
+    Widget buildContent() {
+      final list = widget.selecting && widget.selectionListenable != null
+          ? AnimatedBuilder(
+              animation: widget.selectionListenable!,
+              builder: (context, child) => buildList(_pairs),
+            )
+          : buildList(_pairs);
+
+      return Column(mainAxisSize: MainAxisSize.min, children: [list]);
+    }
+
     if (widget.selecting && widget.selectionListenable != null) {
       return AnimatedBuilder(
         animation: widget.selectionListenable!,
-        builder: (context, child) => buildList(_pairs),
+        builder: (context, child) => buildContent(),
       );
     }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 420),
-        child: ListView.builder(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 2),
-          primary: false,
-          shrinkWrap: true,
-          itemCount: _pairs.length,
-          itemBuilder: (context, index) {
-            final p = _pairs[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: _MiniMapRow(
-                user: p.user,
-                assistant: p.assistant,
-                userSelected: false,
-                assistantSelected: false,
-                toOneLine: _oneLine,
-                onTapMessage: widget.onTapMessage,
-              ),
-            );
-          },
-        ),
-      ),
-    );
+    return buildContent();
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:provider/provider.dart';
 import '../../../icons/lucide_adapter.dart';
 import '../../../core/models/chat_message.dart';
 // import '../pages/select_copy_page.dart';
@@ -12,11 +13,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../../desktop/desktop_context_menu.dart';
 import '../../../desktop/menu_anchor.dart';
 import '../../../desktop/select_copy_dialog.dart';
-import '../../../utils/markdown_preview_html.dart';
-import '../../../utils/markdown_media_sanitizer.dart';
-import '../../../shared/pages/webview_page.dart';
-import '../../../desktop/html_preview_dialog.dart';
-import 'dart:convert';
+import '../../favorites/services/favorite_cards_store.dart';
+import '../../../core/services/chat/chat_service.dart';
 import 'package:Kelivo/theme/app_font_weights.dart';
 
 enum MessageMoreAction {
@@ -25,13 +23,34 @@ enum MessageMoreAction {
   deleteCurrentVersion,
   deleteAllVersions,
   share,
+  favorite,
   selectMessages,
+}
+
+FavoriteScope _favoriteScopeForMessage(
+  BuildContext context,
+  ChatMessage message,
+) {
+  try {
+    final chat = context.read<ChatService>();
+    final convo = chat.getConversation(message.conversationId);
+    return FavoriteScope(
+      assistantId: convo?.assistantId,
+      conversationId: message.conversationId,
+    );
+  } catch (_) {
+    return FavoriteScope(
+      assistantId: null,
+      conversationId: message.conversationId,
+    );
+  }
 }
 
 Future<MessageMoreAction?> showMessageMoreSheet(
   BuildContext context,
   ChatMessage message, {
   required bool canDeleteAllVersions,
+  VoidCallback? onOpenFavorites,
 }) async {
   final isDesktop =
       defaultTargetPlatform == TargetPlatform.macOS ||
@@ -50,6 +69,7 @@ Future<MessageMoreAction?> showMessageMoreSheet(
         message: message,
         parentContext: context,
         canDeleteAllVersions: canDeleteAllVersions,
+        onOpenFavorites: onOpenFavorites,
       ),
     );
   }
@@ -72,35 +92,6 @@ Future<MessageMoreAction?> showMessageMoreSheet(
           };
         },
       ),
-      DesktopContextMenuItem(
-        icon: Lucide.BookOpenText,
-        label: l10n.messageMoreSheetRenderWebView,
-        onTap: () {
-          afterClose = () async {
-            try {
-              final raw = message.content.trim();
-              if (raw.isEmpty) return;
-              final scheme = Theme.of(context).colorScheme;
-              final processed =
-                  await MarkdownMediaSanitizer.inlineLocalImagesToBase64(raw);
-              final html =
-                  await MarkdownPreviewHtmlBuilder.buildFromMarkdownWithColorScheme(
-                    scheme,
-                    processed,
-                  );
-              if (!context.mounted) return;
-              showHtmlPreviewDesktopDialog(context, html: html);
-            } catch (e) {
-              if (!context.mounted) return;
-              showAppSnackBar(
-                context,
-                message: e.toString(),
-                type: NotificationType.error,
-              );
-            }
-          };
-        },
-      ),
       if (message.role != 'user')
         DesktopContextMenuItem(
           icon: Lucide.Pencil,
@@ -109,6 +100,26 @@ Future<MessageMoreAction?> showMessageMoreSheet(
             selected = MessageMoreAction.edit;
           },
         ),
+      DesktopContextMenuItem(
+        icon: Lucide.Heart,
+        label: l10n.messageMoreSheetFavorite,
+        onTap: () {
+          afterClose = () async {
+            final saved = await FavoriteCardsStore.addManualFromMessage(
+              message,
+              scope: _favoriteScopeForMessage(context, message),
+            );
+            if (!context.mounted || !saved) return;
+            showAppSnackBar(
+              context,
+              message: l10n.favoritesManualSavedMessage,
+              type: NotificationType.success,
+              actionLabel: l10n.favoritesOpenSavedCardsAction,
+              onAction: onOpenFavorites,
+            );
+          };
+        },
+      ),
       DesktopContextMenuItem(
         icon: Lucide.Share,
         label: l10n.messageMoreSheetShare,
@@ -160,10 +171,12 @@ class _MessageMoreSheet extends StatefulWidget {
     required this.message,
     required this.parentContext,
     required this.canDeleteAllVersions,
+    this.onOpenFavorites,
   });
   final ChatMessage message;
   final BuildContext parentContext;
   final bool canDeleteAllVersions;
+  final VoidCallback? onOpenFavorites;
 
   @override
   State<_MessageMoreSheet> createState() => _MessageMoreSheetState();
@@ -271,43 +284,6 @@ class _MessageMoreSheetState extends State<_MessageMoreSheet> {
                         });
                       },
                     ),
-                    _actionItem(
-                      icon: Lucide.BookOpenText,
-                      label: l10n.messageMoreSheetRenderWebView,
-                      onTap: () async {
-                        final parentCtx = widget.parentContext;
-                        final navigator = Navigator.of(parentCtx);
-                        final scheme = Theme.of(parentCtx).colorScheme;
-                        Navigator.of(context).pop();
-                        try {
-                          final raw = widget.message.content.trim();
-                          if (raw.isEmpty) return;
-                          final processed =
-                              await MarkdownMediaSanitizer.inlineLocalImagesToBase64(
-                                raw,
-                              );
-                          final html =
-                              await MarkdownPreviewHtmlBuilder.buildFromMarkdownWithColorScheme(
-                                scheme,
-                                processed,
-                              );
-                          final b64 = base64Encode(utf8.encode(html));
-                          if (!parentCtx.mounted) return;
-                          navigator.push(
-                            MaterialPageRoute(
-                              builder: (_) => WebViewPage(contentBase64: b64),
-                            ),
-                          );
-                        } catch (e) {
-                          if (!parentCtx.mounted) return;
-                          showAppSnackBar(
-                            parentCtx,
-                            message: e.toString(),
-                            type: NotificationType.error,
-                          );
-                        }
-                      },
-                    ),
                     if (widget.message.role != 'user')
                       _actionItem(
                         icon: Lucide.Pencil,
@@ -321,6 +297,30 @@ class _MessageMoreSheetState extends State<_MessageMoreSheet> {
                       label: l10n.messageMoreSheetShare,
                       onTap: () {
                         Navigator.of(context).pop(MessageMoreAction.share);
+                      },
+                    ),
+                    _actionItem(
+                      icon: Lucide.Heart,
+                      label: l10n.messageMoreSheetFavorite,
+                      onTap: () async {
+                        final parentCtx = widget.parentContext;
+                        Navigator.of(context).pop(MessageMoreAction.favorite);
+                        final saved =
+                            await FavoriteCardsStore.addManualFromMessage(
+                              widget.message,
+                              scope: _favoriteScopeForMessage(
+                                parentCtx,
+                                widget.message,
+                              ),
+                            );
+                        if (!parentCtx.mounted || !saved) return;
+                        showAppSnackBar(
+                          parentCtx,
+                          message: l10n.favoritesManualSavedMessage,
+                          type: NotificationType.success,
+                          actionLabel: l10n.favoritesOpenSavedCardsAction,
+                          onAction: widget.onOpenFavorites,
+                        );
                       },
                     ),
                     _actionItem(

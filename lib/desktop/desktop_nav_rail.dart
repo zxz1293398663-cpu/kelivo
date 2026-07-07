@@ -194,13 +194,11 @@ class _UserAvatarButtonState extends State<_UserAvatarButton> {
           color: cs.primary,
           fontWeight: AppFontWeights.emphasis,
           decoration: TextDecoration.none,
-          fontSize: 36 * 0.44, // keep initial scaled to avatar size
+          fontSize: 36 * 0.44,
         ),
       ),
     );
   }
-
-  // Context menu moved into the centered dialog (avatar tap opens menu there).
 }
 
 class _CircleAction extends StatelessWidget {

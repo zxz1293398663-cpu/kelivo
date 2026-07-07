@@ -23,6 +23,9 @@ import '../../../desktop/hotkeys/sidebar_tab_bus.dart';
 import '../widgets/assistant_avatar.dart';
 import '../widgets/assistant_entry_actions.dart';
 import 'package:Kelivo/theme/app_font_weights.dart';
+import '../../favorites/pages/favorites_page.dart';
+import '../../favorites/services/favorite_cards_store.dart';
+import '../../../desktop/desktop_music_page.dart';
 
 /// Desktop/Tablet layout scaffold for the home page
 /// Handles the overall structure: left sidebar, main content, optional right sidebar
@@ -51,6 +54,12 @@ class HomeDesktopScaffold extends StatelessWidget {
     required this.onCreateNewConversation,
     required this.onToggleTemporaryConversation,
     required this.onSelectModel,
+    required this.onOpenFavorites,
+    this.favoritesOpen = false,
+    required this.favoritesScope,
+    required this.onToggleFavorites,
+    this.musicPlayerOpen = false,
+    required this.onToggleMusicPlayer,
     required this.canToggleTemporaryConversation,
     required this.temporaryConversationEnabled,
     required this.globalSearchMode,
@@ -89,6 +98,12 @@ class HomeDesktopScaffold extends StatelessWidget {
   final Future<void> Function() onCreateNewConversation;
   final Future<void> Function() onToggleTemporaryConversation;
   final VoidCallback onSelectModel;
+  final VoidCallback onOpenFavorites;
+  final bool favoritesOpen;
+  final FavoriteScope favoritesScope;
+  final VoidCallback onToggleFavorites;
+  final bool musicPlayerOpen;
+  final VoidCallback onToggleMusicPlayer;
   final bool canToggleTemporaryConversation;
   final bool temporaryConversationEnabled;
   final bool globalSearchMode;
@@ -156,13 +171,40 @@ class HomeDesktopScaffold extends StatelessWidget {
                   appBar:
                       appBarOverride ??
                       _buildAppBar(context, cs, topicsOnRight),
-                  body: body,
+                  body: _buildContentArea(context, cs),
                 ),
               ),
               // Right sidebar (desktop only with topics on right)
               _buildRightSidebar(context, cs, topicsOnRight),
             ],
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContentArea(BuildContext context, ColorScheme cs) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        KeyedSubtree(key: const ValueKey('chat-body'), child: body),
+        AnimatedSwitcher(
+          duration: _sidebarAnimDuration,
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          child: favoritesOpen
+              ? FavoritesPage(
+                  key: const ValueKey('favorites-overlay'),
+                  embedded: true,
+                  scope: favoritesScope,
+                  onClose: onToggleFavorites,
+                )
+              : const SizedBox.shrink(),
+        ),
+        DesktopMusicPage(
+          key: const ValueKey('music-overlay'),
+          isOpen: musicPlayerOpen,
+          onClose: onToggleMusicPlayer,
         ),
       ],
     );
@@ -550,6 +592,24 @@ class HomeDesktopScaffold extends StatelessWidget {
           icon: Lucide.panelRight,
           onTap: onToggleRightSidebar,
         ),
+      const SizedBox(width: 2),
+      IosIconButton(
+        size: 20,
+        padding: const EdgeInsets.all(8),
+        minSize: 40,
+        semanticLabel: AppLocalizations.of(context)!.desktopNavFavoritesTooltip,
+        icon: Lucide.Heart,
+        onTap: onOpenFavorites,
+      ),
+      const SizedBox(width: 2),
+      IosIconButton(
+        size: 20,
+        padding: const EdgeInsets.all(8),
+        minSize: 40,
+        semanticLabel: AppLocalizations.of(context)!.desktopNavMusicTooltip,
+        icon: Lucide.AudioWaveform,
+        onTap: onToggleMusicPlayer,
+      ),
       const SizedBox(width: 2),
       IosIconButton(
         size: 20,

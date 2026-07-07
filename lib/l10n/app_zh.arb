@@ -214,9 +214,31 @@
   "desktopNavChatTooltip": "聊天",
   "desktopNavTranslateTooltip": "翻译",
   "desktopNavStorageTooltip": "存储",
+  "desktopNavFavoritesTooltip": "收藏",
+  "desktopNavMusicTooltip": "音乐",
   "desktopNavGlobalSearchTooltip": "全局搜索",
   "desktopNavThemeToggleTooltip": "主题切换",
   "desktopNavSettingsTooltip": "设置",
+  "favoritesPageTitle": "收藏",
+  "favoritesAddTooltip": "添加收藏卡片",
+  "favoritesEmptyTitle": "还没有收藏卡片",
+  "favoritesEmptyDescription": "收藏你喜欢的番外、HTML 卡片、提示词和片段。之后可以随时编辑，并复制给 AI 作为引用。",
+  "favoritesAddCard": "添加卡片",
+  "favoritesEditCard": "编辑卡片",
+  "favoritesTitleLabel": "标题",
+  "favoritesNoteLabel": "备注",
+  "favoritesContentLabel": "内容或 HTML",
+  "favoritesCopyForAi": "引用卡片",
+  "favoritesManualSavedMessage": "已存入卡片",
+  "favoritesOpenSavedCardsAction": "卡片 >",
+  "favoritesValidationMessage": "标题和内容不能为空。",
+  "favoritesDeleteTitle": "删除收藏卡片？",
+  "favoritesDeleteMessage": "删除“{title}”？此操作不可撤销。",
+  "@favoritesDeleteMessage": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "desktopAvatarMenuUseEmoji": "使用表情符号",
   "desktopAvatarMenuChangeFromImage": "从图片更换…",
   "desktopAvatarMenuReset": "重置头像",
@@ -650,6 +672,7 @@
   "messageMoreSheetNotImplemented": "暂未实现",
   "messageMoreSheetEdit": "编辑",
   "messageMoreSheetShare": "分享",
+  "messageMoreSheetFavorite": "收藏",
   "messageMoreSheetSelectMessages": "选择消息",
   "messageMoreSheetCreateBranch": "创建分支",
   "messageMoreSheetDelete": "删除本版本",
@@ -1177,6 +1200,10 @@
   "miniMapTitle": "迷你地图",
   "miniMapTooltip": "迷你地图",
   "miniMapScrollToBottomTooltip": "滚动到底部",
+  "miniMapPluginsTooltip": "插件",
+  "miniMapNewsTooltip": "新闻生成器",
+  "miniMapPluginsDescription": "消息中检测到的特殊标签将以交互式卡片渲染。",
+  "miniMapActivePlugins": "活跃标签样式",
   "searchServicesPageApiKeyRequiredStatus": "需要 API Key",
   "searchServicesPageUrlRequiredStatus": "需要 URL",
   "searchServicesAddDialogTitle": "添加搜索服务",
@@ -1789,6 +1816,7 @@
   "assistantEditSummaryDialogHint": "输入摘要内容",
   "assistantEditDeleteSummaryTitle": "清除摘要",
   "assistantEditDeleteSummaryContent": "确定要清除此摘要吗？",
+  "bgmMusicOpenNeteaseTooltip": "打开网易云音乐",
   "homePageProcessingFiles": "正在解析文件……",
   "fileUploadDuplicateTitle": "文件已存在",
   "fileUploadDuplicateContent": "检测到同名文件 {fileName}，是否使用已有文件？",
@@ -1955,5 +1983,16 @@
         "type": "int"
       }
     }
-  }
+  },
+  "newsGeneratorNoProvider": "未配置 AI 提供商。请先设置模型。",
+  "newsTabWorld": "世界",
+  "newsTabLocal": "本地",
+  "newsTabSocial": "社媒",
+  "newsGeneratorGenerate": "生成",
+  "newsGeneratorGenerating": "生成中…",
+  "newsGeneratorEmptyHint": "点击下方按钮生成内容。",
+  "newsGeneratorWorldPrompt": "基于虚构世界观生成 3 条世界新闻头条。使用创意且可信的场景。以纯文本返回，每条一行，以 \"- \" 开头。",
+  "newsGeneratorLocalPrompt": "基于虚构小镇或社区生成 3 条本地新闻。描述带有地方色彩的日常事件。以纯文本返回，每条一行，以 \"- \" 开头。",
+  "newsGeneratorSocialPrompt": "生成 4 条虚构角色对近期事件的社交媒体动态。混合幽默、戏剧和日常观察。以纯文本返回，每条一行，以 \"- \" 开头。",
+  "musicPlayerUnavailable": "音乐播放器不可用"
 }

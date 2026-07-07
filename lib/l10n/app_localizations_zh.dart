@@ -876,6 +876,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get desktopNavStorageTooltip => '存储';
 
   @override
+  String get desktopNavFavoritesTooltip => '收藏';
+
+  @override
+  String get desktopNavMusicTooltip => '音乐';
+
+  @override
   String get desktopNavGlobalSearchTooltip => '全局搜索';
 
   @override
@@ -883,6 +889,54 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get desktopNavSettingsTooltip => '设置';
+
+  @override
+  String get favoritesPageTitle => '收藏';
+
+  @override
+  String get favoritesAddTooltip => '添加收藏卡片';
+
+  @override
+  String get favoritesEmptyTitle => '还没有收藏卡片';
+
+  @override
+  String get favoritesEmptyDescription =>
+      '收藏你喜欢的番外、HTML 卡片、提示词和片段。之后可以随时编辑，并复制给 AI 作为引用。';
+
+  @override
+  String get favoritesAddCard => '添加卡片';
+
+  @override
+  String get favoritesEditCard => '编辑卡片';
+
+  @override
+  String get favoritesTitleLabel => '标题';
+
+  @override
+  String get favoritesNoteLabel => '备注';
+
+  @override
+  String get favoritesContentLabel => '内容或 HTML';
+
+  @override
+  String get favoritesCopyForAi => '引用卡片';
+
+  @override
+  String get favoritesManualSavedMessage => '已存入卡片';
+
+  @override
+  String get favoritesOpenSavedCardsAction => '卡片 >';
+
+  @override
+  String get favoritesValidationMessage => '标题和内容不能为空。';
+
+  @override
+  String get favoritesDeleteTitle => '删除收藏卡片？';
+
+  @override
+  String favoritesDeleteMessage(Object title) {
+    return '删除“$title”？此操作不可撤销。';
+  }
 
   @override
   String get desktopAvatarMenuUseEmoji => '使用表情符号';
@@ -1878,6 +1932,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get messageMoreSheetShare => '分享';
+
+  @override
+  String get messageMoreSheetFavorite => '收藏';
 
   @override
   String get messageMoreSheetSelectMessages => '选择消息';
@@ -3469,6 +3526,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get miniMapScrollToBottomTooltip => '滚动到底部';
 
   @override
+  String get miniMapPluginsTooltip => '插件';
+
+  @override
+  String get miniMapNewsTooltip => '新闻生成器';
+
+  @override
+  String get miniMapPluginsDescription => '消息中检测到的特殊标签将以交互式卡片渲染。';
+
+  @override
+  String get miniMapActivePlugins => '活跃标签样式';
+
+  @override
   String get searchServicesPageApiKeyRequiredStatus => '需要 API Key';
 
   @override
@@ -4192,6 +4261,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ttsFloatingCollapseTooltip => '收起播放控制';
+
+  @override
+  String get bgmMusicOpenNeteaseTooltip => '打开网易云音乐';
 
   @override
   String imageViewerPageShareFailedOpenFile(String message) {
@@ -5320,6 +5392,42 @@ class AppLocalizationsZh extends AppLocalizations {
   String debugPageManyMessagesSeedText(String role, int index) {
     return '$role 消息 #$index：快速随机调试样例，用于测试列表渲染、滚动稳定性、消息分组和会话历史性能。';
   }
+
+  @override
+  String get newsGeneratorNoProvider => '未配置 AI 提供商。请先设置模型。';
+
+  @override
+  String get newsTabWorld => '世界';
+
+  @override
+  String get newsTabLocal => '本地';
+
+  @override
+  String get newsTabSocial => '社媒';
+
+  @override
+  String get newsGeneratorGenerate => '生成';
+
+  @override
+  String get newsGeneratorGenerating => '生成中…';
+
+  @override
+  String get newsGeneratorEmptyHint => '点击下方按钮生成内容。';
+
+  @override
+  String get newsGeneratorWorldPrompt =>
+      '基于虚构世界观生成 3 条世界新闻头条。使用创意且可信的场景。以纯文本返回，每条一行，以 \"- \" 开头。';
+
+  @override
+  String get newsGeneratorLocalPrompt =>
+      '基于虚构小镇或社区生成 3 条本地新闻。描述带有地方色彩的日常事件。以纯文本返回，每条一行，以 \"- \" 开头。';
+
+  @override
+  String get newsGeneratorSocialPrompt =>
+      '生成 4 条虚构角色对近期事件的社交媒体动态。混合幽默、戏剧和日常观察。以纯文本返回，每条一行，以 \"- \" 开头。';
+
+  @override
+  String get musicPlayerUnavailable => '音乐播放器不可用';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -6194,6 +6302,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get desktopNavStorageTooltip => '存储';
 
   @override
+  String get desktopNavFavoritesTooltip => '收藏';
+
+  @override
+  String get desktopNavMusicTooltip => '音乐';
+
+  @override
   String get desktopNavGlobalSearchTooltip => '全局搜索';
 
   @override
@@ -6201,6 +6315,54 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get desktopNavSettingsTooltip => '设置';
+
+  @override
+  String get favoritesPageTitle => '收藏';
+
+  @override
+  String get favoritesAddTooltip => '添加收藏卡片';
+
+  @override
+  String get favoritesEmptyTitle => '还没有收藏卡片';
+
+  @override
+  String get favoritesEmptyDescription =>
+      '收藏你喜欢的番外、HTML 卡片、提示词和片段。之后可以随时编辑，并复制给 AI 作为引用。';
+
+  @override
+  String get favoritesAddCard => '添加卡片';
+
+  @override
+  String get favoritesEditCard => '编辑卡片';
+
+  @override
+  String get favoritesTitleLabel => '标题';
+
+  @override
+  String get favoritesNoteLabel => '备注';
+
+  @override
+  String get favoritesContentLabel => '内容或 HTML';
+
+  @override
+  String get favoritesCopyForAi => '引用卡片';
+
+  @override
+  String get favoritesManualSavedMessage => '已存入卡片';
+
+  @override
+  String get favoritesOpenSavedCardsAction => '卡片 >';
+
+  @override
+  String get favoritesValidationMessage => '标题和内容不能为空。';
+
+  @override
+  String get favoritesDeleteTitle => '删除收藏卡片？';
+
+  @override
+  String favoritesDeleteMessage(Object title) {
+    return '删除“$title”？此操作不可撤销。';
+  }
 
   @override
   String get desktopAvatarMenuUseEmoji => '使用表情符号';
@@ -7196,6 +7358,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get messageMoreSheetShare => '分享';
+
+  @override
+  String get messageMoreSheetFavorite => '收藏';
 
   @override
   String get messageMoreSheetSelectMessages => '选择消息';
@@ -8787,6 +8952,18 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get miniMapScrollToBottomTooltip => '滚动到底部';
 
   @override
+  String get miniMapPluginsTooltip => '插件';
+
+  @override
+  String get miniMapNewsTooltip => '新闻生成器';
+
+  @override
+  String get miniMapPluginsDescription => '消息中检测到的特殊标签将以交互式卡片渲染。';
+
+  @override
+  String get miniMapActivePlugins => '活跃标签样式';
+
+  @override
   String get searchServicesPageApiKeyRequiredStatus => '需要 API Key';
 
   @override
@@ -9510,6 +9687,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get ttsFloatingCollapseTooltip => '收起播放控制';
+
+  @override
+  String get bgmMusicOpenNeteaseTooltip => '打开网易云音乐';
 
   @override
   String imageViewerPageShareFailedOpenFile(String message) {
@@ -10638,6 +10818,42 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String debugPageManyMessagesSeedText(String role, int index) {
     return '$role 消息 #$index：快速随机调试样例，用于测试列表渲染、滚动稳定性、消息分组和会话历史性能。';
   }
+
+  @override
+  String get newsGeneratorNoProvider => '未配置 AI 提供商。请先设置模型。';
+
+  @override
+  String get newsTabWorld => '世界';
+
+  @override
+  String get newsTabLocal => '本地';
+
+  @override
+  String get newsTabSocial => '社媒';
+
+  @override
+  String get newsGeneratorGenerate => '生成';
+
+  @override
+  String get newsGeneratorGenerating => '生成中…';
+
+  @override
+  String get newsGeneratorEmptyHint => '点击下方按钮生成内容。';
+
+  @override
+  String get newsGeneratorWorldPrompt =>
+      '基于虚构世界观生成 3 条世界新闻头条。使用创意且可信的场景。以纯文本返回，每条一行，以 \"- \" 开头。';
+
+  @override
+  String get newsGeneratorLocalPrompt =>
+      '基于虚构小镇或社区生成 3 条本地新闻。描述带有地方色彩的日常事件。以纯文本返回，每条一行，以 \"- \" 开头。';
+
+  @override
+  String get newsGeneratorSocialPrompt =>
+      '生成 4 条虚构角色对近期事件的社交媒体动态。混合幽默、戏剧和日常观察。以纯文本返回，每条一行，以 \"- \" 开头。';
+
+  @override
+  String get musicPlayerUnavailable => '音乐播放器不可用';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -11512,6 +11728,12 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get desktopNavStorageTooltip => '儲存';
 
   @override
+  String get desktopNavFavoritesTooltip => '收藏';
+
+  @override
+  String get desktopNavMusicTooltip => '音樂';
+
+  @override
   String get desktopNavGlobalSearchTooltip => '全域搜尋';
 
   @override
@@ -11519,6 +11741,54 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get desktopNavSettingsTooltip => '設定';
+
+  @override
+  String get favoritesPageTitle => '收藏';
+
+  @override
+  String get favoritesAddTooltip => '新增收藏卡片';
+
+  @override
+  String get favoritesEmptyTitle => '還沒有收藏卡片';
+
+  @override
+  String get favoritesEmptyDescription =>
+      '收藏你喜歡的番外、HTML 卡片、提示詞和片段。之後可以隨時編輯，並複製給 AI 作為引用。';
+
+  @override
+  String get favoritesAddCard => '新增卡片';
+
+  @override
+  String get favoritesEditCard => '編輯卡片';
+
+  @override
+  String get favoritesTitleLabel => '標題';
+
+  @override
+  String get favoritesNoteLabel => '備註';
+
+  @override
+  String get favoritesContentLabel => '內容或 HTML';
+
+  @override
+  String get favoritesCopyForAi => '引用卡片';
+
+  @override
+  String get favoritesManualSavedMessage => '已存入卡片';
+
+  @override
+  String get favoritesOpenSavedCardsAction => '卡片 >';
+
+  @override
+  String get favoritesValidationMessage => '標題和內容不能為空。';
+
+  @override
+  String get favoritesDeleteTitle => '刪除收藏卡片？';
+
+  @override
+  String favoritesDeleteMessage(Object title) {
+    return '刪除「$title」？此操作不可復原。';
+  }
 
   @override
   String get desktopAvatarMenuUseEmoji => '使用表情符號';
@@ -12513,6 +12783,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get messageMoreSheetShare => '分享';
+
+  @override
+  String get messageMoreSheetFavorite => '收藏';
 
   @override
   String get messageMoreSheetSelectMessages => '選擇訊息';
@@ -14103,6 +14376,18 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get miniMapScrollToBottomTooltip => '捲動到底部';
 
   @override
+  String get miniMapPluginsTooltip => '插件';
+
+  @override
+  String get miniMapNewsTooltip => '新聞生成器';
+
+  @override
+  String get miniMapPluginsDescription => '消息中檢測到的特殊標籤將以互動式卡片渲染。';
+
+  @override
+  String get miniMapActivePlugins => '活躍標籤樣式';
+
+  @override
   String get searchServicesPageApiKeyRequiredStatus => '需要 API Key';
 
   @override
@@ -14826,6 +15111,9 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get ttsFloatingCollapseTooltip => '收起播放控制';
+
+  @override
+  String get bgmMusicOpenNeteaseTooltip => '開啟網易雲音樂';
 
   @override
   String imageViewerPageShareFailedOpenFile(String message) {
@@ -15956,4 +16244,40 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String debugPageManyMessagesSeedText(String role, int index) {
     return '$role 訊息 #$index：快速隨機調試樣例，用於測試列表渲染、捲動穩定性、訊息分組和會話歷史效能。';
   }
+
+  @override
+  String get newsGeneratorNoProvider => '未配置 AI 提供商。請先設定模型。';
+
+  @override
+  String get newsTabWorld => '世界';
+
+  @override
+  String get newsTabLocal => '本地';
+
+  @override
+  String get newsTabSocial => '社媒';
+
+  @override
+  String get newsGeneratorGenerate => '生成';
+
+  @override
+  String get newsGeneratorGenerating => '生成中…';
+
+  @override
+  String get newsGeneratorEmptyHint => '點擊下方按鈕生成內容。';
+
+  @override
+  String get newsGeneratorWorldPrompt =>
+      '基於虛構世界觀生成 3 條世界新聞頭條。使用創意且可信的場景。以純文字返回，每條一行，以 \"- \" 開頭。';
+
+  @override
+  String get newsGeneratorLocalPrompt =>
+      '基於虛構小鎮或社區生成 3 條本地新聞。描述帶有地方色彩的日常事件。以純文字返回，每條一行，以 \"- \" 開頭。';
+
+  @override
+  String get newsGeneratorSocialPrompt =>
+      '生成 4 條虛構角色對近期事件的社交媒體動態。混合幽默、戲劇和日常觀察。以純文字返回，每條一行，以 \"- \" 開頭。';
+
+  @override
+  String get musicPlayerUnavailable => '音樂播放器不可用';
 }

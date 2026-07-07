@@ -223,9 +223,31 @@
   "desktopNavChatTooltip": "聊天",
   "desktopNavTranslateTooltip": "翻譯",
   "desktopNavStorageTooltip": "儲存",
+  "desktopNavFavoritesTooltip": "收藏",
+  "desktopNavMusicTooltip": "音樂",
   "desktopNavGlobalSearchTooltip": "全域搜尋",
   "desktopNavThemeToggleTooltip": "主題切換",
   "desktopNavSettingsTooltip": "設定",
+  "favoritesPageTitle": "收藏",
+  "favoritesAddTooltip": "新增收藏卡片",
+  "favoritesEmptyTitle": "還沒有收藏卡片",
+  "favoritesEmptyDescription": "收藏你喜歡的番外、HTML 卡片、提示詞和片段。之後可以隨時編輯，並複製給 AI 作為引用。",
+  "favoritesAddCard": "新增卡片",
+  "favoritesEditCard": "編輯卡片",
+  "favoritesTitleLabel": "標題",
+  "favoritesNoteLabel": "備註",
+  "favoritesContentLabel": "內容或 HTML",
+  "favoritesCopyForAi": "引用卡片",
+  "favoritesManualSavedMessage": "已存入卡片",
+  "favoritesOpenSavedCardsAction": "卡片 >",
+  "favoritesValidationMessage": "標題和內容不能為空。",
+  "favoritesDeleteTitle": "刪除收藏卡片？",
+  "favoritesDeleteMessage": "刪除「{title}」？此操作不可復原。",
+  "@favoritesDeleteMessage": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "hotkeyToggleAppVisibility": "顯示/隱藏應用",
   "hotkeyCloseWindow": "關閉視窗",
   "hotkeyOpenSettings": "打開設定",
@@ -653,6 +675,7 @@
   "messageMoreSheetNotImplemented": "暫未實現",
   "messageMoreSheetEdit": "編輯",
   "messageMoreSheetShare": "分享",
+  "messageMoreSheetFavorite": "收藏",
   "messageMoreSheetSelectMessages": "選擇訊息",
   "messageMoreSheetCreateBranch": "建立分支",
   "messageMoreSheetDelete": "刪除本版本",
@@ -1524,6 +1547,10 @@
   "miniMapTitle": "迷你地圖",
   "miniMapTooltip": "迷你地圖",
   "miniMapScrollToBottomTooltip": "捲動到底部",
+  "miniMapPluginsTooltip": "插件",
+  "miniMapNewsTooltip": "新聞生成器",
+  "miniMapPluginsDescription": "消息中檢測到的特殊標籤將以互動式卡片渲染。",
+  "miniMapActivePlugins": "活躍標籤樣式",
   "displaySettingsPageEnableDollarLatexTitle": "啟用 $...$ 渲染",
   "displaySettingsPageEnableDollarLatexSubtitle": "將 $...$ 之間的內容以行內數學公式渲染",
   "displaySettingsPageEnableMathTitle": "啟用數學公式渲染",
@@ -1788,6 +1815,7 @@
   "assistantEditSummaryDialogHint": "輸入摘要內容",
   "assistantEditDeleteSummaryTitle": "清除摘要",
   "assistantEditDeleteSummaryContent": "確定要清除此摘要嗎？",
+  "bgmMusicOpenNeteaseTooltip": "開啟網易雲音樂",
   "fileUploadDuplicateTitle": "檔案已存在",
   "fileUploadDuplicateContent": "偵測到同名檔案 {fileName}，是否使用現有檔案？",
   "fileUploadDuplicateUseExisting": "使用現有",
@@ -1955,5 +1983,16 @@
         "type": "int"
       }
     }
-  }
+  },
+  "newsGeneratorNoProvider": "未配置 AI 提供商。請先設定模型。",
+  "newsTabWorld": "世界",
+  "newsTabLocal": "本地",
+  "newsTabSocial": "社媒",
+  "newsGeneratorGenerate": "生成",
+  "newsGeneratorGenerating": "生成中…",
+  "newsGeneratorEmptyHint": "點擊下方按鈕生成內容。",
+  "newsGeneratorWorldPrompt": "基於虛構世界觀生成 3 條世界新聞頭條。使用創意且可信的場景。以純文字返回，每條一行，以 \"- \" 開頭。",
+  "newsGeneratorLocalPrompt": "基於虛構小鎮或社區生成 3 條本地新聞。描述帶有地方色彩的日常事件。以純文字返回，每條一行，以 \"- \" 開頭。",
+  "newsGeneratorSocialPrompt": "生成 4 條虛構角色對近期事件的社交媒體動態。混合幽默、戲劇和日常觀察。以純文字返回，每條一行，以 \"- \" 開頭。",
+  "musicPlayerUnavailable": "音樂播放器不可用"
 }

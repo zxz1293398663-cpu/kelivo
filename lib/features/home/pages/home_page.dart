@@ -50,6 +50,8 @@ import '../widgets/world_book_sheet.dart';
 import '../widgets/learning_prompt_sheet.dart';
 import '../widgets/scroll_nav_buttons.dart';
 import '../widgets/message_list_view.dart';
+import '../../favorites/pages/favorites_page.dart';
+import '../../favorites/services/favorite_cards_store.dart';
 import '../widgets/chat_input_section.dart';
 import '../widgets/chat_input_overlay_layout.dart';
 import '../widgets/chat_selection_app_bar.dart';
@@ -640,6 +642,7 @@ class _HomePageState extends State<HomePage>
         await _controller.createNewConversationAnimated();
       },
       onOpenMiniMap: _openMiniMap,
+      onOpenFavorites: _openFavorites,
       onCreateNewConversation: () async {
         await _controller.createNewConversationAnimated();
         if (mounted) {
@@ -803,6 +806,12 @@ class _HomePageState extends State<HomePage>
       onOpenGlobalSearchResult: (convId, msgId) => _controller
           .openGlobalSearchResult(conversationId: convId, messageId: msgId),
       onSelectModel: () => showModelSelectSheet(context),
+      onOpenFavorites: _openFavorites,
+      favoritesOpen: _favoritesOpen,
+      favoritesScope: _favoritesScope(),
+      onToggleFavorites: _openFavorites,
+      musicPlayerOpen: _musicPlayerOpen,
+      onToggleMusicPlayer: _openMusicPlayer,
       onSidebarWidthChanged: _controller.updateSidebarWidth,
       onSidebarWidthChangeEnd: _controller.saveSidebarWidth,
       onRightSidebarWidthChanged: _controller.updateRightSidebarWidth,
@@ -1163,6 +1172,7 @@ class _HomePageState extends State<HomePage>
         onResendMessage: (message) => _controller.regenerateAtMessage(message),
         onTranslateMessage: (message) => _controller.translateMessage(message),
         onEditMessage: (message) => _controller.editMessage(message),
+        onOpenFavorites: _openFavorites,
         onDeleteMessage: (message, byGroup) =>
             _handleDeleteMessage(context, message, byGroup),
         onDeleteAllVersions: (message, byGroup) => _handleDeleteMessage(
@@ -1393,6 +1403,40 @@ class _HomePageState extends State<HomePage>
     if (!mounted) return;
     if (selectedId != null && selectedId.isNotEmpty) {
       await _controller.scrollToMessageId(selectedId);
+    }
+  }
+
+  bool _favoritesOpen = false;
+  bool _musicPlayerOpen = false;
+
+  FavoriteScope _favoritesScope() {
+    final convo = _controller.currentConversation;
+    return FavoriteScope(
+      assistantId: convo?.assistantId,
+      conversationId: convo?.id ?? '',
+    );
+  }
+
+  void _openMusicPlayer() {
+    setState(() => _musicPlayerOpen = !_musicPlayerOpen);
+  }
+
+  void _openFavorites() {
+    if (_controller.isDesktopPlatform) {
+      setState(() => _favoritesOpen = !_favoritesOpen);
+    } else {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (ctx) => SizedBox(
+          height: MediaQuery.of(context).size.height * 0.85,
+          child: FavoritesPage(
+            embedded: true,
+            scope: _favoritesScope(),
+            onClose: () => Navigator.of(ctx).maybePop(),
+          ),
+        ),
+      );
     }
   }
 

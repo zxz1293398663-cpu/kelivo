@@ -42,6 +42,7 @@ import '../../../shared/widgets/emoji_text.dart';
 import '../../home/services/ask_user_interaction_service.dart';
 import '../../home/services/local_tools_service.dart';
 import '../../home/services/tool_approval_service.dart';
+import '../../favorites/services/favorite_cards_store.dart';
 import '../utils/thinking_tag_parser.dart';
 import 'citation_sources_sheet.dart';
 import 'chat_suggestion_bubbles.dart';
@@ -712,6 +713,7 @@ class ChatMessageWidget extends StatefulWidget {
   final bool enableStreamingTextMotion;
   final List<String> suggestions;
   final ValueChanged<String>? onSuggestionTap;
+  final VoidCallback? onOpenFavorites;
   final Future<void> Function(ToolUIPart part, AskUserResult result)?
   onRecoveredAskUserAnswer;
 
@@ -756,6 +758,7 @@ class ChatMessageWidget extends StatefulWidget {
     this.enableStreamingTextMotion = true,
     this.suggestions = const <String>[],
     this.onSuggestionTap,
+    this.onOpenFavorites,
     this.onRecoveredAskUserAnswer,
   });
 
@@ -815,6 +818,38 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     _syncTicker();
     // Auto-collapse when inline <think> transitions from loading -> finished
     _applyAutoCollapseInlineThinkIfFinished(oldWidget: oldWidget);
+  }
+
+  Future<void> _favoriteCurrentMessage() async {
+    final l10n = AppLocalizations.of(context)!;
+    final saved = await FavoriteCardsStore.addManualFromMessage(
+      widget.message,
+      scope: _favoriteScopeForMessage(),
+    );
+    if (!mounted || !saved) return;
+    showAppSnackBar(
+      context,
+      message: l10n.favoritesManualSavedMessage,
+      type: NotificationType.success,
+      actionLabel: l10n.favoritesOpenSavedCardsAction,
+      onAction: widget.onOpenFavorites,
+    );
+  }
+
+  FavoriteScope _favoriteScopeForMessage() {
+    try {
+      final chat = context.read<ChatService>();
+      final convo = chat.getConversation(widget.message.conversationId);
+      return FavoriteScope(
+        assistantId: convo?.assistantId,
+        conversationId: widget.message.conversationId,
+      );
+    } catch (_) {
+      return FavoriteScope(
+        assistantId: null,
+        conversationId: widget.message.conversationId,
+      );
+    }
   }
 
   void _applyAutoCollapseInlineThinkIfFinished({ChatMessageWidget? oldWidget}) {
@@ -1151,6 +1186,14 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                                     widget.onEdit?.call();
                                   },
                                 ),
+                              _MenuItem(
+                                icon: Lucide.Heart,
+                                label: l10n.messageMoreSheetFavorite,
+                                onTap: () {
+                                  Navigator.of(ctx).pop();
+                                  _favoriteCurrentMessage();
+                                },
+                              ),
                               _MenuItem(
                                 icon: Lucide.Trash2,
                                 danger: true,
@@ -1558,6 +1601,11 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
             label: l10n.messageMoreSheetEdit,
             onTap: () => widget.onEdit?.call(),
           ),
+        DesktopContextMenuItem(
+          icon: Lucide.Heart,
+          label: l10n.messageMoreSheetFavorite,
+          onTap: () => _favoriteCurrentMessage(),
+        ),
         DesktopContextMenuItem(
           icon: Lucide.Trash2,
           label: l10n.messageMoreSheetDelete,
@@ -2088,11 +2136,23 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     final parsedInlineThinking = _legacyInlineThinkingFor(widget);
     final extractedThinking = parsedInlineThinking.thinkingTexts.join('\n\n');
     final contentWithoutThink = parsedInlineThinking.visibleContent;
-    final visualContent = applyAssistantRegexes(
+    var visualContent = applyAssistantRegexes(
       contentWithoutThink,
       assistant: assistant,
       scope: AssistantRegexScope.assistant,
       target: AssistantRegexTransformTarget.visual,
+    );
+    visualContent = visualContent.replaceAllMapped(
+      RegExp(
+        r'<status_hub>[\s\S]*?<\/status_hub>|'
+        r'<status_hub>[\s\S]*|'
+        r'<\/status_hub>|'
+        r'<relationship_map>[\s\S]*?<\/relationship_map>|'
+        r'<relationship_map>[\s\S]*|'
+        r'<\/relationship_map>',
+        caseSensitive: false,
+      ),
+      (_) => '',
     );
     final visualTranslation = widget.message.translation != null
         ? applyAssistantRegexes(

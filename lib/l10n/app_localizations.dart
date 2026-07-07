@@ -1763,6 +1763,18 @@ abstract class AppLocalizations {
   /// **'Storage'**
   String get desktopNavStorageTooltip;
 
+  /// No description provided for @desktopNavFavoritesTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get desktopNavFavoritesTooltip;
+
+  /// No description provided for @desktopNavMusicTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Music'**
+  String get desktopNavMusicTooltip;
+
   /// No description provided for @desktopNavGlobalSearchTooltip.
   ///
   /// In en, this message translates to:
@@ -1780,6 +1792,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get desktopNavSettingsTooltip;
+
+  /// No description provided for @favoritesPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favoritesPageTitle;
+
+  /// No description provided for @favoritesAddTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add favorite card'**
+  String get favoritesAddTooltip;
+
+  /// No description provided for @favoritesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorite cards yet'**
+  String get favoritesEmptyTitle;
+
+  /// No description provided for @favoritesEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Save side stories, HTML cards, prompts, and fragments you like. Edit them anytime and copy them as reference for the assistant.'**
+  String get favoritesEmptyDescription;
+
+  /// No description provided for @favoritesAddCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Card'**
+  String get favoritesAddCard;
+
+  /// No description provided for @favoritesEditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Card'**
+  String get favoritesEditCard;
+
+  /// No description provided for @favoritesTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get favoritesTitleLabel;
+
+  /// No description provided for @favoritesNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get favoritesNoteLabel;
+
+  /// No description provided for @favoritesContentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Content or HTML'**
+  String get favoritesContentLabel;
+
+  /// No description provided for @favoritesCopyForAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference card'**
+  String get favoritesCopyForAi;
+
+  /// No description provided for @favoritesManualSavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to Favorites.'**
+  String get favoritesManualSavedMessage;
+
+  /// No description provided for @favoritesOpenSavedCardsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards >'**
+  String get favoritesOpenSavedCardsAction;
+
+  /// No description provided for @favoritesValidationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Title and content are required.'**
+  String get favoritesValidationMessage;
+
+  /// No description provided for @favoritesDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete favorite card?'**
+  String get favoritesDeleteTitle;
+
+  /// No description provided for @favoritesDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{title}”? This cannot be undone.'**
+  String favoritesDeleteMessage(Object title);
 
   /// No description provided for @desktopAvatarMenuUseEmoji.
   ///
@@ -3736,6 +3838,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share'**
   String get messageMoreSheetShare;
+
+  /// No description provided for @messageMoreSheetFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite'**
+  String get messageMoreSheetFavorite;
 
   /// No description provided for @messageMoreSheetSelectMessages.
   ///
@@ -6728,6 +6836,30 @@ abstract class AppLocalizations {
   /// **'Scroll to bottom'**
   String get miniMapScrollToBottomTooltip;
 
+  /// No description provided for @miniMapPluginsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Plugins'**
+  String get miniMapPluginsTooltip;
+
+  /// No description provided for @miniMapNewsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'News Generator'**
+  String get miniMapNewsTooltip;
+
+  /// No description provided for @miniMapPluginsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Special tags detected in messages are rendered as interactive cards.'**
+  String get miniMapPluginsDescription;
+
+  /// No description provided for @miniMapActivePlugins.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Tag Styles'**
+  String get miniMapActivePlugins;
+
   /// No description provided for @searchServicesPageApiKeyRequiredStatus.
   ///
   /// In en, this message translates to:
@@ -8125,6 +8257,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Collapse playback controls'**
   String get ttsFloatingCollapseTooltip;
+
+  /// No description provided for @bgmMusicOpenNeteaseTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open NetEase Cloud Music'**
+  String get bgmMusicOpenNeteaseTooltip;
 
   /// No description provided for @imageViewerPageShareFailedOpenFile.
   ///
@@ -10189,6 +10327,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{role} message #{index}: quick random debug sample for testing list rendering, scrolling stability, message grouping, and conversation history performance.'**
   String debugPageManyMessagesSeedText(String role, int index);
+
+  /// No description provided for @newsGeneratorNoProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'No AI provider configured. Please set up a model first.'**
+  String get newsGeneratorNoProvider;
+
+  /// No description provided for @newsTabWorld.
+  ///
+  /// In en, this message translates to:
+  /// **'World'**
+  String get newsTabWorld;
+
+  /// No description provided for @newsTabLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get newsTabLocal;
+
+  /// No description provided for @newsTabSocial.
+  ///
+  /// In en, this message translates to:
+  /// **'Social'**
+  String get newsTabSocial;
+
+  /// No description provided for @newsGeneratorGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate'**
+  String get newsGeneratorGenerate;
+
+  /// No description provided for @newsGeneratorGenerating.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating…'**
+  String get newsGeneratorGenerating;
+
+  /// No description provided for @newsGeneratorEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the button below to generate content.'**
+  String get newsGeneratorEmptyHint;
+
+  /// No description provided for @newsGeneratorWorldPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate 3 world news headlines based on an imaginative fictional world. Use creative yet believable settings. Return in plain text, each headline on a new line starting with \"- \".'**
+  String get newsGeneratorWorldPrompt;
+
+  /// No description provided for @newsGeneratorLocalPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate 3 local news items set in a fictional town or community. Describe everyday events with local color. Return in plain text, each on a new line starting with \"- \".'**
+  String get newsGeneratorLocalPrompt;
+
+  /// No description provided for @newsGeneratorSocialPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate 4 social media posts from fictional characters reacting to recent events. Mix humor, drama, and casual observations. Return in plain text, each on a new line starting with \"- \".'**
+  String get newsGeneratorSocialPrompt;
+
+  /// No description provided for @musicPlayerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Music player unavailable'**
+  String get musicPlayerUnavailable;
 }
 
 class _AppLocalizationsDelegate

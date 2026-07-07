@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:Kelivo/features/chat/pages/image_viewer_page.dart';
+import 'package:Kelivo/shared/pages/webview_page.dart';
 import 'package:Kelivo/shared/widgets/markdown_with_highlight.dart';
 import 'package:Kelivo/shared/widgets/export_capture_scope.dart';
 import 'package:Kelivo/shared/widgets/mermaid_image_cache.dart';
@@ -364,6 +365,39 @@ Widget _settingsHarness({
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('MarkdownWithCodeHighlight renders bgm tag as music card', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _markdownHarness('<bgm>当前bgm:夜空中最亮的星 - 逃跑计划</bgm>'),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('markdown-bgm-music-card')),
+      findsOneWidget,
+    );
+    expect(find.text('夜空中最亮的星'), findsOneWidget);
+    expect(find.text('逃跑计划'), findsOneWidget);
+    expect(find.textContaining('<bgm>'), findsNothing);
+  });
+
+  testWidgets('MarkdownWithCodeHighlight bgm card builds NetEase search url', (
+    tester,
+  ) async {
+    const song = '夜空中最亮的星';
+    const artist = '逃跑计划';
+    await tester.pumpWidget(
+      _markdownHarness('<bgm>当前bgm:$song - $artist</bgm>'),
+    );
+    await tester.pumpAndSettle();
+
+    final url =
+        'https://music.163.com/#/search/m/?s=${Uri.encodeComponent('$song $artist')}';
+    expect(url, contains('music.163.com'));
+    expect(Uri.decodeFull(url), contains('夜空中最亮的星 逃跑计划'));
+  });
 
   test('markdown table CSV export escapes boundary cell values', () {
     final csv = markdownTableRowsToCsvForTesting([
@@ -2716,7 +2750,7 @@ void main() {}
   });
 
   testWidgets(
-    'MarkdownWithCodeHighlight keeps details tags literal in html code blocks',
+    'MarkdownWithCodeHighlight renders html code blocks as static previews',
     (tester) async {
       await tester.pumpWidget(
         _markdownHarness('''
@@ -2724,10 +2758,12 @@ void main() {}
 <!DOCTYPE html>
 <html>
 <body>
+<h1>Preview Title</h1>
 <details>
   <summary>点击展开/折叠内容</summary>
   <p>这里是可以折叠的内容。</p>
 </details>
+<script>document.body.innerHTML = 'script ran';</script>
 </body>
 </html>
 ```
@@ -2735,24 +2771,62 @@ void main() {}
       );
       await tester.pump();
 
-      expect(find.text('html'), findsOneWidget);
+      expect(find.text('html'), findsNothing);
+      expect(find.byTooltip('Preview'), findsNothing);
+      expect(find.byKey(const ValueKey('inline-html-preview')), findsOneWidget);
+      expect(find.text('Preview Title'), findsOneWidget);
+      expect(find.text('点击展开/折叠内容'), findsOneWidget);
+      expect(find.text('这里是可以折叠的内容。'), findsOneWidget);
       expect(
         find.descendant(
           of: find.byType(SelectableHighlightView),
           matching: find.textContaining('<details>'),
         ),
-        findsOneWidget,
+        findsNothing,
       );
+      expect(find.byType(SelectableHighlightView), findsNothing);
       expect(
         find.descendant(
           of: find.byType(SelectableHighlightView),
           matching: find.textContaining('<summary>点击展开/折叠内容</summary>'),
         ),
-        findsOneWidget,
+        findsNothing,
       );
-      expect(find.text('点击展开/折叠内容'), findsNothing);
+      expect(find.text('script ran'), findsNothing);
       expect(find.byKey(const ValueKey('details-collapsed')), findsNothing);
       expect(find.byKey(const ValueKey('details-expanded')), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'MarkdownWithCodeHighlight applies inline styles in html previews',
+    (tester) async {
+      await tester.pumpWidget(
+        _markdownHarness('''
+```html
+<div style="max-width:310px;margin:0 auto;background:#ff7500;color:#ffffff;padding:12px;border-radius:18px;border:1px solid #c32136">
+  <p style="font-size:18px;font-weight:700;text-align:center;color:#ffffff">橙色便签</p>
+  <p style="color:#3d3b4f;background:#fff143;padding:6px;border-radius:10px">今晚九点，带伞。</p>
+</div>
+```
+'''),
+      );
+      await tester.pump();
+
+      expect(find.byKey(const ValueKey('inline-html-preview')), findsOneWidget);
+      expect(find.text('橙色便签'), findsOneWidget);
+      expect(find.text('今晚九点，带伞。'), findsOneWidget);
+
+      final cardContainers = tester.widgetList<Container>(
+        find.byType(Container),
+      );
+      final hasOrangeCard = cardContainers.any((container) {
+        final decoration = container.decoration;
+        return decoration is BoxDecoration &&
+            decoration.color == const Color(0xFFFF7500) &&
+            container.padding == const EdgeInsets.all(12);
+      });
+      expect(hasOrangeCard, isTrue);
     },
   );
 
@@ -3141,6 +3215,38 @@ press5
     expect(plainText, isNot(contains('<br>')));
     expect(plainText, isNot(contains('<a href=')));
     expect(find.text('链接'), findsOneWidget);
+  });
+
+  testWidgets('MarkdownWithCodeHighlight applies inline span color styles', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _markdownHarness('<span style="color: red;">她哪里也去不了。</span>'),
+    );
+    await tester.pump();
+
+    final richText = tester.widget<RichText>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is RichText &&
+            widget.text.toPlainText().contains('她哪里也去不了。'),
+      ),
+    );
+    Color? colorFor(InlineSpan span) {
+      if (span is TextSpan) {
+        if ((span.text ?? '').contains('她哪里也去不了。')) {
+          return span.style?.color;
+        }
+        for (final child in span.children ?? const <InlineSpan>[]) {
+          final color = colorFor(child);
+          if (color != null) return color;
+        }
+      }
+      return null;
+    }
+
+    expect(richText.text.toPlainText(), contains('她哪里也去不了。'));
+    expect(colorFor(richText.text), Colors.red);
   });
 
   testWidgets('MarkdownWithCodeHighlight normalizes strong weight on Android', (

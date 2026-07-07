@@ -401,9 +401,31 @@
   "desktopNavChatTooltip": "Chat",
   "desktopNavTranslateTooltip": "Translate",
   "desktopNavStorageTooltip": "Storage",
+  "desktopNavFavoritesTooltip": "Favorites",
+  "desktopNavMusicTooltip": "Music",
   "desktopNavGlobalSearchTooltip": "Global Search",
   "desktopNavThemeToggleTooltip": "Theme",
   "desktopNavSettingsTooltip": "Settings",
+  "favoritesPageTitle": "Favorites",
+  "favoritesAddTooltip": "Add favorite card",
+  "favoritesEmptyTitle": "No favorite cards yet",
+  "favoritesEmptyDescription": "Save side stories, HTML cards, prompts, and fragments you like. Edit them anytime and copy them as reference for the assistant.",
+  "favoritesAddCard": "Add Card",
+  "favoritesEditCard": "Edit Card",
+  "favoritesTitleLabel": "Title",
+  "favoritesNoteLabel": "Note",
+  "favoritesContentLabel": "Content or HTML",
+  "favoritesCopyForAi": "Reference card",
+  "favoritesManualSavedMessage": "Added to Favorites.",
+  "favoritesOpenSavedCardsAction": "Cards >",
+  "favoritesValidationMessage": "Title and content are required.",
+  "favoritesDeleteTitle": "Delete favorite card?",
+  "favoritesDeleteMessage": "Delete “{title}”? This cannot be undone.",
+  "@favoritesDeleteMessage": {
+    "placeholders": {
+      "title": {}
+    }
+  },
   "desktopAvatarMenuUseEmoji": "Use emoji",
   "cameraPermissionDeniedMessage": "Camera unavailable: permission not granted.",
   "openSystemSettings": "Open Settings",
@@ -768,6 +790,7 @@
   "messageMoreSheetNotImplemented": "Not yet implemented",
   "messageMoreSheetEdit": "Edit",
   "messageMoreSheetShare": "Share",
+  "messageMoreSheetFavorite": "Favorite",
   "messageMoreSheetSelectMessages": "Select Messages",
   "messageMoreSheetCreateBranch": "Create Branch",
   "messageMoreSheetDelete": "Delete This Version",
@@ -1528,6 +1551,10 @@
   "miniMapTitle": "Minimap",
   "miniMapTooltip": "Minimap",
   "miniMapScrollToBottomTooltip": "Scroll to bottom",
+  "miniMapPluginsTooltip": "Plugins",
+  "miniMapNewsTooltip": "News Generator",
+  "miniMapPluginsDescription": "Special tags detected in messages are rendered as interactive cards.",
+  "miniMapActivePlugins": "Active Tag Styles",
   "searchServicesPageApiKeyRequiredStatus": "API Key Required",
   "searchServicesPageUrlRequiredStatus": "URL Required",
   "searchServicesAddDialogTitle": "Add Search Service",
@@ -1792,6 +1819,7 @@
   "ttsFloatingCloseTooltip": "Close player",
   "ttsFloatingExpandTooltip": "Expand playback controls",
   "ttsFloatingCollapseTooltip": "Collapse playback controls",
+  "bgmMusicOpenNeteaseTooltip": "Open NetEase Cloud Music",
   "imageViewerPageShareFailedOpenFile": "Unable to share, tried to open file: {message}",
   "@imageViewerPageShareFailedOpenFile": {
     "placeholders": {
@@ -2378,5 +2406,16 @@
         "type": "int"
       }
     }
-  }
+  },
+  "newsGeneratorNoProvider": "No AI provider configured. Please set up a model first.",
+  "newsTabWorld": "World",
+  "newsTabLocal": "Local",
+  "newsTabSocial": "Social",
+  "newsGeneratorGenerate": "Generate",
+  "newsGeneratorGenerating": "Generating…",
+  "newsGeneratorEmptyHint": "Tap the button below to generate content.",
+  "newsGeneratorWorldPrompt": "Generate 3 world news headlines based on an imaginative fictional world. Use creative yet believable settings. Return in plain text, each headline on a new line starting with \"- \".",
+  "newsGeneratorLocalPrompt": "Generate 3 local news items set in a fictional town or community. Describe everyday events with local color. Return in plain text, each on a new line starting with \"- \".",
+  "newsGeneratorSocialPrompt": "Generate 4 social media posts from fictional characters reacting to recent events. Mix humor, drama, and casual observations. Return in plain text, each on a new line starting with \"- \".",
+  "musicPlayerUnavailable": "Music player unavailable"
 }
