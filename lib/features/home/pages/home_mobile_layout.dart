@@ -21,6 +21,7 @@ import '../../../shared/widgets/ios_tactile.dart';
 import '../../../utils/sandbox_path_resolver.dart';
 import '../widgets/assistant_avatar.dart';
 import '../widgets/assistant_entry_actions.dart';
+import '../../favorites/services/favorite_cards_store.dart' show FavoriteCardReference;
 import 'package:Kelivo/theme/app_font_weights.dart';
 
 /// Mobile layout scaffold for the home page
@@ -45,6 +46,8 @@ class HomeMobileScaffold extends StatelessWidget {
     required this.onToggleTemporaryConversation,
     required this.onSelectModel,
     required this.onOpenFavorites,
+    this.favoriteReferenceIds = const <String>{},
+    this.onFavoriteReference,
     this.musicPlayerOpen = false,
     required this.onToggleMusicPlayer,
     required this.canToggleTemporaryConversation,
@@ -75,6 +78,8 @@ class HomeMobileScaffold extends StatelessWidget {
   final Future<void> Function() onToggleTemporaryConversation;
   final VoidCallback onSelectModel;
   final VoidCallback onOpenFavorites;
+  final Set<String> favoriteReferenceIds;
+  final ValueChanged<FavoriteCardReference>? onFavoriteReference;
   final bool musicPlayerOpen;
   final VoidCallback onToggleMusicPlayer;
   final bool canToggleTemporaryConversation;
