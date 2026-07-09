@@ -365,6 +365,7 @@
 
         const dragZone = document.getElementById('drag-zone');
         let isDragging = false, sx = 0, sy = 0;
+        
         dragZone.addEventListener('mousedown', e => { isDragging = true; sx = e.clientX; sy = e.clientY; });
         document.addEventListener('mousemove', e => {
             if (!isDragging) return;
@@ -373,6 +374,19 @@
             sendHost({ type: 'drag', dx, dy });
         });
         document.addEventListener('mouseup', () => isDragging = false);
+
+        dragZone.addEventListener('touchstart', e => { 
+            isDragging = true; 
+            sx = e.touches[0].clientX; 
+            sy = e.touches[0].clientY; 
+        }, { passive: true });
+        document.addEventListener('touchmove', e => {
+            if (!isDragging) return;
+            const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
+            sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+            sendHost({ type: 'drag', dx, dy });
+        }, { passive: true });
+        document.addEventListener('touchend', () => isDragging = false);
 
         // Fetch 带超时
         function fetchWithTimeout(url, ms = 5000, opts = {}) {
