@@ -2,6 +2,7 @@ import 'dart:io' show Platform, exit;
 
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:restart_app/restart_app.dart';
 
 abstract final class PlatformUtils {
@@ -32,6 +33,9 @@ abstract final class PlatformUtils {
   static bool get isIOS => Platform.isIOS;
 
   static Future<void> restartApp() async {
+    try {
+      await Hive.close();
+    } catch (_) {}
     if (Platform.isAndroid) {
       await Restart.restartApp();
     } else {

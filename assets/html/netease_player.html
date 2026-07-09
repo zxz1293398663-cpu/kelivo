@@ -40,7 +40,7 @@
         input, textarea { user-select: text; -webkit-user-select: text; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
         
-        /* 优雅的细滚动�?*/
+        /* 优雅的细滚动条 */
         .scrollable { overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; }
         .scrollable::-webkit-scrollbar { width: 4px; }
         .scrollable::-webkit-scrollbar-track { background: transparent; }
@@ -106,7 +106,7 @@
 </head>
 <body class="bg-bgbase text-textmain relative flex flex-col transition-colors duration-300" id="ne-root">
 
-    <!-- 顶部拖拽�?-->
+    <!-- 顶部拖拽条 -->
     <div class="drag-zone" id="drag-zone"></div>
 
     <!-- 全局头部 -->
@@ -147,9 +147,9 @@
                 </div>
             </div>
 
-            <!-- 播放控制�?-->
+            <!-- 播放控制区 -->
             <div class="h-[105px] shrink-0 flex flex-col justify-end pb-3 relative z-30">
-                <!-- 进度�?-->
+                <!-- 进度条 -->
                 <div class="flex items-center px-5 gap-3 text-[10px] text-textsub mb-3">
                     <span id="time-curr" class="w-8 text-right">0:00</span>
                     <div class="flex-1 h-1 bg-borderc rounded-full relative cursor-pointer group" id="prog-track">
@@ -182,8 +182,8 @@
                         <i class="ti ti-user text-2xl"></i>
                     </div>
                     <div class="flex flex-col cursor-pointer" onclick="showLoginModal()">
-                        <div class="text-base font-bold flex items-center gap-1">未登�?<i class="ti ti-chevron-right text-xs text-textsub"></i></div>
-                        <div class="text-xs text-textsub mt-1">点击登录网易云获取歌�?/div>
+                        <div class="text-base font-bold flex items-center gap-1">未登录 <i class="ti ti-chevron-right text-xs text-textsub"></i></div>
+                        <div class="text-xs text-textsub mt-1">点击登录网易云获取歌单</div>
                     </div>
                 </div>
 
@@ -199,13 +199,13 @@
             </div>
         </div>
 
-        <!-- ================= PAGE 3: 歌单详情�?(右侧滑入) ================= -->
+        <!-- ================= PAGE 3: 歌单详情页 (右侧滑入) ================= -->
         <div id="view-playlist-detail" class="fixed inset-0 flex flex-col z-50 bg-bgbase hidden page-enter text-white">
             <!-- 这个页面由于有封面大图做背景，保持全深色比较好看 -->
             <div id="detail-bg-blur" class="absolute inset-0 bg-cover bg-center opacity-40 blur-[40px] z-0 pointer-events-none"></div>
             <div class="absolute inset-0 bg-gradient-to-b from-black/40 to-[#121212] z-0 pointer-events-none"></div>
             
-            <!-- 详情页头�?-->
+            <!-- 详情页头部 -->
             <div class="h-[50px] flex justify-between items-center px-4 shrink-0 relative z-20 pt-2">
                 <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10" onclick="hidePlaylistDetail()"><i class="ti ti-chevron-left text-2xl text-white"></i></button>
                 <div class="text-sm font-medium text-white">歌单</div>
@@ -254,14 +254,14 @@
             <button class="w-8 h-8 rounded-full hover:bg-hoverbg flex items-center justify-center" onclick="hideSearchPanel()"><i class="ti ti-chevron-left text-2xl"></i></button>
             <div class="flex-1 h-9 rounded-full bg-hoverbg border border-borderc flex items-center gap-2 px-3">
                 <i class="ti ti-search text-textsub"></i>
-                <input id="search-input" class="flex-1 bg-transparent outline-none text-sm placeholder-textsub" placeholder="搜索歌曲、歌�? onkeydown="if(event.key==='Enter') searchSongs()">
+                <input id="search-input" class="flex-1 bg-transparent outline-none text-sm placeholder-textsub" placeholder="搜索歌曲、歌手" onkeydown="if(event.key==='Enter') searchSongs()">
             </div>
             <button class="text-sm font-medium text-netred px-1" onclick="searchSongs()">搜索</button>
         </div>
         <div id="search-results" class="flex-1 scrollable px-2 py-3">
             <div class="h-full flex flex-col items-center justify-center text-textsub text-xs gap-3">
                 <i class="ti ti-music-search text-4xl"></i>
-                <div>输入关键词，搜索网易云音�?/div>
+                <div>输入关键词，搜索网易云音乐</div>
             </div>
         </div>
     </div>
@@ -272,7 +272,7 @@
         <div class="h-[58px] shrink-0 flex items-center justify-between px-4 pt-3 border-b border-borderc">
             <div>
                 <div class="text-base font-bold">当前播放</div>
-                <div id="queue-count" class="text-[11px] text-textsub mt-0.5">0 �?/div>
+                <div id="queue-count" class="text-[11px] text-textsub mt-0.5">0 首</div>
             </div>
             <button class="w-8 h-8 rounded-full hover:bg-hoverbg flex items-center justify-center" onclick="hideQueueDrawer()"><i class="ti ti-x text-xl"></i></button>
         </div>
@@ -284,7 +284,7 @@
         </div>
     </div>
 
-    <!-- ================= 底部极简�?Tab ================= -->
+    <!-- ================= 底部极简双 Tab ================= -->
     <div class="h-[55px] shrink-0 glass-bg border-t border-borderc z-30 flex relative pb-safe">
         <div id="tab-player" class="flex-1 flex flex-col items-center justify-center text-netred cursor-pointer transition tab-btn active" onclick="switchTab('player', this)">
             <i class="ti ti-vinyl text-[22px] mb-0.5"></i>
@@ -300,7 +300,7 @@
     <div id="modal-login" class="absolute inset-0 bg-modalbg backdrop-blur-sm z-50 flex flex-col justify-end hidden opacity-0 transition-opacity duration-300 text-textmain">
         <div class="bg-card w-full rounded-t-3xl p-6 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[85%]" id="modal-login-sheet">
             <div class="flex justify-between items-center mb-4 shrink-0">
-                <h3 class="text-lg font-bold">登录网易云音�?/h3>
+                <h3 class="text-lg font-bold">登录网易云音乐</h3>
                 <i class="ti ti-x text-xl text-textsub cursor-pointer p-1 hover:text-textmain transition" onclick="hideLoginModal()"></i>
             </div>
             
@@ -314,17 +314,17 @@
                     <div id="qr-status" class="text-xs text-textsub text-center font-medium">获取二维码中...</div>
                 </div>
 
-                <!-- 手机�?验证码登�?-->
+                <!-- 手机号/验证码登录 -->
                 <div class="bg-hoverbg border border-borderc rounded-2xl p-4 flex flex-col gap-3">
                     <div class="flex items-center gap-2 mb-1 px-1">
                         <i class="ti ti-device-mobile text-netred text-lg"></i> 
-                        <span class="text-sm font-medium">手机号快捷登�?/span>
+                        <span class="text-sm font-medium">手机号快捷登录</span>
                     </div>
-                    <input type="text" id="inp-phone" class="w-full bg-bgbase border border-borderc rounded-lg px-3 py-2.5 text-sm outline-none focus:border-netred transition text-textmain placeholder-textsub" placeholder="输入手机�?>
+                    <input type="text" id="inp-phone" class="w-full bg-bgbase border border-borderc rounded-lg px-3 py-2.5 text-sm outline-none focus:border-netred transition text-textmain placeholder-textsub" placeholder="输入手机号">
                     
                     <div class="flex gap-2">
-                        <input type="password" id="inp-pwd" class="flex-1 bg-bgbase border border-borderc rounded-lg px-3 py-2.5 text-sm outline-none focus:border-netred transition text-textmain placeholder-textsub" placeholder="密码 �?4位验证码">
-                        <button id="btn-send-code" class="bg-borderc hover:bg-hoverbg text-textmain transition px-3 rounded-lg text-xs font-medium whitespace-nowrap w-[90px]" onclick="sendCaptcha()">获取验证�?/button>
+                        <input type="password" id="inp-pwd" class="flex-1 bg-bgbase border border-borderc rounded-lg px-3 py-2.5 text-sm outline-none focus:border-netred transition text-textmain placeholder-textsub" placeholder="密码 或 4位验证码">
+                        <button id="btn-send-code" class="bg-borderc hover:bg-hoverbg text-textmain transition px-3 rounded-lg text-xs font-medium whitespace-nowrap w-[90px]" onclick="sendCaptcha()">获取验证码</button>
                     </div>
                     
                     <div id="login-err" class="text-netred text-xs text-center h-4 font-medium mt-1"></div>
@@ -344,14 +344,6 @@
         };
 
         const THEME_KEY = 'NOVA_MUSIC_THEME';
-        
-        // Safe Local Storage Wrapper to prevent WebView crashes on restricted origins
-        const safeStorage = {
-            getItem(k) { try { return localStorage.getItem(k); } catch(e) { return null; } },
-            setItem(k, v) { try { localStorage.setItem(k, v); } catch(e) {} },
-            removeItem(k) { try { localStorage.removeItem(k); } catch(e) {} }
-        };
-
         const rootEl = document.getElementById('ne-root');
         const themeIcon = document.getElementById('theme-icon');
         const detailThemeIcon = document.getElementById('detail-theme-icon');
@@ -365,15 +357,14 @@
 
         window.toggleTheme = () => {
             const next = rootEl.classList.contains('light-mode') ? 'dark' : 'light';
-            safeStorage.setItem(THEME_KEY, next);
+            localStorage.setItem(THEME_KEY, next);
             applyTheme(next);
         };
 
-        applyTheme(safeStorage.getItem(THEME_KEY) || 'dark');
+        applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
 
         const dragZone = document.getElementById('drag-zone');
         let isDragging = false, sx = 0, sy = 0;
-        
         dragZone.addEventListener('mousedown', e => { isDragging = true; sx = e.clientX; sy = e.clientY; });
         document.addEventListener('mousemove', e => {
             if (!isDragging) return;
@@ -383,20 +374,7 @@
         });
         document.addEventListener('mouseup', () => isDragging = false);
 
-        dragZone.addEventListener('touchstart', e => { 
-            isDragging = true; 
-            sx = e.touches[0].clientX; 
-            sy = e.touches[0].clientY; 
-        }, { passive: true });
-        document.addEventListener('touchmove', e => {
-            if (!isDragging) return;
-            const dx = e.touches[0].clientX - sx, dy = e.touches[0].clientY - sy;
-            sx = e.touches[0].clientX; sy = e.touches[0].clientY;
-            sendHost({ type: 'drag', dx, dy });
-        }, { passive: true });
-        document.addEventListener('touchend', () => isDragging = false);
-
-        // Fetch 带超�?
+        // Fetch 带超时
         function fetchWithTimeout(url, ms = 5000, opts = {}) {
             const c = new AbortController();
             const t = setTimeout(() => c.abort(), ms);
@@ -415,7 +393,7 @@
         };
         state.audio.crossOrigin = "anonymous";
 
-        // ================= 播放器引�?=================
+        // ================= 播放器引擎 =================
         function fmt(s){ return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
         
         const uiHeaderTitle = document.getElementById('header-title');
@@ -494,14 +472,14 @@
 
         function loadPlayPrefs() {
             try {
-                const p = JSON.parse(safeStorage.getItem(PLAY_PREF_KEY) || '{}');
+                const p = JSON.parse(localStorage.getItem(PLAY_PREF_KEY) || '{}');
                 state.repeatMode = p.repeatMode || (p.shuffle ? 'shuffle' : 'list');
                 state.shuffle = state.repeatMode === 'shuffle';
             } catch(e) {}
             updatePlayModeUi();
         }
         function savePlayPrefs() {
-            safeStorage.setItem(PLAY_PREF_KEY, JSON.stringify({ repeatMode: state.repeatMode, shuffle: state.shuffle }));
+            localStorage.setItem(PLAY_PREF_KEY, JSON.stringify({ repeatMode: state.repeatMode, shuffle: state.shuffle }));
         }
         function updatePlayModeUi() {
             const repeatBtn = document.getElementById('repeat-btn');
@@ -535,7 +513,7 @@
 
         function saveLastTrack(t) {
             if (!t || !t.name) return;
-            safeStorage.setItem(LAST_TRACK_KEY, JSON.stringify({ track: t, queue: state.currentTracks, index: state.trackIndex }));
+            localStorage.setItem(LAST_TRACK_KEY, JSON.stringify({ track: t, queue: state.currentTracks, index: state.trackIndex }));
         }
         function renderTrackPreview(t) {
             if (!t) return;
@@ -547,7 +525,7 @@
         }
         function restoreLastTrack() {
             try {
-                const last = JSON.parse(safeStorage.getItem(LAST_TRACK_KEY) || 'null');
+                const last = JSON.parse(localStorage.getItem(LAST_TRACK_KEY) || 'null');
                 if (!last?.track) return;
                 state.currentTracks = Array.isArray(last.queue) && last.queue.length ? last.queue : [last.track];
                 state.trackIndex = Math.min(Math.max(last.index || 0, 0), state.currentTracks.length - 1);
@@ -560,7 +538,7 @@
             if (!t) return;
             uiHeaderTitle.innerText = t.name;
             uiHeaderArtist.innerText = t.artist;
-            uiLrcBox.innerHTML = '<div class="text-white/40 text-sm py-2">歌词加载�?..</div>';
+            uiLrcBox.innerHTML = '<div class="text-white/40 text-sm py-2">歌词加载中...</div>';
             state.audio.pause();
             uiPlayIcon.className = 'ti ti-player-play-filled text-2xl';
             uiDiscAnim.classList.remove('spin-paused');
@@ -594,7 +572,7 @@
                 state.audio.src = url;
                 state.audio.play().catch(()=>{});
             } else {
-                uiHeaderTitle.innerText += ' (无音�?';
+                uiHeaderTitle.innerText += ' (无音源)';
             }
         }
 
@@ -611,7 +589,7 @@
                 if (lyric) {
                     state.lrcs = mergeLrc(lyric, translated);
                     renderLrc();
-                } else uiLrcBox.innerHTML = '<div class="text-textsub text-sm py-2">纯音乐，请欣�?/div>';
+                } else uiLrcBox.innerHTML = '<div class="text-textsub text-sm py-2">纯音乐，请欣赏</div>';
             } catch(e) { uiLrcBox.innerHTML = '<div class="text-textsub text-sm py-2">歌词获取失败</div>'; }
         }
         function escapeHtml(s) {
@@ -640,7 +618,7 @@
                 const meta = text.match(metaTagRe);
                 if (meta) text = meta[1].trim();
                 if (!text || !creditRe.test(text)) return;
-                text = text.replace(/\s*[:：]\s*/g, '�?).replace(/\s+/g, ' ').trim();
+                text = text.replace(/\s*[:：]\s*/g, '：').replace(/\s+/g, ' ').trim();
                 if (!text || seen.has(text)) return;
                 seen.add(text);
                 credits.push({ t: 0, txt: text, credit: true });
@@ -724,7 +702,7 @@
             }
         };
 
-        // ================= 搜索与播放队�?=================
+        // ================= 搜索与播放队列 =================
         window.showSearchPanel = () => {
             const p = document.getElementById('panel-search');
             p.classList.remove('hidden');
@@ -751,7 +729,7 @@
             const q = document.getElementById('search-input').value.trim();
             const slot = document.getElementById('search-results');
             if (!q) return;
-            slot.innerHTML = '<div class="py-20 text-center text-textsub text-xs"><i class="ti ti-loader animate-spin text-2xl block mb-3"></i>搜索�?..</div>';
+            slot.innerHTML = '<div class="py-20 text-center text-textsub text-xs"><i class="ti ti-loader animate-spin text-2xl block mb-3"></i>搜索中...</div>';
             try {
                 let data = null;
                 const urls = [
@@ -828,10 +806,10 @@
                 </div>`).join('');
         }
 
-        // ================= API �?个人主页逻辑 =================
+        // ================= API 与 个人主页逻辑 =================
         function restoreLogin() {
             try {
-                const s = JSON.parse(safeStorage.getItem('NOVA_IOS_LOGIN_V2'));
+                const s = JSON.parse(localStorage.getItem('NOVA_IOS_LOGIN_V2'));
                 if (s && s.uid) { state.uid = s.uid; state.profile = s.profile; return true; }
             } catch(e){}
             return false;
@@ -839,11 +817,11 @@
 
         function saveLogin(uid, profile) {
             state.uid = uid; state.profile = profile;
-            safeStorage.setItem('NOVA_IOS_LOGIN_V2', JSON.stringify({uid, profile}));
+            localStorage.setItem('NOVA_IOS_LOGIN_V2', JSON.stringify({uid, profile}));
         }
 
         window.doLogout = () => {
-            safeStorage.removeItem('NOVA_IOS_LOGIN_V2');
+            localStorage.removeItem('NOVA_IOS_LOGIN_V2');
             state.uid = null; state.profile = null;
             renderUserSlot();
             document.getElementById('slot-playlists').innerHTML = '<div class="p-8 text-center text-textsub text-xs">请先登录</div>';
@@ -884,7 +862,7 @@
                     </div>
                     <div class="flex flex-col cursor-pointer text-textmain text-center" onclick="showLoginModal()">
                         <div class="text-base font-bold flex items-center justify-center gap-1">点击登录 <i class="ti ti-chevron-right text-xs text-textsub"></i></div>
-                        <div class="text-[11px] text-textsub mt-1">登录网易云获取个人歌单数�?/div>
+                        <div class="text-[11px] text-textsub mt-1">登录网易云获取个人歌单数据</div>
                     </div>`;
                 return;
             }
@@ -892,7 +870,7 @@
             const ava = p.avatarUrl || 'https://files.catbox.moe/k265vj.png';
             const nick = p.nickname || ('User_' + state.uid);
             const levelText = p.level ? `Lv.${p.level}` : 'Lv.--';
-            const listenText = p.listenSongs ? `${p.listenSongs} 首听歌` : '听歌数据同步�?;
+            const listenText = p.listenSongs ? `${p.listenSongs} 首听歌` : '听歌数据同步中';
             slot.innerHTML = `
                 <div class="w-20 h-20 rounded-full bg-card border-2 border-netred/70 shadow-lg overflow-hidden shrink-0">
                     <img src="${ava}" class="w-full h-full object-cover" />
@@ -906,12 +884,12 @@
                     </div>
                     <div class="mt-2 text-[11px] text-textsub">${listenText}</div>
                 </div>
-                <button class="mt-1 px-3 py-1.5 rounded-full hover:bg-hoverbg text-textsub text-[11px]" onclick="doLogout()"><i class="ti ti-logout mr-1"></i>退出登�?/button>`;
+                <button class="mt-1 px-3 py-1.5 rounded-full hover:bg-hoverbg text-textsub text-[11px]" onclick="doLogout()"><i class="ti ti-logout mr-1"></i>退出登录</button>`;
         }
 
         async function fetchAndRenderPlaylists(uid) {
             const slot = document.getElementById('slot-playlists');
-            slot.innerHTML = '<div class="p-8 text-center text-textsub text-xs flex flex-col items-center gap-2"><i class="ti ti-loader animate-spin text-xl"></i> 拉取歌单�?..</div>';
+            slot.innerHTML = '<div class="p-8 text-center text-textsub text-xs flex flex-col items-center gap-2"><i class="ti ti-loader animate-spin text-xl"></i> 拉取歌单中...</div>';
             try {
                 let d = null;
                 let lastError = '';
@@ -940,17 +918,17 @@
                             </div>
                             <div class="flex flex-col flex-1 overflow-hidden justify-center text-textmain">
                                 <div class="text-[14px] font-medium truncate tracking-wide">${pl.name}</div>
-                                <div class="text-[11px] text-textsub mt-0.5 truncate">${pl.trackCount}首音�?/div>
+                                <div class="text-[11px] text-textsub mt-0.5 truncate">${pl.trackCount}首音乐</div>
                             </div>
                             <i class="ti ti-chevron-right text-textsub text-sm pr-2"></i>
                         </div>`;
                     });
                     slot.innerHTML = html;
                 } else slot.innerHTML = '<div class="p-8 text-center text-textsub text-xs">暂无歌单</div>';
-            } catch(e) { slot.innerHTML = `<div class="p-8 text-center text-netred text-xs">加载失败�?{e.message || '请重�?}</div>`; }
+            } catch(e) { slot.innerHTML = `<div class="p-8 text-center text-netred text-xs">加载失败：${e.message || '请重试'}</div>`; }
         }
 
-        // ================= 登录弹窗与扫�?=================
+        // ================= 登录弹窗与扫码 =================
         const elModal = document.getElementById('modal-login');
         const elSheet = document.getElementById('modal-login-sheet');
         let qrTimer = null;
@@ -973,12 +951,12 @@
 
         function apiUrl(path) {
             const sep = path.includes('?') ? '&' : '?';
-            const cookie = safeStorage.getItem('NOVA_COOKIE') || '';
+            const cookie = localStorage.getItem('NOVA_COOKIE') || '';
             return `${API}${path}${sep}timestamp=${Date.now()}${cookie ? `&cookie=${encodeURIComponent(cookie)}` : ''}`;
         }
 
         async function finishLogin(raw, statusEl) {
-            if (raw && raw.cookie) safeStorage.setItem('NOVA_COOKIE', raw.cookie);
+            if (raw && raw.cookie) localStorage.setItem('NOVA_COOKIE', raw.cookie);
             let uid = raw?.account?.id || raw?.profile?.userId || null;
             let profile = raw?.profile || null;
             if (!uid) {
@@ -1023,11 +1001,11 @@
                         } else if (ck.code === 800) {
                             clearInterval(qrTimer); qs.innerText = '二维码过期，请重新打开弹窗';
                         } else if (ck.code === 802) {
-                            qs.innerText = '已扫码，请在手机上确认授�?;
+                            qs.innerText = '已扫码，请在手机上确认授权';
                         }
                     } catch(e) {}
                 }, 2000);
-            } catch(e) { qs.innerText = '获取二维码失败，请使用下方方�?; }
+            } catch(e) { qs.innerText = '获取二维码失败，请使用下方方式'; }
         }
 
         let captchaTimer = null;
@@ -1053,7 +1031,7 @@
                         count--;
                         if (count <= 0) {
                             clearInterval(captchaTimer);
-                            btn.innerText = '获取验证�?;
+                            btn.innerText = '获取验证码';
                             btn.disabled = false;
                             btn.classList.remove('opacity-50', 'cursor-not-allowed');
                         } else {
@@ -1076,17 +1054,17 @@
             const p = document.getElementById('inp-phone').value.trim();
             const w = document.getElementById('inp-pwd').value.trim();
             const err = document.getElementById('login-err');
-            if(!p || !w) { err.innerText = '手机号和密码/验证码不能为�?; return; }
-            err.innerText = '登录�?..';
+            if(!p || !w) { err.innerText = '手机号和密码/验证码不能为空'; return; }
+            err.innerText = '登录中...';
             
-            // 自动判断是验证码还是密码：纯数字�?=6位一律当作验证码
+            // 自动判断是验证码还是密码：纯数字且<=6位一律当作验证码
             const isCaptcha = w.length <= 6 && /^\d+$/.test(w);
             const url = apiUrl(`/login/cellphone?phone=${encodeURIComponent(p)}&ctcode=86&${isCaptcha ? 'captcha' : 'password'}=${encodeURIComponent(w)}`);
 
             try {
                 const d = await fetchWithTimeout(url, 8000, {credentials:'include'}).then(j=>j.json());
                 if(d.code===200) await finishLogin(d, err);
-                else err.innerText = d.message || '登录失败，请检查账号和验证�?;
+                else err.innerText = d.message || '登录失败，请检查账号和验证码';
             } catch(e) { err.innerText = '网络异常'; }
         };
 
@@ -1103,13 +1081,13 @@
             document.getElementById('detail-bg-blur').style.backgroundImage = `url('${pl.coverImgUrl}')`;
             document.getElementById('detail-cover').src = pl.coverImgUrl;
             document.getElementById('detail-title').innerText = pl.name;
-            document.getElementById('detail-playcount').innerText = Math.floor((pl.playCount||0)/10000) + '�?;
+            document.getElementById('detail-playcount').innerText = Math.floor((pl.playCount||0)/10000) + '万';
             document.getElementById('detail-creator-avatar').src = pl.creator?.avatarUrl || '';
             document.getElementById('detail-creator-name').innerText = pl.creator?.nickname || 'User';
-            document.getElementById('detail-trackcount').innerText = `(${pl.trackCount}�?`;
+            document.getElementById('detail-trackcount').innerText = `(${pl.trackCount}首)`;
             
             const tSlot = document.getElementById('slot-tracks');
-            tSlot.innerHTML = '<div class="py-16 text-center text-textsub"><i class="ti ti-loader animate-spin text-3xl"></i><div class="mt-3 text-xs">拉取歌曲�?..</div></div>';
+            tSlot.innerHTML = '<div class="py-16 text-center text-textsub"><i class="ti ti-loader animate-spin text-3xl"></i><div class="mt-3 text-xs">拉取歌曲中...</div></div>';
             
             try {
                 let songs = [];

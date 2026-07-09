@@ -163,6 +163,7 @@ ThemeData buildLightTheme(ColorScheme? dynamicScheme) {
 
   final theme = ThemeData(
     useMaterial3: true,
+    fontFamily: 'Chiikawa',
     colorScheme: scheme,
     scaffoldBackgroundColor: scheme.surface,
     snackBarTheme: SnackBarThemeData(
@@ -227,6 +228,7 @@ ThemeData buildLightThemeForScheme(
   // _logColorScheme('Light ${dynamicScheme != null ? 'Dynamic' : 'Static'}', scheme);
   final theme = ThemeData(
     useMaterial3: true,
+    fontFamily: 'Chiikawa',
     colorScheme: scheme,
     scaffoldBackgroundColor: scheme.surface,
     snackBarTheme: SnackBarThemeData(
@@ -313,6 +315,7 @@ ThemeData buildDarkTheme(ColorScheme? dynamicScheme) {
 
   final theme = ThemeData(
     useMaterial3: true,
+    fontFamily: 'Chiikawa',
     colorScheme: scheme,
     scaffoldBackgroundColor: scheme.surface,
     snackBarTheme: SnackBarThemeData(
@@ -376,6 +379,7 @@ ThemeData buildDarkThemeForScheme(
   // _logColorScheme('Dark ${dynamicScheme != null ? 'Dynamic' : 'Static'}', scheme);
   final theme = ThemeData(
     useMaterial3: true,
+    fontFamily: 'Chiikawa',
     colorScheme: scheme,
     scaffoldBackgroundColor: scheme.surface,
     snackBarTheme: SnackBarThemeData(

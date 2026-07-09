@@ -1020,7 +1020,9 @@ class DataSync {
               // Skip existing non-mergeable keys to preserve user preferences
             }
           }
-        } catch (_) {}
+        } catch (e) {
+          print('Restore settings failed: $e');
+        }
       }
 
       // Restore chats
@@ -1144,7 +1146,9 @@ class DataSync {
               }
             }
           }
-        } catch (_) {}
+        } catch (e) {
+          print('Restore chats failed: $e');
+        }
       }
 
       // Restore files
