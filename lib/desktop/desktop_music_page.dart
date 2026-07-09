@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -167,7 +167,12 @@ class _DesktopMusicPageState extends State<DesktopMusicPage> {
           : const SizedBox.shrink();
     }
     return _flutterCtrl != null
-        ? WebViewWidget(controller: _flutterCtrl!)
+        ? WebViewWidget(
+            controller: _flutterCtrl!,
+            gestureRecognizers: {
+              Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
+            },
+          )
         : const SizedBox.shrink();
   }
 }
