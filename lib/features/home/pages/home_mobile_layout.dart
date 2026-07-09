@@ -44,6 +44,8 @@ class HomeMobileScaffold extends StatelessWidget {
     required this.onToggleTemporaryConversation,
     required this.onSelectModel,
     required this.onOpenFavorites,
+    this.musicPlayerOpen = false,
+    required this.onToggleMusicPlayer,
     required this.canToggleTemporaryConversation,
     required this.temporaryConversationEnabled,
     required this.globalSearchMode,
@@ -72,6 +74,8 @@ class HomeMobileScaffold extends StatelessWidget {
   final Future<void> Function() onToggleTemporaryConversation;
   final VoidCallback onSelectModel;
   final VoidCallback onOpenFavorites;
+  final bool musicPlayerOpen;
+  final VoidCallback onToggleMusicPlayer;
   final bool canToggleTemporaryConversation;
   final bool temporaryConversationEnabled;
   final bool globalSearchMode;
@@ -123,7 +127,16 @@ class HomeMobileScaffold extends StatelessWidget {
         resizeToAvoidBottomInset: true,
         extendBodyBehindAppBar: true,
         appBar: appBarOverride ?? _buildAppBar(context, cs),
-        body: body,
+        body: Stack(
+          children: [
+            body,
+            DesktopMusicPage(
+              key: const ValueKey('music-overlay-mobile'),
+              isOpen: musicPlayerOpen,
+              onClose: onToggleMusicPlayer,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -258,6 +271,13 @@ class HomeMobileScaffold extends StatelessWidget {
               ],
             ),
       actions: [
+        IosIconButton(
+          size: 20,
+          minSize: 44,
+          onTap: onToggleMusicPlayer,
+          semanticLabel: AppLocalizations.of(context)!.desktopNavMusicTooltip,
+          icon: Lucide.AudioWaveform,
+        ),
         IosIconButton(
           size: 20,
           minSize: 44,

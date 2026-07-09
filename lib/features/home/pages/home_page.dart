@@ -467,6 +467,7 @@ class _HomePageState extends State<HomePage>
 
     _controller.addListener(_onControllerChanged);
     _drawerController.addListener(_onDrawerValueChanged);
+    _mediaController.addListener(_onMediaControllerChanged);
 
     _controller.initChat();
     _initProcessText();
@@ -510,6 +511,7 @@ class _HomePageState extends State<HomePage>
     _processTextSub?.cancel();
     _controller.removeListener(_onControllerChanged);
     _drawerController.removeListener(_onDrawerValueChanged);
+    _mediaController.removeListener(_onMediaControllerChanged);
     _inputFocus.dispose();
     _inputController.dispose();
     _scrollController.dispose();
@@ -519,6 +521,10 @@ class _HomePageState extends State<HomePage>
   }
 
   void _onControllerChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onMediaControllerChanged() {
     if (mounted) setState(() {});
   }
 
@@ -643,6 +649,8 @@ class _HomePageState extends State<HomePage>
       },
       onOpenMiniMap: _openMiniMap,
       onOpenFavorites: _openFavorites,
+      musicPlayerOpen: _musicPlayerOpen,
+      onToggleMusicPlayer: _openMusicPlayer,
       onCreateNewConversation: () async {
         await _controller.createNewConversationAnimated();
         if (mounted) {
@@ -809,7 +817,9 @@ class _HomePageState extends State<HomePage>
       onOpenFavorites: _openFavorites,
       favoritesOpen: _favoritesOpen,
       favoritesScope: _favoritesScope(),
+      favoriteReferenceIds: _mediaController.favoriteCardIds,
       onToggleFavorites: _openFavorites,
+      onFavoriteReference: (ref) => _mediaController.toggleFavoriteCard(ref),
       musicPlayerOpen: _musicPlayerOpen,
       onToggleMusicPlayer: _openMusicPlayer,
       onSidebarWidthChanged: _controller.updateSidebarWidth,
@@ -1433,7 +1443,10 @@ class _HomePageState extends State<HomePage>
           child: FavoritesPage(
             embedded: true,
             scope: _favoritesScope(),
+            selectedReferenceIds: _mediaController.favoriteCardIds,
             onClose: () => Navigator.of(ctx).maybePop(),
+            onToggleReference: (ref) =>
+                _mediaController.toggleFavoriteCard(ref),
           ),
         ),
       );
