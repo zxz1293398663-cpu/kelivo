@@ -97,8 +97,7 @@ class _DesktopMusicPageState extends State<DesktopMusicPage> {
         'KelivoHost',
         onMessageReceived: (msg) => _handleMessage(msg.message),
       );
-    final encoded = base64Encode(utf8.encode(html));
-    await c.loadRequest(Uri.parse('data:text/html;base64,$encoded'));
+    await c.loadHtmlString(html, baseUrl: 'https://kelivo.local/');
     _flutterCtrl = c;
   }
 
