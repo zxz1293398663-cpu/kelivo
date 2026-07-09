@@ -625,7 +625,8 @@ class HomePageController extends ChangeNotifier {
     final content = input.text.trim();
     if (content.isEmpty &&
         input.imagePaths.isEmpty &&
-        input.documents.isEmpty) {
+        input.documents.isEmpty &&
+        input.favoriteCards.isEmpty) {
       return ChatInputSubmissionResult.rejected;
     }
     final editState = _userMessageEditState;
@@ -640,7 +641,19 @@ class HomePageController extends ChangeNotifier {
       await _createNewConversation();
     }
 
-    final result = await _viewModel.sendMessage(input);
+    final ChatInputData actualInput = input.favoriteCards.isEmpty
+        ? input
+        : ChatInputData(
+            text: input.text.trim().isNotEmpty
+                ? '${input.text.trim()}\n\n${input.favoriteCards.map((c) => c.text).join('\n\n')}'
+                : input.favoriteCards.map((c) => c.text).join('\n\n'),
+            imagePaths: input.imagePaths,
+            documents: input.documents,
+            favoriteCards: input.favoriteCards,
+            allowImagesApiRouting: input.allowImagesApiRouting,
+          );
+
+    final result = await _viewModel.sendMessage(actualInput);
     if (result != ChatInputSubmissionResult.rejected) {
       notifyListeners();
     }
