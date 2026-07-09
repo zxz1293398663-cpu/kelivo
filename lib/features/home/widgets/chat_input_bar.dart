@@ -18,6 +18,7 @@ import '../../../core/models/chat_input_data.dart';
 import '../../../utils/clipboard_images.dart';
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/providers/assistant_provider.dart';
+import '../../favorites/services/favorite_cards_store.dart';
 import '../../../core/services/search/search_service.dart';
 import '../../../core/services/api/builtin_tools.dart';
 import '../../../core/services/api/chat_api_service.dart';
@@ -29,11 +30,18 @@ import 'package:super_clipboard/super_clipboard.dart';
 import '../../../desktop/desktop_context_menu.dart';
 import 'package:Kelivo/theme/app_font_weights.dart';
 
-class ChatInputBarController {
+class ChatInputBarController extends ChangeNotifier {
   _ChatInputBarState? _state;
-  void _bind(_ChatInputBarState s) => _state = s;
+  void _bind(_ChatInputBarState s) {
+    _state = s;
+    notifyListeners();
+  }
+
   void _unbind(_ChatInputBarState s) {
-    if (identical(_state, s)) _state = null;
+    if (identical(_state, s)) {
+      _state = null;
+      notifyListeners();
+    }
   }
 
   bool get allowImagesApiRouting => _state?._allowImagesApiRouting ?? true;
@@ -43,6 +51,16 @@ class ChatInputBarController {
   void clearImages() => _state?._clearImages();
   void addFiles(List<DocumentAttachment> docs) => _state?._addFiles(docs);
   void clearFiles() => _state?._clearFiles();
+
+  void toggleFavoriteCard(FavoriteCardReference ref) {
+    _state?._addFavoriteCard(ref);
+    notifyListeners();
+  }
+
+  Set<String> get favoriteCardIds =>
+      _state?._favoriteCards.map((c) => c.id).toSet() ?? {};
+  void removeFavoriteCard(int idx) => _state?._removeFavoriteCard(idx);
+
   void restoreInput(ChatInputData input) => _state?._restoreInput(input);
   ChatInputData snapshotInput(String text) =>
       _state?._snapshotInput(text) ?? ChatInputData(text: text.trim());
@@ -162,6 +180,7 @@ class _ChatInputBarState extends State<ChatInputBar>
   final List<String> _images = <String>[]; // local file paths
   final List<DocumentAttachment> _docs =
       <DocumentAttachment>[]; // files to upload
+  final List<FavoriteCardReference> _favoriteCards = <FavoriteCardReference>[];
   final Map<LogicalKeyboardKey, Timer?> _repeatTimers = {};
   static const Duration _repeatInitialDelay = Duration(milliseconds: 300);
   static const Duration _repeatPeriod = Duration(milliseconds: 35);
@@ -270,6 +289,19 @@ class _ChatInputBarState extends State<ChatInputBar>
     setState(() => _docs.clear());
   }
 
+  void _addFavoriteCard(FavoriteCardReference ref) {
+    final existingIdx = _favoriteCards.indexWhere((c) => c.id == ref.id);
+    if (existingIdx >= 0) {
+      setState(() => _favoriteCards.removeAt(existingIdx));
+    } else {
+      setState(() => _favoriteCards.add(ref));
+    }
+  }
+
+  void _removeFavoriteCard(int idx) {
+    setState(() => _favoriteCards.removeAt(idx));
+  }
+
   void _restoreInput(ChatInputData input) {
     setState(() {
       _images
@@ -278,6 +310,9 @@ class _ChatInputBarState extends State<ChatInputBar>
       _docs
         ..clear()
         ..addAll(input.documents);
+      _favoriteCards
+        ..clear()
+        ..addAll(input.favoriteCards);
     });
   }
 
@@ -286,6 +321,7 @@ class _ChatInputBarState extends State<ChatInputBar>
       text: text.trim(),
       imagePaths: List<String>.of(_images),
       documents: List<DocumentAttachment>.of(_docs),
+      favoriteCards: List<FavoriteCardReference>.of(_favoriteCards),
       allowImagesApiRouting: _allowImagesApiRouting,
     );
   }
@@ -295,6 +331,7 @@ class _ChatInputBarState extends State<ChatInputBar>
       _controller.clear();
       _images.clear();
       _docs.clear();
+      _favoriteCards.clear();
     });
   }
 

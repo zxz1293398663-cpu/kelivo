@@ -24,7 +24,8 @@ import '../widgets/assistant_avatar.dart';
 import '../widgets/assistant_entry_actions.dart';
 import 'package:Kelivo/theme/app_font_weights.dart';
 import '../../favorites/pages/favorites_page.dart';
-import '../../favorites/services/favorite_cards_store.dart';
+import '../../favorites/services/favorite_cards_store.dart'
+    show FavoriteCardReference, FavoriteScope;
 import '../../../desktop/desktop_music_page.dart';
 
 /// Desktop/Tablet layout scaffold for the home page
@@ -57,7 +58,9 @@ class HomeDesktopScaffold extends StatelessWidget {
     required this.onOpenFavorites,
     this.favoritesOpen = false,
     required this.favoritesScope,
+    this.favoriteReferenceIds = const <String>{},
     required this.onToggleFavorites,
+    this.onFavoriteReference,
     this.musicPlayerOpen = false,
     required this.onToggleMusicPlayer,
     required this.canToggleTemporaryConversation,
@@ -101,7 +104,9 @@ class HomeDesktopScaffold extends StatelessWidget {
   final VoidCallback onOpenFavorites;
   final bool favoritesOpen;
   final FavoriteScope favoritesScope;
+  final Set<String> favoriteReferenceIds;
   final VoidCallback onToggleFavorites;
+  final ValueChanged<FavoriteCardReference>? onFavoriteReference;
   final bool musicPlayerOpen;
   final VoidCallback onToggleMusicPlayer;
   final bool canToggleTemporaryConversation;
@@ -197,7 +202,9 @@ class HomeDesktopScaffold extends StatelessWidget {
                   key: const ValueKey('favorites-overlay'),
                   embedded: true,
                   scope: favoritesScope,
+                  selectedReferenceIds: favoriteReferenceIds,
                   onClose: onToggleFavorites,
+                  onToggleReference: onFavoriteReference,
                 )
               : const SizedBox.shrink(),
         ),

@@ -1,3 +1,5 @@
+import 'package:Kelivo/features/favorites/services/favorite_cards_store.dart';
+
 class DocumentAttachment {
   final String path; // absolute file path
   final String fileName;
@@ -14,12 +16,14 @@ class ChatInputData {
   final String text;
   final List<String> imagePaths; // absolute file paths or data URLs
   final List<DocumentAttachment> documents; // selected files
+  final List<FavoriteCardReference> favoriteCards;
   final bool allowImagesApiRouting;
 
   const ChatInputData({
     required this.text,
     this.imagePaths = const [],
     this.documents = const [],
+    this.favoriteCards = const [],
     this.allowImagesApiRouting = true,
   });
 }
