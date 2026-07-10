@@ -48,8 +48,6 @@ class HomeMobileScaffold extends StatelessWidget {
     required this.onOpenFavorites,
     this.favoriteReferenceIds = const <String>{},
     this.onFavoriteReference,
-    this.virtualPhoneOpen = false,
-    required this.onToggleVirtualPhone,
     this.musicPlayerOpen = false,
     required this.onToggleMusicPlayer,
     required this.canToggleTemporaryConversation,
@@ -82,8 +80,6 @@ class HomeMobileScaffold extends StatelessWidget {
   final VoidCallback onOpenFavorites;
   final Set<String> favoriteReferenceIds;
   final ValueChanged<FavoriteCardReference>? onFavoriteReference;
-  final bool virtualPhoneOpen;
-  final VoidCallback onToggleVirtualPhone;
   final bool musicPlayerOpen;
   final VoidCallback onToggleMusicPlayer;
   final bool canToggleTemporaryConversation;
@@ -303,13 +299,6 @@ class HomeMobileScaffold extends StatelessWidget {
           onTap: onOpenMiniMap,
           semanticLabel: AppLocalizations.of(context)!.miniMapTooltip,
           icon: Lucide.Map,
-        ),
-        IosIconButton(
-          size: 22,
-          minSize: 44,
-          semanticLabel: AppLocalizations.of(context)!.desktopNavPhoneTooltip,
-          icon: Lucide.Phone,
-          onTap: onToggleVirtualPhone,
         ),
         IosIconButton(
           size: 22,

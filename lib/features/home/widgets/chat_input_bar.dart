@@ -266,7 +266,8 @@ class _ChatInputBarState extends State<ChatInputBar>
     return key == null || key != _dismissedImageModeModelKey;
   }
 
-  bool get _hasDraftMedia => _images.isNotEmpty || _docs.isNotEmpty;
+  bool get _hasDraftMedia =>
+      _images.isNotEmpty || _docs.isNotEmpty || _favoriteCards.isNotEmpty;
 
   // Instance method for onChanged to avoid recreating the callback on every build
   void _onTextChanged(String _) => setState(() {});
@@ -1693,6 +1694,86 @@ class _ChatInputBarState extends State<ChatInputBar>
                 },
               ),
             ),
+          if (_docs.isNotEmpty && _favoriteCards.isNotEmpty)
+            const SizedBox(height: AppSpacing.xs),
+          if (_favoriteCards.isNotEmpty)
+            SizedBox(
+              key: const ValueKey('chat-input-favorite-previews'),
+              height: 56,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _favoriteCards.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, idx) {
+                  final c = _favoriteCards[idx];
+                  return Container(
+                    constraints: const BoxConstraints(maxWidth: 240),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: previewFill,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: previewBorder, width: 1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.bookmark,
+                          size: 16,
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.72,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                c.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                c.text,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.55,
+                                  ),
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        IosIconButton(
+                          key: ValueKey('chat-input-favorite-remove:$idx'),
+                          icon: Icons.close,
+                          size: 16,
+                          padding: const EdgeInsets.all(3),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.58,
+                          ),
+                          onTap: () => _removeFavoriteCard(idx),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
@@ -1711,16 +1792,20 @@ class _ChatInputBarState extends State<ChatInputBar>
     final hasText = _controller.text.trim().isNotEmpty;
     final hasImages = _images.isNotEmpty;
     final hasDocs = _docs.isNotEmpty;
+    final hasFavorites = _favoriteCards.isNotEmpty;
     _supportsImagesApiRouting(context);
     final size = MediaQuery.sizeOf(context);
     final viewInsets = MediaQuery.viewInsetsOf(context);
     final bool isMobileLayout = size.width < AppBreakpoints.tablet;
     final double visibleHeight = size.height - viewInsets.bottom;
-    final double attachmentPreviewHeight = (hasDocs || hasImages)
+    final double attachmentPreviewHeight =
+        (hasDocs || hasImages || hasFavorites)
         ? AppSpacing.sm +
               (hasImages ? _imagePreviewHeight : 0) +
               (hasImages && hasDocs ? AppSpacing.xs : 0) +
               (hasDocs ? _documentPreviewHeight : 0) +
+              ((hasImages || hasDocs) && hasFavorites ? AppSpacing.xs : 0) +
+              (hasFavorites ? 56.0 : 0) +
               AppSpacing.xxs
         : 0;
     const double baseChromeHeight = 120; // padding + action row + chrome buffer
@@ -1793,7 +1878,7 @@ class _ChatInputBarState extends State<ChatInputBar>
                       ),
                       child: Column(
                         children: [
-                          if (hasDocs || hasImages)
+                          if (hasDocs || hasImages || hasFavorites)
                             _buildInlineAttachmentPreviews(context, isDark),
                           // Input field with expand/collapse button
                           Stack(
@@ -2025,7 +2110,7 @@ class _ChatInputBarState extends State<ChatInputBar>
                                     ],
                                     _CompactSendButton(
                                       enabled:
-                                          (hasText || hasImages || hasDocs) &&
+                                          (hasText || hasImages || hasDocs || hasFavorites) &&
                                           !widget.loading,
                                       loading: widget.loading,
                                       onSend: _handleSend,

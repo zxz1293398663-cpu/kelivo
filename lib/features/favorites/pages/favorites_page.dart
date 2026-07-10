@@ -172,24 +172,26 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           : LayoutBuilder(
                               builder: (context, constraints) {
                                 final crossAxisCount =
-                                    constraints.maxWidth >= 1100
+                                    constraints.maxWidth >= 900
+                                    ? 4
+                                    : constraints.maxWidth >= 700
                                     ? 3
-                                    : constraints.maxWidth >= 720
+                                    : constraints.maxWidth >= 500
                                     ? 2
                                     : 1;
                                 return GridView.builder(
                                   padding: const EdgeInsets.fromLTRB(
-                                    18,
-                                    14,
-                                    18,
+                                    16,
+                                    12,
+                                    16,
                                     96,
                                   ),
                                   gridDelegate:
                                       SliverGridDelegateWithFixedCrossAxisCount(
                                         crossAxisCount: crossAxisCount,
-                                        crossAxisSpacing: 14,
-                                        mainAxisSpacing: 14,
-                                        mainAxisExtent: 180,
+                                        crossAxisSpacing: 8,
+                                        mainAxisSpacing: 8,
+                                        mainAxisExtent: 130,
                                       ),
                                   itemCount: _cards.length,
                                   itemBuilder: (context, index) {
@@ -528,14 +530,14 @@ class _FavoriteCardTile extends StatelessWidget {
 
     return IosCardPress(
       onTap: onPreview,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       padding: EdgeInsets.zero,
       baseColor: Colors.transparent,
       child: Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: bodyBg,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: referenced ? selectedColor : borderColor,
             width: referenced ? 1.5 : 1,
@@ -555,13 +557,13 @@ class _FavoriteCardTile extends StatelessWidget {
               color: headerBg,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+                  horizontal: 10,
+                  vertical: 6,
                 ),
                 child: Row(
                   children: [
-                    Icon(Lucide.Code, size: 15, color: titleColor),
-                    const SizedBox(width: 8),
+                    Icon(Lucide.Code, size: 13, color: titleColor),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         card.title,
@@ -569,9 +571,9 @@ class _FavoriteCardTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: titleColor,
-                          fontSize: 13,
+                          fontSize: 12,
                           fontFamily: 'Noto Serif SC',
-                          letterSpacing: 0.5,
+                          letterSpacing: 0.4,
                           fontWeight: AppFontWeights.semibold,
                         ),
                       ),
@@ -581,16 +583,16 @@ class _FavoriteCardTile extends StatelessWidget {
                       semanticLabel: l10n.favoritesCopyForAi,
                       onTap: onCopy,
                       color: referenced ? selectedColor : titleColor,
-                      size: 17,
-                      padding: const EdgeInsets.all(4),
+                      size: 15,
+                      padding: const EdgeInsets.all(3),
                     ),
                     IosIconButton(
                       icon: Lucide.Edit,
                       semanticLabel: l10n.messageMoreSheetEdit,
                       onTap: onEdit,
                       color: textColor,
-                      size: 17,
-                      padding: const EdgeInsets.all(4),
+                      size: 15,
+                      padding: const EdgeInsets.all(3),
                     ),
                     IosIconButton(
                       icon: Lucide.Trash2,
@@ -599,8 +601,8 @@ class _FavoriteCardTile extends StatelessWidget {
                           ? const Color(0xFFD4878A)
                           : const Color(0xFFB86B6E),
                       onTap: onDelete,
-                      size: 17,
-                      padding: const EdgeInsets.all(4),
+                      size: 15,
+                      padding: const EdgeInsets.all(3),
                     ),
                   ],
                 ),
@@ -609,14 +611,14 @@ class _FavoriteCardTile extends StatelessWidget {
             Expanded(
               child: ClipRect(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+                  padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
                   physics: const BouncingScrollPhysics(),
                   child: SelectableText(
                     card.content,
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 12,
-                      height: 1.45,
+                      fontSize: 11,
+                      height: 1.35,
                       fontFamily: 'monospace',
                     ),
                   ),

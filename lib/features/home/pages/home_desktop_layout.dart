@@ -27,7 +27,6 @@ import '../../favorites/pages/favorites_page.dart';
 import '../../favorites/services/favorite_cards_store.dart'
     show FavoriteCardReference, FavoriteScope;
 import '../../../desktop/desktop_music_page.dart';
-import '../../../desktop/desktop_virtual_phone_page.dart';
 
 /// Desktop/Tablet layout scaffold for the home page
 /// Handles the overall structure: left sidebar, main content, optional right sidebar
@@ -62,8 +61,6 @@ class HomeDesktopScaffold extends StatelessWidget {
     this.favoriteReferenceIds = const <String>{},
     required this.onToggleFavorites,
     this.onFavoriteReference,
-    this.virtualPhoneOpen = false,
-    required this.onToggleVirtualPhone,
     this.musicPlayerOpen = false,
     required this.onToggleMusicPlayer,
     required this.canToggleTemporaryConversation,
@@ -110,8 +107,6 @@ class HomeDesktopScaffold extends StatelessWidget {
   final Set<String> favoriteReferenceIds;
   final VoidCallback onToggleFavorites;
   final ValueChanged<FavoriteCardReference>? onFavoriteReference;
-  final bool virtualPhoneOpen;
-  final VoidCallback onToggleVirtualPhone;
   final bool musicPlayerOpen;
   final VoidCallback onToggleMusicPlayer;
   final bool canToggleTemporaryConversation;
@@ -217,11 +212,6 @@ class HomeDesktopScaffold extends StatelessWidget {
           key: const ValueKey('music-overlay'),
           isOpen: musicPlayerOpen,
           onClose: onToggleMusicPlayer,
-        ),
-        DesktopVirtualPhonePage(
-          key: const ValueKey('phone-overlay'),
-          isOpen: virtualPhoneOpen,
-          onClose: onToggleVirtualPhone,
         ),
       ],
     );
@@ -618,26 +608,17 @@ class HomeDesktopScaffold extends StatelessWidget {
         icon: Lucide.Heart,
         onTap: onOpenFavorites,
       ),
-      const SizedBox(width: 2),
-      IosIconButton(
-        size: 20,
-        padding: const EdgeInsets.all(8),
-        minSize: 40,
-        semanticLabel: AppLocalizations.of(context)!.desktopNavMusicTooltip,
-        icon: Lucide.AudioWaveform,
-        onTap: onToggleMusicPlayer,
-      ),
-      const SizedBox(width: 2),
-      IosIconButton(
-        size: 20,
-        padding: const EdgeInsets.all(8),
-        minSize: 40,
-        semanticLabel: AppLocalizations.of(context)!.desktopNavPhoneTooltip,
-        icon: Lucide.Phone,
-        onTap: onToggleVirtualPhone,
-      ),
-      const SizedBox(width: 2),
-      IosIconButton(
+        const SizedBox(width: 2),
+        IosIconButton(
+          size: 20,
+          padding: const EdgeInsets.all(8),
+          minSize: 40,
+          semanticLabel: AppLocalizations.of(context)!.desktopNavMusicTooltip,
+          icon: Lucide.AudioWaveform,
+          onTap: onToggleMusicPlayer,
+        ),
+        const SizedBox(width: 2),
+        IosIconButton(
         size: 20,
         padding: const EdgeInsets.all(8),
         minSize: 40,
