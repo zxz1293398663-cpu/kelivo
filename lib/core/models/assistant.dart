@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'assistant_regex.dart';
 import 'preset_message.dart';
+import 'assistant_play_mode.dart';
 
 class Assistant {
   static const int defaultRecentChatsSummaryMessageCount = 5;
@@ -50,6 +51,7 @@ class Assistant {
   final List<PresetMessage> presetMessages;
   // Regex replacement rules
   final List<AssistantRegex> regexRules;
+  final AssistantPlayMode playMode;
 
   const Assistant({
     required this.id,
@@ -79,6 +81,7 @@ class Assistant {
     this.recentChatsSummaryMessageCount = defaultRecentChatsSummaryMessageCount,
     this.presetMessages = const <PresetMessage>[],
     this.regexRules = const <AssistantRegex>[],
+    this.playMode = AssistantPlayMode.novel,
   });
 
   Assistant copyWith({
@@ -109,6 +112,7 @@ class Assistant {
     int? recentChatsSummaryMessageCount,
     List<PresetMessage>? presetMessages,
     List<AssistantRegex>? regexRules,
+    AssistantPlayMode? playMode,
     bool clearChatModel = false,
     bool clearAvatar = false,
     bool clearTemperature = false,
@@ -182,6 +186,7 @@ class Assistant {
     'recentChatsSummaryMessageCount': recentChatsSummaryMessageCount,
     'presetMessages': PresetMessage.encodeList(presetMessages),
     'regexRules': regexRules.map((e) => e.toJson()).toList(),
+    'playMode': playMode.name,
   };
 
   static Assistant fromJson(Map<String, dynamic> json) => Assistant(
@@ -264,6 +269,7 @@ class Assistant {
       }
       return const <AssistantRegex>[];
     })(),
+    playMode: AssistantPlayModeExt.fromName(json['playMode'] as String?),
   );
 
   static String encodeList(List<Assistant> list) =>

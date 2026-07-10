@@ -49,6 +49,7 @@ import '../../../utils/avatar_cache.dart';
 import '../../../utils/brand_assets.dart';
 import '../../../utils/sandbox_path_resolver.dart';
 import '../utils/assistant_edit_tab_layout.dart';
+import '../widgets/play_mode_selector.dart';
 import 'assistant_regex_tab.dart';
 
 part 'assistant_settings_edit_basic_tab.dart';

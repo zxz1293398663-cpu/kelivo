@@ -166,6 +166,14 @@ class _BasicSettingsTabState extends State<_BasicSettingsTab> {
         ),
         const SizedBox(height: 16),
 
+        PlayModeSelector(
+          currentMode: a.playMode,
+          onModeChanged: (mode) {
+            context.read<AssistantProvider>().updateAssistant(a.copyWith(playMode: mode));
+          },
+        ),
+        const SizedBox(height: 16),
+
         // iOS section card with all settings (without Use Assistant Avatar and Stream Output)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 0),
