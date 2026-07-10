@@ -652,6 +652,8 @@ class _HomePageState extends State<HomePage>
       onOpenFavorites: _openFavorites,
       musicPlayerOpen: _musicPlayerOpen,
       onToggleMusicPlayer: _openMusicPlayer,
+      virtualPhoneOpen: _virtualPhoneOpen,
+      onToggleVirtualPhone: _openVirtualPhone,
       onCreateNewConversation: () async {
         await _controller.createNewConversationAnimated();
         if (mounted) {
