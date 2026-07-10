@@ -127,7 +127,7 @@ List<_AssistantEditTabSpec> _assistantEditTabSpecs(
       child: _CustomRequestTab(assistantId: assistantId),
     ),
     _AssistantEditTabSpec(
-      id: 'advanced_prompts',
+      id: assistantEditTabAdvancedPrompts,
       label: '高级预设/Toolbox', // Localize later
       icon: Lucide.ListTree,
       child: _AdvancedPromptTab(assistantId: assistantId),
