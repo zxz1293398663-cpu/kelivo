@@ -12,6 +12,8 @@ import '../../../utils/avatar_cache.dart';
 import '../../../utils/sandbox_path_resolver.dart';
 import '../../../core/services/haptics.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:file_picker/file_picker.dart';
+import '../../../core/services/importers/tavern_card_importer.dart';
 import '../../../shared/widgets/snackbar.dart';
 import '../../../theme/app_font_weights.dart';
 
@@ -40,22 +42,46 @@ class AssistantSettingsPage extends StatelessWidget {
         actions: [
           Tooltip(
             message: l10n.assistantSettingsAddSheetSave,
-            child: _TactileIconButton(
-              icon: Lucide.Plus,
-              color: cs.onSurface,
-              size: 22,
-              onTap: () async {
+            child: PopupMenuButton<int>(
+              icon: Icon(Lucide.Plus, color: cs.onSurface),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 0,
+                  child: Row(
+                    children: [
+                      Icon(Lucide.MessageSquare, size: 18, color: cs.onSurface),
+                      const SizedBox(width: 8),
+                      Text(l10n.assistantSettingsAddSheetSave),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 1,
+                  child: Row(
+                    children: [
+                      Icon(Lucide.FileText, size: 18, color: cs.onSurface),
+                      const SizedBox(width: 8),
+                      const Text('导入角色卡 (Tavern JSON)'),
+                    ],
+                  ),
+                ),
+              ],
+              onSelected: (value) async {
                 final assistantProvider = context.read<AssistantProvider>();
-                final name = await _showAddAssistantSheet(context);
-                if (!context.mounted || name == null) return;
-                final id = await assistantProvider.addAssistant(
-                  name: name.trim(),
-                  context: context,
-                );
+                String? id;
+                if (value == 0) {
+                  final name = await _showAddAssistantSheet(context);
+                  if (!context.mounted || name == null) return;
+                  id = await assistantProvider.addAssistant(name: name.trim());
+                } else if (value == 1) {
+                  id = await _importTavernCard(context);
+                }
                 if (!context.mounted) return;
+                if (id == null) return;
                 await Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => AssistantSettingsEditPage(assistantId: id),
+                    builder: (_) => AssistantSettingsEditPage(assistantId: id!),
                   ),
                 );
               },
@@ -417,6 +443,35 @@ class _TactileCardState extends State<_TactileCard> {
         ),
       ),
     );
+  }
+}
+
+Future<String?> _importTavernCard(BuildContext context) async {
+  try {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json', 'png'],
+    );
+    if (result == null || result.files.isEmpty) return null;
+    final file = result.files.first;
+    if (file.path == null) return null;
+
+    final String content = await File(file.path!).readAsString();
+    final assistant = TavernCardImporter.parseV2Json(content);
+    if (assistant == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('解析角色卡失败')));
+      }
+      return null;
+    }
+
+    if (context.mounted) {
+      final ap = context.read<AssistantProvider>();
+      await ap.addAssistantObject(assistant);
+    }
+    return assistant.id;
+  } catch (e) {
+    return null;
   }
 }
 

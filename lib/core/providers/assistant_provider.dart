@@ -323,6 +323,15 @@ class AssistantProvider extends ChangeNotifier {
     ];
   }
 
+  Future<void> addAssistantObject(Assistant assistant) async {
+    _assistants.insert(0, assistant);
+    await _persist();
+    _currentAssistantId = assistant.id;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_currentAssistantKey, assistant.id);
+    notifyListeners();
+  }
+
   Future<String> addAssistant({String? name, dynamic context}) async {
     final a = Assistant(
       id: const Uuid().v4(),
