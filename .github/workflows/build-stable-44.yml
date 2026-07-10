@@ -392,9 +392,9 @@ jobs:
           #define MyAppVersion "$env:VERSION"
           #define MyAppPublisher "Psyche"
           #define MyAppExeName "kelivo.exe"
-            [Setup]
-            AppId={{A7B8C9D0-E1F2-4A5B-8C9D-0E1F2A3B4C5D}
-            AppName={#MyAppName}
+          [Setup]
+          AppId={{A7B8C9D0-E1F2-4A5B-8C9D-0E1F2A3B4C5D}}
+          AppName={#MyAppName}
           AppVersion={#MyAppVersion}
           AppPublisher={#MyAppPublisher}
           DefaultDirName={autopf}\{#MyAppName}
