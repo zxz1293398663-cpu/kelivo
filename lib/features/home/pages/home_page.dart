@@ -58,6 +58,7 @@ import '../widgets/chat_selection_app_bar.dart';
 import '../widgets/chat_selection_delete_bar.dart';
 import '../widgets/chat_selection_export_bar.dart';
 import '../widgets/user_message_edit_overlay.dart';
+import '../../../desktop/desktop_virtual_phone_page.dart';
 import '../utils/model_display_helper.dart';
 import '../utils/chat_layout_constants.dart';
 import '../controllers/home_page_controller.dart';
@@ -822,6 +823,8 @@ class _HomePageState extends State<HomePage>
       onFavoriteReference: (ref) => _mediaController.toggleFavoriteCard(ref),
       musicPlayerOpen: _musicPlayerOpen,
       onToggleMusicPlayer: _openMusicPlayer,
+      virtualPhoneOpen: _virtualPhoneOpen,
+      onToggleVirtualPhone: _openVirtualPhone,
       onSidebarWidthChanged: _controller.updateSidebarWidth,
       onSidebarWidthChangeEnd: _controller.saveSidebarWidth,
       onRightSidebarWidthChanged: _controller.updateRightSidebarWidth,
@@ -1418,6 +1421,7 @@ class _HomePageState extends State<HomePage>
 
   bool _favoritesOpen = false;
   bool _musicPlayerOpen = false;
+  bool _virtualPhoneOpen = false;
 
   FavoriteScope _favoritesScope() {
     final convo = _controller.currentConversation;
@@ -1429,6 +1433,10 @@ class _HomePageState extends State<HomePage>
 
   void _openMusicPlayer() {
     setState(() => _musicPlayerOpen = !_musicPlayerOpen);
+  }
+
+  void _openVirtualPhone() {
+    setState(() => _virtualPhoneOpen = !_virtualPhoneOpen);
   }
 
   void _openFavorites() {

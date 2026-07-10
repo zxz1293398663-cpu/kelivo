@@ -5648,4 +5648,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get musicPlayerUnavailable => 'Music player unavailable';
+
+  @override
+  String get desktopNavPhoneTooltip => 'Virtual Phone';
 }

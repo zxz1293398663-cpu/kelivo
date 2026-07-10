@@ -2417,5 +2417,6 @@
   "newsGeneratorWorldPrompt": "Generate 3 world news headlines based on an imaginative fictional world. Use creative yet believable settings. Return in plain text, each headline on a new line starting with \"- \".",
   "newsGeneratorLocalPrompt": "Generate 3 local news items set in a fictional town or community. Describe everyday events with local color. Return in plain text, each on a new line starting with \"- \".",
   "newsGeneratorSocialPrompt": "Generate 4 social media posts from fictional characters reacting to recent events. Mix humor, drama, and casual observations. Return in plain text, each on a new line starting with \"- \".",
-  "musicPlayerUnavailable": "Music player unavailable"
+  "musicPlayerUnavailable": "Music player unavailable",
+  "desktopNavPhoneTooltip": "Virtual Phone"
 }

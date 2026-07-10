@@ -1994,5 +1994,6 @@
   "newsGeneratorWorldPrompt": "基于虚构世界观生成 3 条世界新闻头条。使用创意且可信的场景。以纯文本返回，每条一行，以 \"- \" 开头。",
   "newsGeneratorLocalPrompt": "基于虚构小镇或社区生成 3 条本地新闻。描述带有地方色彩的日常事件。以纯文本返回，每条一行，以 \"- \" 开头。",
   "newsGeneratorSocialPrompt": "生成 4 条虚构角色对近期事件的社交媒体动态。混合幽默、戏剧和日常观察。以纯文本返回，每条一行，以 \"- \" 开头。",
-  "musicPlayerUnavailable": "音乐播放器不可用"
+  "musicPlayerUnavailable": "音乐播放器不可用",
+  "desktopNavPhoneTooltip": "虚拟手机"
 }

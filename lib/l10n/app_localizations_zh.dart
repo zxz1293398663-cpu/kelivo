@@ -5428,6 +5428,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get musicPlayerUnavailable => '音乐播放器不可用';
+
+  @override
+  String get desktopNavPhoneTooltip => '虚拟手机';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -10854,6 +10857,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get musicPlayerUnavailable => '音乐播放器不可用';
+
+  @override
+  String get desktopNavPhoneTooltip => '虚拟手机';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -16280,4 +16286,7 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get musicPlayerUnavailable => '音樂播放器不可用';
+
+  @override
+  String get desktopNavPhoneTooltip => '虛擬手機';
 }

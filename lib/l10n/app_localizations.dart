@@ -10393,6 +10393,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Music player unavailable'**
   String get musicPlayerUnavailable;
+
+  /// No description provided for @desktopNavPhoneTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Virtual Phone'**
+  String get desktopNavPhoneTooltip;
 }
 
 class _AppLocalizationsDelegate
