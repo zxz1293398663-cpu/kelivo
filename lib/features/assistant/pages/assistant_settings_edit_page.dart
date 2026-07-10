@@ -59,6 +59,7 @@ part 'assistant_settings_edit_local_tools_tab.dart';
 part 'assistant_settings_edit_mcp_tab.dart';
 part 'assistant_settings_edit_quick_phrase_tab.dart';
 part 'assistant_settings_edit_custom_request_tab.dart';
+part 'assistant_settings_edit_advanced_prompt_tab.dart';
 
 const int _contextMessageMin = Assistant.minContextMessageSize;
 const int _contextMessageMax = Assistant.maxContextMessageSize;
@@ -124,6 +125,12 @@ List<_AssistantEditTabSpec> _assistantEditTabSpecs(
       label: l10n.assistantEditPageCustomTab,
       icon: Lucide.EthernetPort,
       child: _CustomRequestTab(assistantId: assistantId),
+    ),
+    _AssistantEditTabSpec(
+      id: 'advanced_prompts',
+      label: '高级预设/Toolbox', // Localize later
+      icon: Lucide.ListTree,
+      child: _AdvancedPromptTab(assistantId: assistantId),
     ),
     _AssistantEditTabSpec(
       id: assistantEditTabRegex,
