@@ -632,6 +632,15 @@ class HomeDesktopScaffold extends StatelessWidget {
         size: 20,
         padding: const EdgeInsets.all(8),
         minSize: 40,
+        semanticLabel: AppLocalizations.of(context)!.desktopNavPhoneTooltip,
+        icon: Lucide.Phone,
+        onTap: onToggleVirtualPhone,
+      ),
+      const SizedBox(width: 2),
+      IosIconButton(
+        size: 20,
+        padding: const EdgeInsets.all(8),
+        minSize: 40,
         semanticLabel: canToggleTemporaryConversation
             ? AppLocalizations.of(context)!.temporaryChatToggleTooltip
             : AppLocalizations.of(context)!.titleForLocale,

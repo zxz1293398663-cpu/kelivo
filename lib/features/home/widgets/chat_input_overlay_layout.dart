@@ -9,6 +9,7 @@ class ChatInputOverlayLayout extends StatelessWidget {
     this.background,
     this.topBackground,
     this.foreground,
+    this.floatingWindow,
     this.backgroundImageActive = false,
   });
 
@@ -21,6 +22,7 @@ class ChatInputOverlayLayout extends StatelessWidget {
   final Widget? background;
   final Widget? topBackground;
   final Widget? foreground;
+  final Widget? floatingWindow;
   final bool backgroundImageActive;
 
   @override
@@ -90,6 +92,7 @@ class ChatInputOverlayLayout extends StatelessWidget {
             child: bottomOverlay,
           ),
         ),
+        if (floatingWindow != null) floatingWindow!,
       ],
     );
   }
