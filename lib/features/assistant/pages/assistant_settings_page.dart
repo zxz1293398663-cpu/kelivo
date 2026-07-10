@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../icons/lucide_adapter.dart';
 import 'package:provider/provider.dart';
@@ -473,7 +473,7 @@ Future<String?> _importTavernCard(BuildContext context) async {
     final assistant = TavernCardImporter.parseV2Json(content);
     if (assistant == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('解析角色卡失败')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('解析失败或格式不匹配')));
       }
       return null;
     }
@@ -502,7 +502,7 @@ Future<String?> _importTavernPreset(BuildContext context) async {
     final assistant = TavernPresetImporter.parsePresetJson(content);
     if (assistant == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('解析预设失败，文件格式不匹配')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('解析失败或格式不匹配')));
       }
       return null;
     }
@@ -850,3 +850,4 @@ class _IosFilledButtonState extends State<_IosFilledButton> {
     );
   }
 }
+
