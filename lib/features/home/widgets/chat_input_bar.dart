@@ -34,13 +34,17 @@ class ChatInputBarController extends ChangeNotifier {
   _ChatInputBarState? _state;
   void _bind(_ChatInputBarState s) {
     _state = s;
-    notifyListeners();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   void _unbind(_ChatInputBarState s) {
     if (identical(_state, s)) {
       _state = null;
-      notifyListeners();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
