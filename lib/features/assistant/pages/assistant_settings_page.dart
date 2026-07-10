@@ -14,6 +14,7 @@ import '../../../core/services/haptics.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../core/services/importers/tavern_card_importer.dart';
+import '../../../core/services/importers/tavern_preset_importer.dart';
 import '../../../shared/widgets/snackbar.dart';
 import '../../../theme/app_font_weights.dart';
 
@@ -66,6 +67,16 @@ class AssistantSettingsPage extends StatelessWidget {
                     ],
                   ),
                 ),
+                PopupMenuItem(
+                  value: 2,
+                  child: Row(
+                    children: [
+                      Icon(Lucide.Settings2, size: 18, color: cs.onSurface),
+                      const SizedBox(width: 8),
+                      const Text('导入预设规则 (JSON)'),
+                    ],
+                  ),
+                ),
               ],
               onSelected: (value) async {
                 final assistantProvider = context.read<AssistantProvider>();
@@ -76,6 +87,8 @@ class AssistantSettingsPage extends StatelessWidget {
                   id = await assistantProvider.addAssistant(name: name.trim());
                 } else if (value == 1) {
                   id = await _importTavernCard(context);
+                } else if (value == 2) {
+                  id = await _importTavernPreset(context);
                 }
                 if (!context.mounted) return;
                 if (id == null) return;
@@ -461,6 +474,35 @@ Future<String?> _importTavernCard(BuildContext context) async {
     if (assistant == null) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('解析角色卡失败')));
+      }
+      return null;
+    }
+
+    if (context.mounted) {
+      final ap = context.read<AssistantProvider>();
+      await ap.addAssistantObject(assistant);
+    }
+    return assistant.id;
+  } catch (e) {
+    return null;
+  }
+}
+
+Future<String?> _importTavernPreset(BuildContext context) async {
+  try {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty) return null;
+    final file = result.files.first;
+    if (file.path == null) return null;
+
+    final String content = await File(file.path!).readAsString();
+    final assistant = TavernPresetImporter.parsePresetJson(content);
+    if (assistant == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('解析预设失败，文件格式不匹配')));
       }
       return null;
     }
