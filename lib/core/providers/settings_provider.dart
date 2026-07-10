@@ -23,6 +23,7 @@ import '../../utils/sandbox_path_resolver.dart';
 import '../../utils/avatar_cache.dart';
 import '../utils/openai_model_compat.dart';
 import '../../utils/provider_grouping_logic.dart';
+import '../../features/assistant/utils/assistant_edit_tab_layout.dart';
 import '../../utils/brand_assets.dart';
 
 // Desktop: topic list position
@@ -1112,7 +1113,7 @@ class SettingsProvider extends ChangeNotifier {
         _chatMessageBackgroundStyle = ChatMessageBackgroundStyle.defaultStyle;
     }
     _mobileAssistantEditTabOrder = List.unmodifiable(
-      prefs.getStringList(_mobileAssistantEditTabOrderKey) ?? const <String>[],
+      prefs.getStringList(_mobileAssistantEditTabOrderKey) ?? defaultAssistantEditTabIds,
     );
     _hiddenMobileAssistantEditTabs = Set.unmodifiable(
       prefs.getStringList(_mobileAssistantEditTabHiddenKey) ?? const <String>[],
