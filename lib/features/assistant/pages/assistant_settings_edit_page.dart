@@ -26,6 +26,7 @@ import '../../../core/models/assistant.dart';
 import '../../../core/models/chat_message.dart';
 import '../../../core/models/conversation.dart';
 import '../../../core/models/preset_message.dart';
+import '../../../core/models/saved_preset.dart';
 import '../../../core/models/quick_phrase.dart';
 import '../../../core/providers/assistant_provider.dart';
 import '../../../core/providers/mcp_provider.dart';
@@ -59,7 +60,6 @@ part 'assistant_settings_edit_local_tools_tab.dart';
 part 'assistant_settings_edit_mcp_tab.dart';
 part 'assistant_settings_edit_quick_phrase_tab.dart';
 part 'assistant_settings_edit_custom_request_tab.dart';
-part 'assistant_settings_edit_advanced_prompt_tab.dart';
 
 const int _contextMessageMin = Assistant.minContextMessageSize;
 const int _contextMessageMax = Assistant.maxContextMessageSize;
@@ -125,12 +125,6 @@ List<_AssistantEditTabSpec> _assistantEditTabSpecs(
       label: l10n.assistantEditPageCustomTab,
       icon: Lucide.EthernetPort,
       child: _CustomRequestTab(assistantId: assistantId),
-    ),
-    _AssistantEditTabSpec(
-      id: assistantEditTabAdvancedPrompts,
-      label: '高级预设/Toolbox', // Localize later
-      icon: Lucide.ListTree,
-      child: _AdvancedPromptTab(assistantId: assistantId),
     ),
     _AssistantEditTabSpec(
       id: assistantEditTabRegex,

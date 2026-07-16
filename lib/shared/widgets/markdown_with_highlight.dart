@@ -1975,12 +1975,12 @@ class _CollapsibleCodeBlock extends StatefulWidget {
   final bool streaming;
   final bool closed;
 
-  const _CollapsibleCodeBlock({
+  _CollapsibleCodeBlock({
     required this.language,
     required this.code,
     required this.streaming,
     required this.closed,
-  });
+  }) : super(key: ValueKey<String>('${language.trim().toLowerCase()}::$code'));
 
   @override
   State<_CollapsibleCodeBlock> createState() => _CollapsibleCodeBlockState();
@@ -2176,6 +2176,37 @@ class _CollapsibleCodeBlockState extends State<_CollapsibleCodeBlock> {
                             ),
                           ),
                         ),
+                        if (_isHtml(widget.language) &&
+                            _isArtifact(widget.code))
+                          Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 1,
+                              ),
+                              decoration: BoxDecoration(
+                                color: cs.primary.withValues(alpha: 0.18),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(
+                                  color: cs.primary.withValues(alpha: 0.3),
+                                  width: 0.5,
+                                ),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.codeBlockArtifactBadge,
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: AppFontWeights.semibold,
+                                  color: cs.primary,
+                                  height: 1.2,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                            ),
+                          ),
                         _CodeBlockCollapseIcon(collapsed: isCollapsed),
                       ],
                     ),
@@ -2439,7 +2470,7 @@ class _CollapsibleCodeBlockState extends State<_CollapsibleCodeBlock> {
 }
 
 class _InlineHtmlPreview extends StatefulWidget {
-  const _InlineHtmlPreview({required this.html});
+  _InlineHtmlPreview({required this.html}) : super(key: ValueKey(html));
 
   final String html;
 
@@ -2451,15 +2482,24 @@ class _InlineHtmlPreviewState extends State<_InlineHtmlPreview> {
   WebViewController? _flutterController;
   winweb.WebviewController? _windowsController;
   bool _windowsReady = false;
+  StreamSubscription<dynamic>? _windowsMessageSub;
+  Timer? _heightDebounce;
+  late double _height;
+  int _htmlLoadToken = 0;
 
   @override
   void initState() {
     super.initState();
+    _height = _estimatedHtmlHeight(widget.html);
     if (_useFlutterWebView) {
       _flutterController = WebViewController()
-        ..setJavaScriptMode(JavaScriptMode.disabled)
-        ..setBackgroundColor(Colors.transparent)
-        ..loadHtmlString(_wrapHtml(widget.html));
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..addJavaScriptChannel(
+          'HtmlSize',
+          onMessageReceived: (message) => _handleHeightMessage(message.message),
+        )
+        ..setBackgroundColor(Colors.transparent);
+      _loadFlutterHtml(_wrapHtml(widget.html));
     } else if (_useWindowsWebView) {
       _initWindowsWebView();
     }
@@ -2469,11 +2509,19 @@ class _InlineHtmlPreviewState extends State<_InlineHtmlPreview> {
   void didUpdateWidget(covariant _InlineHtmlPreview oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.html == widget.html) return;
+    _height = _estimatedHtmlHeight(widget.html);
     final html = _wrapHtml(widget.html);
-    _flutterController?.loadHtmlString(html);
+    _loadFlutterHtml(html);
     if (_windowsController != null) {
       _loadWindowsHtml(html);
     }
+  }
+
+  @override
+  void dispose() {
+    _heightDebounce?.cancel();
+    _windowsMessageSub?.cancel();
+    super.dispose();
   }
 
   bool get _useFlutterWebView {
@@ -2489,19 +2537,64 @@ class _InlineHtmlPreviewState extends State<_InlineHtmlPreview> {
     try {
       await controller.setBackgroundColor(const Color(0x00000000));
     } catch (_) {}
+    _windowsMessageSub = controller.webMessage.listen((event) {
+      String text;
+      try {
+        final dynamic value = event;
+        text = value is String
+            ? value
+            : (value.content?.toString() ?? value.toString());
+      } catch (_) {
+        text = event.toString();
+      }
+      _handleHeightMessage(text);
+    });
     _windowsController = controller;
     await _loadWindowsHtml(_wrapHtml(widget.html));
     if (!mounted) return;
     setState(() => _windowsReady = true);
   }
 
+  Future<void> _loadFlutterHtml(String html) async {
+    final token = ++_htmlLoadToken;
+    final controller = _flutterController;
+    if (controller == null) return;
+    await controller.loadHtmlString(html);
+    if (!mounted || token != _htmlLoadToken) return;
+  }
+
   Future<void> _loadWindowsHtml(String html) async {
+    final token = ++_htmlLoadToken;
     final dir = await getTemporaryDirectory();
-    final file = File(
-      '${dir.path}/inline_html_preview_${DateTime.now().microsecondsSinceEpoch}.html',
-    );
+    if (!mounted || token != _htmlLoadToken) return;
+    final version = _htmlContentSignature(html);
+    final file = File('${dir.path}/inline_html_preview_$version.html');
     await file.writeAsString(html, flush: true);
-    await _windowsController?.loadUrl(Uri.file(file.path).toString());
+    if (!mounted || token != _htmlLoadToken) return;
+    await _windowsController?.loadUrl(
+      Uri.file(file.path).replace(queryParameters: {'v': version}).toString(),
+    );
+  }
+
+  void _handleHeightMessage(String message) {
+    double? value = double.tryParse(message);
+    if (value == null) {
+      try {
+        final decoded = json.decode(message);
+        if (decoded is Map && decoded['type'] == 'height') {
+          final raw = decoded['value'];
+          if (raw is num) value = raw.toDouble();
+        }
+      } catch (_) {}
+    }
+    if (value == null || value <= 0) return;
+    _heightDebounce?.cancel();
+    _heightDebounce = Timer(const Duration(milliseconds: 60), () {
+      if (!mounted) return;
+      final next = (value! + 12).clamp(120.0, 560.0);
+      if ((_height - next).abs() < 16) return;
+      setState(() => _height = next);
+    });
   }
 
   String _wrapHtml(String raw) {
@@ -2530,7 +2623,52 @@ class _InlineHtmlPreviewState extends State<_InlineHtmlPreview> {
 <body>$raw</body>
 </html>
 ''';
-    return content;
+    return _injectHeightReporter(content);
+  }
+
+  String _injectHeightReporter(String html) {
+    const script = '''
+<script>
+(function() {
+  function heightValue() {
+    var body = document.body;
+    if (!body) return 0;
+    var maxBottom = 0;
+    var nodes = body.children;
+    for (var i = 0; i < nodes.length; i++) {
+      var rect = nodes[i].getBoundingClientRect();
+      maxBottom = Math.max(maxBottom, rect.bottom);
+    }
+    var bodyTop = body.getBoundingClientRect().top;
+    return Math.ceil(Math.max(maxBottom - bodyTop, body.scrollHeight, body.offsetHeight));
+  }
+  function postHeight() {
+    var value = heightValue();
+    try {
+      if (window.HtmlSize && window.HtmlSize.postMessage) {
+        window.HtmlSize.postMessage(String(value));
+      }
+    } catch (e) {}
+    try {
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage(JSON.stringify({ type: 'height', value: value }));
+      }
+    } catch (e) {}
+  }
+  window.addEventListener('load', postHeight);
+  setTimeout(postHeight, 0);
+  setTimeout(postHeight, 120);
+  setTimeout(postHeight, 500);
+})();
+</script>
+''';
+    if (html.toLowerCase().contains('</body>')) {
+      return html.replaceFirst(
+        RegExp(r'</body>', caseSensitive: false),
+        '$script</body>',
+      );
+    }
+    return '$html$script';
   }
 
   @override
@@ -2540,22 +2678,29 @@ class _InlineHtmlPreviewState extends State<_InlineHtmlPreview> {
       if (controller == null) {
         return _StaticInlineHtmlPreview(html: widget.html);
       }
-      return _HtmlPreviewFrame(child: WebViewWidget(controller: controller));
+      return _HtmlPreviewFrame(
+        height: _height,
+        child: WebViewWidget(controller: controller),
+      );
     }
     if (_useWindowsWebView) {
       final controller = _windowsController;
       if (controller == null || !_windowsReady) {
         return _StaticInlineHtmlPreview(html: widget.html);
       }
-      return _HtmlPreviewFrame(child: winweb.Webview(controller));
+      return _HtmlPreviewFrame(
+        height: _height,
+        child: winweb.Webview(controller),
+      );
     }
     return _StaticInlineHtmlPreview(html: widget.html);
   }
 }
 
 class _HtmlPreviewFrame extends StatelessWidget {
-  const _HtmlPreviewFrame({required this.child});
+  const _HtmlPreviewFrame({required this.height, required this.child});
 
+  final double height;
   final Widget child;
 
   @override
@@ -2566,11 +2711,60 @@ class _HtmlPreviewFrame extends StatelessWidget {
       child: Center(
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
-          child: SizedBox(width: 320, height: 640, child: child),
+          child: SizedBox(width: 320, height: height, child: child),
         ),
       ),
     );
   }
+}
+
+double _estimatedHtmlHeight(String html) {
+  final explicit = _explicitHtmlHeight(html);
+  if (explicit != null) return explicit.clamp(120.0, 560.0);
+
+  final document = html_parser.parse(html);
+  final plainText = (document.body ?? document.documentElement)?.text ?? html;
+  final textLines = plainText
+      .split(RegExp(r'\r?\n'))
+      .where((line) => line.trim().isNotEmpty)
+      .length;
+  final blockCount = RegExp(
+    r'<(?:div|section|article|p|li|tr|h[1-6]|details|summary|button|label|input)\b',
+    caseSensitive: false,
+  ).allMatches(html).length;
+  final mediaCount = RegExp(
+    r'<(?:img|video|canvas|svg|iframe)\b',
+    caseSensitive: false,
+  ).allMatches(html).length;
+
+  final estimated =
+      56.0 + math.max(textLines, blockCount) * 24.0 + mediaCount * 120.0;
+  return estimated.clamp(120.0, 560.0);
+}
+
+double? _explicitHtmlHeight(String html) {
+  final patterns = <RegExp>[
+    RegExp(r'height\s*:\s*(\d+(?:\.\d+)?)px', caseSensitive: false),
+    RegExp(r'''height\s*=\s*["'](\d+(?:\.\d+)?)["']''', caseSensitive: false),
+  ];
+  double? best;
+  for (final pattern in patterns) {
+    for (final match in pattern.allMatches(html)) {
+      final value = double.tryParse(match.group(1) ?? '');
+      if (value == null || value <= 0) continue;
+      best = best == null ? value : math.max(best, value);
+    }
+  }
+  return best == null ? null : best + 16;
+}
+
+String _htmlContentSignature(String html) {
+  var hash = 0x811c9dc5;
+  for (final unit in html.codeUnits) {
+    hash ^= unit;
+    hash = (hash * 0x01000193) & 0xffffffff;
+  }
+  return hash.toRadixString(16).padLeft(8, '0');
 }
 
 class _StaticInlineHtmlPreview extends StatelessWidget {
@@ -3358,20 +3552,19 @@ bool _isHtml(String? lang) {
   return l == 'html' || l == 'htm' || l == 'rawhtml' || l == 'raw_html';
 }
 
-/// Strips `<status_hub>` and `<relationship_map>` blocks (complete or partial)
-/// from displayed text so the raw construction code never reaches the chat UI.
+bool _isArtifact(String code) {
+  final lower = code.trim().toLowerCase();
+  return lower.contains('<html') || lower.contains('<!doctype html');
+}
+
+/// Hides client-facing wrapper tags while preserving their visible content.
 String _stripClientTags(String text) {
-  return text.replaceAllMapped(
+  return text.replaceAll(
     RegExp(
-      r'<status_hub>[\s\S]*?<\/status_hub>|'
-      r'<status_hub>[\s\S]*|'
-      r'<\/status_hub>|'
-      r'<relationship_map>[\s\S]*?<\/relationship_map>|'
-      r'<relationship_map>[\s\S]*|'
-      r'<\/relationship_map>',
+      r'<\/?(?:status_hub|relationship_map|orange|context)\b[^>]*>',
       caseSensitive: false,
     ),
-    (_) => '',
+    '',
   );
 }
 
@@ -3386,6 +3579,11 @@ bool _looksLikeStandaloneHtml(String text) {
       lower.startsWith('<section') ||
       lower.startsWith('<article') ||
       lower.startsWith('<div') ||
+      lower.startsWith('<form') ||
+      lower.startsWith('<input') ||
+      lower.startsWith('<label') ||
+      lower.startsWith('<button') ||
+      lower.startsWith('<a ') ||
       lower.startsWith('<style') ||
       lower.startsWith('<script');
 }
@@ -3420,16 +3618,14 @@ class _MarkdownTableBlock extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final borderColor = cs.outlineVariant.withValues(
-      alpha: isDark ? 0.22 : 0.30,
+      alpha: isDark ? 0.30 : 0.35,
     );
-    final headerBg = Color.alphaBlend(
-      cs.primary.withValues(alpha: isDark ? 0.15 : 0.07),
-      cs.surface,
-    );
-    final bodyBg = Color.alphaBlend(
-      cs.primary.withValues(alpha: isDark ? 0.04 : 0.015),
-      cs.surface,
-    );
+    final headerBg = isDark
+        ? const Color(0x33FFFFFF) // 20% 白
+        : const Color(0x8FFFFFFF); // 56% 白 半透明
+    final bodyBg = isDark
+        ? const Color(0x12FFFFFF) // 7% 白
+        : const Color(0x33FFFFFF); // 20% 白
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -3472,7 +3668,13 @@ class _MarkdownTableBlock extends StatelessWidget {
         if (!useCompactTable) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
-            child: tableSurface,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                child: tableSurface,
+              ),
+            ),
           );
         }
 
@@ -3483,10 +3685,7 @@ class _MarkdownTableBlock extends StatelessWidget {
             width: double.infinity,
             margin: const EdgeInsets.symmetric(vertical: 6),
             decoration: BoxDecoration(
-              color: Color.alphaBlend(
-                cs.primary.withValues(alpha: isDark ? 0.045 : 0.018),
-                cs.surface,
-              ),
+              color: bodyBg,
               borderRadius: BorderRadius.circular(12),
             ),
             foregroundDecoration: BoxDecoration(
@@ -3886,12 +4085,16 @@ class _MarkdownTableCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final headerTextColor = isDark ? Colors.white : Colors.black;
+    final bodyTextColor = isDark
+        ? const Color(0xFFAAAAAA)
+        : const Color(0xFF666666);
     final baseStyle = style.copyWith(
       fontSize: header ? 13.0 : 13.5,
       height: 1.42,
       fontWeight: header ? AppFontWeights.semibold : AppFontWeights.regular,
-      color: header ? cs.onSurface : cs.onSurface.withValues(alpha: 0.90),
+      color: header ? headerTextColor : bodyTextColor,
       fontFamily: appFontFamily ?? style.fontFamily,
     );
     final innerCfg = config.copyWith(style: baseStyle);
@@ -6275,6 +6478,16 @@ class _DetailsHtmlBlock extends StatefulWidget {
 
 class _DetailsHtmlBlockState extends State<_DetailsHtmlBlock> {
   late bool _expanded = widget.initiallyExpanded;
+
+  @override
+  void didUpdateWidget(covariant _DetailsHtmlBlock oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.summary != widget.summary ||
+        oldWidget.body != widget.body ||
+        oldWidget.initiallyExpanded != widget.initiallyExpanded) {
+      _expanded = widget.initiallyExpanded;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

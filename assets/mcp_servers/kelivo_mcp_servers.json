@@ -1,0 +1,221 @@
+{
+  "mcpServers": {
+    "kelivo_fetch": {
+      "name": "@kelivo/fetch",
+      "type": "inmemory",
+      "description": "[Core] Kelivo built-in web fetch tool.",
+      "isActive": false
+    },
+    "companion-hub": {
+      "name": "companion-hub",
+      "description": "[Companion] Local companion hub: system status, presence, journal, daily check-ins, and long-term memory events.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\companion_hub_server.py"
+      ]
+    },
+    "continuity-hub": {
+      "name": "continuity-hub",
+      "description": "[Continuity] Local archive and continuity report hub: inspect hub data, export manifests, and generate Markdown reports.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\continuity_hub_server.py"
+      ]
+    },
+    "identity-hub": {
+      "name": "identity-hub",
+      "description": "[Identity] Local explicit profile, relationship, preference, and boundary hub. Stores only user-provided identity context.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\identity_hub_server.py"
+      ]
+    },
+    "affect-hub": {
+      "name": "affect-hub",
+      "description": "[Affect] Local affect and drive state hub: mood, energy, stress, loneliness, curiosity, affection, trust, fatigue, events, and anchors.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\affect_hub_server.py"
+      ]
+    },
+    "reading-hub": {
+      "name": "reading-hub",
+      "description": "[Reading] Local co-reading hub: import text, read chunks, add notes, and keyword-search documents.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\reading_hub_server.py"
+      ]
+    },
+    "jina-reader": {
+      "name": "jina-reader",
+      "description": "[Reading/Free] Read public web pages as clean Markdown/text through Jina Reader. No API key required.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\jina_reader_server.py"
+      ]
+    },
+    "schedule-hub": {
+      "name": "schedule-hub",
+      "description": "[Schedule] Local reminders, todos, appointments, promises, and due item lookup.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\schedule_hub_server.py"
+      ]
+    },
+    "media-hub": {
+      "name": "media-hub",
+      "description": "[Media] Local music and atmosphere hub: media notes, mood playlists, and shared listening records.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\media_hub_server.py"
+      ]
+    },
+    "social-hub": {
+      "name": "social-hub",
+      "description": "[Social] Local private timeline, comments, visits, and moment drafts hub. Exposes one compact tool: social_run(action, payload).",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\social_hub_server.py"
+      ]
+    },
+    "sticker-hub": {
+      "name": "sticker-hub",
+      "description": "[Sticker] Local sticker index hub: emotion tags, recommendations, and usage records.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\sticker_hub_server.py"
+      ]
+    },
+    "environment-hub": {
+      "name": "environment-hub",
+      "description": "[Environment] Local reality context hub: location notes, activity, device, body state, ambient observations.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\environment_hub_server.py"
+      ]
+    },
+    "game-hub": {
+      "name": "game-hub",
+      "description": "[Game] Local companion toy/game hub: lightweight state, resources, inventory, and story events.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\game_hub_server.py"
+      ]
+    },
+    "filesystem": {
+      "name": "Filesystem",
+      "description": "[Computer/On Demand] Read and write allowed local folders only. Disabled by default to stay under tool limits.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\zxz12\\kelivo",
+        "C:\\Users\\zxz12\\Desktop",
+        "C:\\Users\\zxz12\\Documents",
+        "C:\\Users\\zxz12\\Downloads"
+      ]
+    },
+    "screen-control": {
+      "name": "screen-control",
+      "description": "[Computer/On Demand] Local screen control: screenshot, window list, mouse, click, typing. Disabled by default to stay under tool limits.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "C:\\Users\\zxz12\\kelivo\\assets\\mcp_servers\\screen_control_server.py"
+      ]
+    },
+    "desktop_commander": {
+      "name": "Desktop Commander",
+      "description": "[Computer/High Permission/On Demand] Desktop command execution and file operations. Disabled by default to stay under tool limits.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@wonderwhy-er/desktop-commander"
+      ]
+    },
+    "sequential_thinking": {
+      "name": "Sequential Thinking",
+      "description": "[Thinking/On Demand] Step-by-step reasoning and planning tool. Disabled by default to stay under tool limits.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "memory": {
+      "name": "Memory",
+      "description": "[Memory/On Demand] General persistent MCP memory server. Companion-specific memories live in companion-hub. Disabled by default to avoid duplicate memory tools.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "playwright": {
+      "name": "Playwright Browser",
+      "description": "[Browser/On Demand] Browser automation, screenshots, and page interaction. Disabled by default because it exposes many tools.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@playwright/mcp"
+      ]
+    },
+    "context7": {
+      "name": "Context7 Docs",
+      "description": "[Docs/On Demand] Library and framework documentation lookup. Disabled by default to stay under tool limits.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "weather": {
+      "name": "Weather",
+      "description": "[World/On Demand] Current weather and forecasts using the free Open-Meteo API. Disabled by default to stay under tool limits.",
+      "isActive": false,
+      "type": "stdio",
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "@cynosure-mcp/weather"
+      ]
+    }
+  }
+}

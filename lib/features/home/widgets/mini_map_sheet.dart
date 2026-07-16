@@ -380,7 +380,7 @@ class _MiniMapRow extends StatelessWidget {
         // remove vendor inline reasoning blocks if present
         .replaceAll(
           RegExp(
-            r'<(?:think|thought)>[\s\S]*?<\/(?:think|thought)>',
+            r'<(?:thinking|think|thought)>[\s\S]*?<\/(?:thinking|think|thought)>',
             caseSensitive: false,
           ),
           '',

@@ -11,6 +11,7 @@ import '../../../core/services/logging/flutter_logger.dart';
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/providers/backup_reminder_provider.dart';
 import '../../../core/models/chat_item.dart';
+import '../../../core/models/assistant_play_mode.dart';
 import '../../../core/providers/user_provider.dart';
 import '../../settings/pages/settings_page.dart';
 import '../../translate/pages/translate_page.dart';
@@ -1187,6 +1188,148 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildPlayModeSwitcher(BuildContext context) {
+    return Consumer<AssistantProvider>(
+      builder: (context, ap, _) {
+        final assistant = ap.currentAssistant;
+        if (assistant == null) return const SizedBox.shrink();
+        final l10n = AppLocalizations.of(context)!;
+        final cs = Theme.of(context).colorScheme;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+
+        Future<void> switchTo(AssistantPlayMode mode) async {
+          if (assistant.playMode == mode) return;
+          Haptics.light();
+          final target = ap.assistants
+              .where((assistant) => assistant.playMode == mode)
+              .firstOrNull;
+          String targetAssistantId;
+          if (target != null) {
+            targetAssistantId = target.id;
+          } else {
+            targetAssistantId = await ap.addAssistant(
+              playMode: mode,
+              context: context,
+            );
+          }
+
+          if (!context.mounted) return;
+          final closeDrawer = !context
+              .read<SettingsProvider>()
+              .keepSidebarOpenOnAssistantTap;
+          final chatService = context.read<ChatService>();
+          final recent = chatService
+              .getAllConversations()
+              .where((c) => c.assistantId == targetAssistantId)
+              .toList();
+          if (recent.isNotEmpty) {
+            await widget.onSelectConversation?.call(
+              recent.first.id,
+              closeDrawer: closeDrawer,
+            );
+          } else {
+            await ap.setCurrentAssistant(targetAssistantId);
+            await widget.onNewConversation?.call(closeDrawer: closeDrawer);
+          }
+        }
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.07)
+                : Colors.white.withValues(alpha: 0.32),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: cs.outlineVariant.withValues(alpha: isDark ? 0.22 : 0.28),
+              width: 0.7,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildPlayModeSegment(
+                  context,
+                  icon: Lucide.BookOpen,
+                  label: l10n.playModeSwitcherNovelLabel,
+                  selected: assistant.playMode == AssistantPlayMode.novel,
+                  onTap: () => switchTo(AssistantPlayMode.novel),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: _buildPlayModeSegment(
+                  context,
+                  icon: Lucide.Wand2,
+                  label: l10n.playModeSwitcherGameLabel,
+                  selected: assistant.playMode == AssistantPlayMode.game,
+                  onTap: () => switchTo(AssistantPlayMode.game),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPlayModeSegment(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedBg = isDark
+        ? Colors.white.withValues(alpha: 0.14)
+        : Colors.white.withValues(alpha: 0.62);
+    final color = selected ? cs.primary : cs.onSurface.withValues(alpha: 0.62);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        height: 34,
+        decoration: BoxDecoration(
+          color: selected ? selectedBg : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 15, color: color),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected
+                    ? AppFontWeights.semibold
+                    : AppFontWeights.medium,
+                color: color,
+                height: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -1353,6 +1496,10 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                       textBase,
                       topicsOnly: topicsOnly,
                     ),
+                    if (!topicsOnly) ...[
+                      _buildPlayModeSwitcher(context),
+                      const SizedBox(height: 10),
+                    ],
                     // 1. 搜索框 + 历史按钮（固定头部）
                     if (_isDesktop)
                       // 桌面端
@@ -2274,7 +2421,6 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
       _closeAssistantPicker();
     }
     final ap = context.read<AssistantProvider>();
-    await ap.setCurrentAssistant(assistant.id);
     // Desktop: optionally switch to Topics tab per user preference
     try {
       if (_isDesktop &&
@@ -2292,7 +2438,8 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     final forceNewChat =
         sp.newChatOnAssistantSwitch && widget.onNewConversation != null;
     if (forceNewChat) {
-      widget.onNewConversation?.call(closeDrawer: closeDrawer);
+      await ap.setCurrentAssistant(assistant.id);
+      await widget.onNewConversation?.call(closeDrawer: closeDrawer);
     } else {
       // Jump to the most recent conversation for this assistant if any,
       // otherwise create a new conversation.
@@ -2303,18 +2450,21 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
         final recent = all.where((c) => c.assistantId == assistant.id).toList();
         if (recent.isNotEmpty) {
           // getAllConversations is already sorted by updatedAt desc
-          widget.onSelectConversation?.call(
+          await widget.onSelectConversation?.call(
             recent.first.id,
             closeDrawer: closeDrawer,
           );
         } else {
-          widget.onNewConversation?.call(closeDrawer: closeDrawer);
+          await ap.setCurrentAssistant(assistant.id);
+          await widget.onNewConversation?.call(closeDrawer: closeDrawer);
         }
       } catch (_) {
         // Fallback: new conversation on any error
-        widget.onNewConversation?.call(closeDrawer: closeDrawer);
+        await ap.setCurrentAssistant(assistant.id);
+        await widget.onNewConversation?.call(closeDrawer: closeDrawer);
       }
     }
+    if (!mounted) return;
     if (closeDrawer) {
       Navigator.of(context).maybePop();
     }
@@ -3112,6 +3262,11 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
     final textBase2 = isDark2 ? Colors.white : Colors.black;
 
     List<Assistant> assistants = ap2.assistants;
+    // Filter by playMode: only show assistants matching current mode
+    final currentMode = ap2.currentAssistant?.playMode;
+    if (currentMode != null) {
+      assistants = assistants.where((a) => a.playMode == currentMode).toList();
+    }
     // Apply search filter when:
     // - Desktop tab mode (inlineMode == false), OR
     // - Desktop assistants-only mode (left sidebar when topics are on right)

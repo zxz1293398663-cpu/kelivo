@@ -2657,6 +2657,749 @@ abstract class AppLocalizations {
   /// **'Expand'**
   String get codeBlockExpandButton;
 
+  /// No description provided for @codeBlockArtifactBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Artifact'**
+  String get codeBlockArtifactBadge;
+
+  /// No description provided for @playModeSwitcherNovelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Novel'**
+  String get playModeSwitcherNovelLabel;
+
+  /// No description provided for @playModeSwitcherGameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Game'**
+  String get playModeSwitcherGameLabel;
+
+  /// No description provided for @gameTabStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Story'**
+  String get gameTabStory;
+
+  /// No description provided for @gameTabPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get gameTabPhone;
+
+  /// No description provided for @gameTabWorld.
+  ///
+  /// In en, this message translates to:
+  /// **'World'**
+  String get gameTabWorld;
+
+  /// No description provided for @gameTabSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get gameTabSettings;
+
+  /// No description provided for @gameEmptyStartCreating.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Creating'**
+  String get gameEmptyStartCreating;
+
+  /// No description provided for @gameEmptyScriptCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Script'**
+  String get gameEmptyScriptCardTitle;
+
+  /// No description provided for @gameEmptyScriptCardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Build an AI text adventure world: attributes, NPCs, timelines, and story direction.'**
+  String get gameEmptyScriptCardDescription;
+
+  /// No description provided for @gameEmptyVisualEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Visual editor'**
+  String get gameEmptyVisualEditor;
+
+  /// No description provided for @gameEmptyAiOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'AI one-click opening'**
+  String get gameEmptyAiOpening;
+
+  /// No description provided for @gameEmptyStartButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get gameEmptyStartButton;
+
+  /// No description provided for @gameSceneCardImportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Scene Card'**
+  String get gameSceneCardImportButton;
+
+  /// No description provided for @gameSceneCardImportDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Scene Card'**
+  String get gameSceneCardImportDialogTitle;
+
+  /// No description provided for @gameSceneCardPasteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste content like :::newspaper time / character # note # scene'**
+  String get gameSceneCardPasteHint;
+
+  /// No description provided for @gameSceneCardParseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Parse and import'**
+  String get gameSceneCardParseButton;
+
+  /// No description provided for @gameSceneCardInvalidFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid scene card format.'**
+  String get gameSceneCardInvalidFormat;
+
+  /// No description provided for @gameImportTavernCardButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Character Card'**
+  String get gameImportTavernCardButton;
+
+  /// No description provided for @gameImportTavernCardSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Character card imported.'**
+  String get gameImportTavernCardSuccess;
+
+  /// No description provided for @gameImportTavernCardFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to import character card.'**
+  String get gameImportTavernCardFailed;
+
+  /// No description provided for @gameImportAnotherTavernCardButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Another Character Card'**
+  String get gameImportAnotherTavernCardButton;
+
+  /// No description provided for @gameImportTavernCardEntryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a character card and choose one opening to enter the game.'**
+  String get gameImportTavernCardEntryDescription;
+
+  /// No description provided for @gameOpeningSelectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an Opening'**
+  String get gameOpeningSelectionTitle;
+
+  /// No description provided for @gameOpeningSelectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one opening from this character card to begin inside game mode.'**
+  String get gameOpeningSelectionSubtitle;
+
+  /// No description provided for @gameOpeningSelectionOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening {index}'**
+  String gameOpeningSelectionOption(int index);
+
+  /// No description provided for @gameOpeningStartButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from This Opening'**
+  String get gameOpeningStartButton;
+
+  /// No description provided for @gameOpeningChangeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Opening'**
+  String get gameOpeningChangeButton;
+
+  /// No description provided for @gameOpeningCurrentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Active'**
+  String get gameOpeningCurrentTitle;
+
+  /// No description provided for @gameOpeningCurrentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This opening anchors the current game state. You can switch to another opening later.'**
+  String get gameOpeningCurrentSubtitle;
+
+  /// No description provided for @gameOpeningCurrentEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No opening has been selected yet.'**
+  String get gameOpeningCurrentEmpty;
+
+  /// No description provided for @gameOpeningUserTokenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'User name'**
+  String get gameOpeningUserTokenTitle;
+
+  /// No description provided for @gameOpeningEditUserNameButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit user name'**
+  String get gameOpeningEditUserNameButton;
+
+  /// No description provided for @gameOpeningEditUserNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit user name'**
+  String get gameOpeningEditUserNameTitle;
+
+  /// No description provided for @gameOpeningPageIndicator.
+  ///
+  /// In en, this message translates to:
+  /// **'{index} / {total}'**
+  String gameOpeningPageIndicator(int index, int total);
+
+  /// No description provided for @gameSceneCardInstructionsTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene card type: '**
+  String get gameSceneCardInstructionsTypeLabel;
+
+  /// No description provided for @gameSceneCardInstructionsTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time: '**
+  String get gameSceneCardInstructionsTimeLabel;
+
+  /// No description provided for @gameSceneCardInstructionsCharacterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Character: '**
+  String get gameSceneCardInstructionsCharacterLabel;
+
+  /// No description provided for @gameSceneCardInstructionsItemsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene items:'**
+  String get gameSceneCardInstructionsItemsLabel;
+
+  /// No description provided for @gameScriptStepStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tone'**
+  String get gameScriptStepStyle;
+
+  /// No description provided for @gameScriptStepDescribe.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe'**
+  String get gameScriptStepDescribe;
+
+  /// No description provided for @gameScriptStepConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get gameScriptStepConfirm;
+
+  /// No description provided for @gameScriptStyleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose narrative genre'**
+  String get gameScriptStyleTitle;
+
+  /// No description provided for @gameScriptStyleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The genre decides story direction, event type, NPC roles, and narrative tone.'**
+  String get gameScriptStyleSubtitle;
+
+  /// No description provided for @gameScriptSelectedToneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected tone'**
+  String get gameScriptSelectedToneLabel;
+
+  /// No description provided for @gameScriptStyleDailyHealing.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Healing'**
+  String get gameScriptStyleDailyHealing;
+
+  /// No description provided for @gameScriptStyleDailyHealingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Slice-of-life details, small goals, low conflict, and slow-burn relationships.'**
+  String get gameScriptStyleDailyHealingDescription;
+
+  /// No description provided for @gameScriptStyleDailyHealingRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrative genre: Daily Healing. Prioritize everyday details, small goals, warm interactions, and low-conflict events. NPC interactions should emphasize companionship, subtle emotion, and gradual relationship growth.'**
+  String get gameScriptStyleDailyHealingRule;
+
+  /// No description provided for @gameScriptStyleEpicAdventure.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Adventure'**
+  String get gameScriptStyleEpicAdventure;
+
+  /// No description provided for @gameScriptStyleEpicAdventureDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Missions, challenges, danger, growth, and exploration.'**
+  String get gameScriptStyleEpicAdventureDescription;
+
+  /// No description provided for @gameScriptStyleEpicAdventureRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrative genre: Epic Adventure. Prioritize missions, challenges, crisis escalation, character growth, and exploration. NPCs should provide goals, obstacles, alliances, rivalries, or key clues.'**
+  String get gameScriptStyleEpicAdventureRule;
+
+  /// No description provided for @gameScriptStyleSuspenseMystery.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspense Mystery'**
+  String get gameScriptStyleSuspenseMystery;
+
+  /// No description provided for @gameScriptStyleSuspenseMysteryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Clues, doubts, reversals, truth chains, and hidden motives.'**
+  String get gameScriptStyleSuspenseMysteryDescription;
+
+  /// No description provided for @gameScriptStyleSuspenseMysteryRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrative genre: Suspense Mystery. Prioritize clues, doubts, reversals, hidden motives, and a traceable truth chain. Avoid revealing the answer too early. NPCs should have suspicious behavior, secrets, or misleading information.'**
+  String get gameScriptStyleSuspenseMysteryRule;
+
+  /// No description provided for @gameScriptStyleRomanceEnsemble.
+  ///
+  /// In en, this message translates to:
+  /// **'Romance Ensemble'**
+  String get gameScriptStyleRomanceEnsemble;
+
+  /// No description provided for @gameScriptStyleRomanceEnsembleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple character relationships, ambiguity, tension, and emotional progression.'**
+  String get gameScriptStyleRomanceEnsembleDescription;
+
+  /// No description provided for @gameScriptStyleRomanceEnsembleRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrative genre: Romance Ensemble. Prioritize multi-character interaction, ambiguity, relationship tension, emotional choices, and gradual emotional progression. NPCs should carry distinct desires, boundaries, and relationship conflicts.'**
+  String get gameScriptStyleRomanceEnsembleRule;
+
+  /// No description provided for @gameScriptStyleUrbanWeird.
+  ///
+  /// In en, this message translates to:
+  /// **'Urban Weird'**
+  String get gameScriptStyleUrbanWeird;
+
+  /// No description provided for @gameScriptStyleUrbanWeirdDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Modern settings, rumors, abnormal rules, and hidden organizations.'**
+  String get gameScriptStyleUrbanWeirdDescription;
+
+  /// No description provided for @gameScriptStyleUrbanWeirdRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrative genre: Urban Weird. Prioritize modern settings, urban rumors, abnormal rules, hidden organizations, and the contrast between everyday life and the uncanny. NPCs should connect to anomalies, rules, witnesses, or concealed factions.'**
+  String get gameScriptStyleUrbanWeirdRule;
+
+  /// No description provided for @gameScriptStyleAncientPower.
+  ///
+  /// In en, this message translates to:
+  /// **'Ancient Power'**
+  String get gameScriptStyleAncientPower;
+
+  /// No description provided for @gameScriptStyleAncientPowerDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Factions, identity, schemes, probing, and restrained expression.'**
+  String get gameScriptStyleAncientPowerDescription;
+
+  /// No description provided for @gameScriptStyleAncientPowerRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrative genre: Ancient Power. Prioritize factions, status, schemes, probing, alliances, betrayal, and restrained expression. NPCs should represent interests, secrets, leverage, or political pressure.'**
+  String get gameScriptStyleAncientPowerRule;
+
+  /// No description provided for @gameScriptStyleRomanceDrama.
+  ///
+  /// In en, this message translates to:
+  /// **'Romance Drama'**
+  String get gameScriptStyleRomanceDrama;
+
+  /// No description provided for @gameScriptStyleRomanceDramaDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Emotion-led relationships, intimate tension, choices, and character bonds.'**
+  String get gameScriptStyleRomanceDramaDescription;
+
+  /// No description provided for @gameScriptStyleRomanceDramaRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrative genre: Romance Drama. Prioritize emotion-led relationships, intimate tension, meaningful choices, character bonds, and gradual emotional payoff. NPCs should have clear desires, boundaries, emotional history, and relationship pressure.'**
+  String get gameScriptStyleRomanceDramaRule;
+
+  /// No description provided for @gameScriptInstructionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the world, gameplay, and rules'**
+  String get gameScriptInstructionsHint;
+
+  /// No description provided for @gameScriptInstructionsHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Write the world, gameplay, and rules. When AI polish is enabled, AI will organize your instructions into narrative rules during generation (up to 10000 characters).'**
+  String get gameScriptInstructionsHelper;
+
+  /// No description provided for @gameScriptUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled'**
+  String get gameScriptUntitled;
+
+  /// No description provided for @gameScriptEmptyInstructionsForPolish.
+  ///
+  /// In en, this message translates to:
+  /// **'The user has not provided detailed settings yet. Please complete a playable text adventure opening based on the title and narrative tone.'**
+  String get gameScriptEmptyInstructionsForPolish;
+
+  /// No description provided for @gameScriptAiPolishInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'AI polish is enabled.\nDo not change the user\'s core direction. Organize the user\'s settings into clear, executable text-adventure narrative rules.\n\nRequirements:\n1. Preserve the user\'s intent and do not change the genre without permission.\n2. Complete the world, gameplay goal, initial conflict, NPC direction, and event progression.\n3. The output should serve as long-term rules for future game generation, not a one-off reply.\n4. Narrative genre: {styleName}.\n5. Genre rule: {styleRule}\n6. Game title: {title}.\n\nUser\'s original settings:\n{base}'**
+  String gameScriptAiPolishInstruction(
+    Object styleName,
+    Object styleRule,
+    Object title,
+    Object base,
+  );
+
+  /// No description provided for @gameScriptNextButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get gameScriptNextButton;
+
+  /// No description provided for @gameScriptChangeStyleButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get gameScriptChangeStyleButton;
+
+  /// No description provided for @gameScriptTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Game title'**
+  String get gameScriptTitleLabel;
+
+  /// No description provided for @gameScriptTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Coffee Shop Simulator'**
+  String get gameScriptTitleHint;
+
+  /// No description provided for @gameScriptInstructionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Game instructions'**
+  String get gameScriptInstructionsLabel;
+
+  /// No description provided for @gameScriptAllowAiPolishLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow AI to polish instructions'**
+  String get gameScriptAllowAiPolishLabel;
+
+  /// No description provided for @gameScriptConfirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get gameScriptConfirmButton;
+
+  /// No description provided for @gameScriptInstructionsPreviewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Game instructions preview'**
+  String get gameScriptInstructionsPreviewLabel;
+
+  /// No description provided for @gameScriptBackToEditButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to edit'**
+  String get gameScriptBackToEditButton;
+
+  /// No description provided for @gameScriptStartGenerateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Start generating'**
+  String get gameScriptStartGenerateButton;
+
+  /// No description provided for @gameScriptImportTavernStyleTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Import tavern style'**
+  String get gameScriptImportTavernStyleTooltip;
+
+  /// No description provided for @gameScriptImportTavernStyleSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Tavern style imported.'**
+  String get gameScriptImportTavernStyleSuccess;
+
+  /// No description provided for @gameScriptImportTavernStyleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to import tavern style.'**
+  String get gameScriptImportTavernStyleFailed;
+
+  /// No description provided for @gameSettingsAiModelSection.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Model'**
+  String get gameSettingsAiModelSection;
+
+  /// No description provided for @gameSettingsWorldBookSection.
+  ///
+  /// In en, this message translates to:
+  /// **'World Book'**
+  String get gameSettingsWorldBookSection;
+
+  /// No description provided for @gameSettingsImportWorldBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Import World Book'**
+  String get gameSettingsImportWorldBook;
+
+  /// No description provided for @gameSettingsImportWorldBookDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a JSON world book and enable it for this game.'**
+  String get gameSettingsImportWorldBookDescription;
+
+  /// No description provided for @gameSettingsImportWorldBookSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported world book: {name}'**
+  String gameSettingsImportWorldBookSuccess(String name);
+
+  /// No description provided for @gameSettingsScriptSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Script Management'**
+  String get gameSettingsScriptSection;
+
+  /// No description provided for @gameSettingsModelNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get gameSettingsModelNotSet;
+
+  /// No description provided for @gameSettingsDeleteCurrentScript.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete current script'**
+  String get gameSettingsDeleteCurrentScript;
+
+  /// No description provided for @gameSettingsDeleteIrreversible.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be undone'**
+  String get gameSettingsDeleteIrreversible;
+
+  /// No description provided for @gameSettingsDeleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete script'**
+  String get gameSettingsDeleteDialogTitle;
+
+  /// No description provided for @gameSettingsDeleteDialogMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the current script? All game data will be lost.'**
+  String get gameSettingsDeleteDialogMessage;
+
+  /// No description provided for @gamePhoneFeatureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Features'**
+  String get gamePhoneFeatureTitle;
+
+  /// No description provided for @gamePhoneFeatureSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages, inventory, diary, and more are coming soon.'**
+  String get gamePhoneFeatureSubtitle;
+
+  /// No description provided for @gameWorldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} - World'**
+  String gameWorldTitle(Object title);
+
+  /// No description provided for @gameWorldNpcCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Met {count} characters'**
+  String gameWorldNpcCount(int count);
+
+  /// No description provided for @gameWorldImportFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from Favorites'**
+  String get gameWorldImportFromFavorites;
+
+  /// No description provided for @gameWorldCreateNpc.
+  ///
+  /// In en, this message translates to:
+  /// **'New NPC'**
+  String get gameWorldCreateNpc;
+
+  /// No description provided for @gameWorldNoNpc.
+  ///
+  /// In en, this message translates to:
+  /// **'No NPCs yet'**
+  String get gameWorldNoNpc;
+
+  /// No description provided for @desktopSettingsPresetsMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Presets'**
+  String get desktopSettingsPresetsMenu;
+
+  /// No description provided for @desktopPresetsImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed or format mismatch.'**
+  String get desktopPresetsImportFailed;
+
+  /// No description provided for @desktopPresetsImportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported preset: {name}'**
+  String desktopPresetsImportSuccess(Object name);
+
+  /// No description provided for @desktopPresetsEditNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit preset name'**
+  String get desktopPresetsEditNameTitle;
+
+  /// No description provided for @desktopPresetsNoApplicableAssistants.
+  ///
+  /// In en, this message translates to:
+  /// **'No applicable characters. Create a character first.'**
+  String get desktopPresetsNoApplicableAssistants;
+
+  /// No description provided for @desktopPresetsAppliedToAssistants.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied to {count} characters'**
+  String desktopPresetsAppliedToAssistants(int count);
+
+  /// No description provided for @desktopPresetsSelectAssistantsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose characters to apply the preset'**
+  String get desktopPresetsSelectAssistantsTitle;
+
+  /// No description provided for @desktopPresetsSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get desktopPresetsSelectAll;
+
+  /// No description provided for @desktopPresetsApplyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply ({count})'**
+  String desktopPresetsApplyCount(int count);
+
+  /// No description provided for @desktopPresetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset Management'**
+  String get desktopPresetsTitle;
+
+  /// No description provided for @desktopPresetsImportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Preset'**
+  String get desktopPresetsImportButton;
+
+  /// No description provided for @desktopPresetsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No presets yet. Import one from the top right.'**
+  String get desktopPresetsEmpty;
+
+  /// No description provided for @desktopPresetsEditNameTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit name'**
+  String get desktopPresetsEditNameTooltip;
+
+  /// No description provided for @desktopPresetsApplyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to characters'**
+  String get desktopPresetsApplyTooltip;
+
+  /// No description provided for @desktopPresetsDeleteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete preset'**
+  String get desktopPresetsDeleteTooltip;
+
+  /// No description provided for @desktopPresetsMainPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Main Prompt'**
+  String get desktopPresetsMainPrompt;
+
+  /// No description provided for @desktopPresetsEditMainPromptTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit main prompt'**
+  String get desktopPresetsEditMainPromptTooltip;
+
+  /// No description provided for @desktopPresetsRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get desktopPresetsRules;
+
+  /// No description provided for @desktopPresetsEditRuleTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit rule'**
+  String get desktopPresetsEditRuleTooltip;
+
+  /// No description provided for @desktopPresetsDeleteRuleTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete rule'**
+  String get desktopPresetsDeleteRuleTooltip;
+
+  /// No description provided for @desktopPresetsEditMainPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit main prompt'**
+  String get desktopPresetsEditMainPromptTitle;
+
   /// No description provided for @codeBlockDefaultFileNameStem.
   ///
   /// In en, this message translates to:
@@ -9248,6 +9991,66 @@ abstract class AppLocalizations {
   /// **'Assistant'**
   String get assistantEditPresetRoleAssistant;
 
+  /// No description provided for @assistantEditRulesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get assistantEditRulesTitle;
+
+  /// No description provided for @assistantEditMainPromptLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Main Prompt'**
+  String get assistantEditMainPromptLabel;
+
+  /// No description provided for @assistantEditRulesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No rules'**
+  String get assistantEditRulesEmpty;
+
+  /// No description provided for @assistantEditRuleAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Rule'**
+  String get assistantEditRuleAddTitle;
+
+  /// No description provided for @assistantEditRuleEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Rule'**
+  String get assistantEditRuleEditTitle;
+
+  /// No description provided for @assistantEditRuleNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule Name'**
+  String get assistantEditRuleNameLabel;
+
+  /// No description provided for @assistantEditRuleContentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get assistantEditRuleContentLabel;
+
+  /// No description provided for @assistantSettingsImportTavernCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Character Card (Tavern JSON)'**
+  String get assistantSettingsImportTavernCard;
+
+  /// No description provided for @assistantSettingsImportTavernPreset.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Preset Rules (JSON)'**
+  String get assistantSettingsImportTavernPreset;
+
+  /// No description provided for @assistantSettingsImportParseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Parse failed or format mismatch.'**
+  String get assistantSettingsImportParseFailed;
+
   /// No description provided for @desktopTtsPleaseAddProvider.
   ///
   /// In en, this message translates to:
@@ -10399,6 +11202,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Virtual Phone'**
   String get desktopNavPhoneTooltip;
+
+  /// No description provided for @gameStoryEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the button below to start the adventure.'**
+  String get gameStoryEmptyHint;
+
+  /// No description provided for @gameStoryActiveEventsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Events'**
+  String get gameStoryActiveEventsTitle;
+
+  /// No description provided for @gameStoryCompletedEventsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get gameStoryCompletedEventsTitle;
+
+  /// No description provided for @gameStoryAdvanceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Advance Story'**
+  String get gameStoryAdvanceButton;
+
+  /// No description provided for @gameStoryPlayerFallbackName.
+  ///
+  /// In en, this message translates to:
+  /// **'Traveler'**
+  String get gameStoryPlayerFallbackName;
+
+  /// No description provided for @gameStoryPlayerFallbackInitial.
+  ///
+  /// In en, this message translates to:
+  /// **'T'**
+  String get gameStoryPlayerFallbackInitial;
 }
 
 class _AppLocalizationsDelegate

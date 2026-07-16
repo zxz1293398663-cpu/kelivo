@@ -349,7 +349,8 @@ class HomeViewModel extends ChangeNotifier {
     final content = input.text.trim();
     if (content.isEmpty &&
         input.imagePaths.isEmpty &&
-        input.documents.isEmpty) {
+        input.documents.isEmpty &&
+        input.favoriteCards.isEmpty) {
       return ChatInputSubmissionResult.rejected;
     }
 
@@ -398,7 +399,8 @@ class HomeViewModel extends ChangeNotifier {
     final content = input.text.trim();
     if (content.isEmpty &&
         input.imagePaths.isEmpty &&
-        input.documents.isEmpty) {
+        input.documents.isEmpty &&
+        input.favoriteCards.isEmpty) {
       return false;
     }
 
@@ -436,6 +438,7 @@ class HomeViewModel extends ChangeNotifier {
       text: input.text,
       imagePaths: List<String>.of(input.imagePaths),
       documents: List<DocumentAttachment>.of(input.documents),
+      favoriteCards: List.of(input.favoriteCards),
       allowImagesApiRouting: input.allowImagesApiRouting,
     );
   }
@@ -856,6 +859,36 @@ class HomeViewModel extends ChangeNotifier {
         }
       }
     } catch (_) {}
+
+    onScrollToBottom?.call();
+  }
+
+  Future<void> createNewConversationWithOpening(String opening) async {
+    await _chatActions.flushConversationProgress(currentConversation);
+    if (!_contextProvider.mounted) return;
+
+    isProcessingFiles.value = false;
+
+    final ap = _contextProvider.read<AssistantProvider>();
+    final conversation = await _chatService.createDraftConversation(
+      title: getTitleForLocale(_contextProvider),
+      assistantId: ap.currentAssistantId,
+    );
+
+    _chatController.setCurrentConversation(conversation);
+    _streamController.clearAllState();
+    notifyListeners();
+
+    final content = opening.trim();
+    if (content.isNotEmpty && currentConversation != null) {
+      await _chatService.addMessage(
+        conversationId: currentConversation!.id,
+        role: 'assistant',
+        content: content,
+      );
+      _chatController.reloadMessages();
+      notifyListeners();
+    }
 
     onScrollToBottom?.call();
   }

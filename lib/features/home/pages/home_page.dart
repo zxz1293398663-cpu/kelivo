@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show File;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -16,6 +17,9 @@ import '../../../theme/app_font_weights.dart';
 import '../../../theme/design_tokens.dart';
 import '../../../core/providers/settings_provider.dart';
 import '../../../core/providers/assistant_provider.dart';
+import '../../../core/providers/game_provider.dart';
+import '../../../core/models/assistant_play_mode.dart';
+import '../../game/widgets/game_content.dart';
 import '../../../core/providers/quick_phrase_provider.dart';
 import '../../../core/providers/instruction_injection_provider.dart';
 import '../../../core/providers/world_book_provider.dart';
@@ -435,6 +439,8 @@ class _HomePageState extends State<HomePage>
   final GlobalKey _selectionMiniMapKey = GlobalKey();
   final GlobalKey _selectionActionBarKey = GlobalKey();
   bool _scrollNavHovering = false;
+  final GameProvider _gameProvider = GameProvider();
+  String? _gameProviderScopeId;
   StreamSubscription<String>? _processTextSub;
 
   // ============================================================================
@@ -584,10 +590,27 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    final assistant = context.watch<AssistantProvider>().currentAssistant;
+    final isGame = assistant?.playMode == AssistantPlayMode.game;
+
+    if (isGame) {
+      final assistantId = assistant?.id;
+      if (_gameProviderScopeId != assistantId) {
+        _gameProviderScopeId = assistantId;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _gameProvider.useScope(assistantId);
+        });
+      }
+      return ChangeNotifierProvider.value(
+        value: _gameProvider,
+        child: _buildGameLayout(context),
+      );
+    }
+
     final width = MediaQuery.sizeOf(context).width;
     final cs = Theme.of(context).colorScheme;
     final settings = context.watch<SettingsProvider>();
-    final assistant = context.watch<AssistantProvider>().currentAssistant;
 
     final modelInfo = getModelDisplayInfo(settings, assistant: assistant);
 
@@ -614,6 +637,173 @@ class _HomePageState extends State<HomePage>
       modelDisplay: modelInfo.modelDisplay,
       cs: cs,
     );
+  }
+
+  Widget _buildGameLayout(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final activeOpening = _activeGameOpening();
+
+    final gameAppBar = AppBar(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      title: Text(
+        l10n.playModeSwitcherGameLabel,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: cs.onSurface,
+        ),
+      ),
+      actions: [
+        IosIconButton(
+          size: 20,
+          padding: const EdgeInsets.all(8),
+          minSize: 40,
+          semanticLabel:
+              AppLocalizations.of(context)?.desktopNavMusicTooltip ?? 'Music',
+          icon: Lucide.AudioWaveform,
+          onTap: _openMusicPlayer,
+        ),
+        const SizedBox(width: 8),
+      ],
+    );
+
+    if (width >= AppBreakpoints.tablet) {
+      return HomeDesktopScaffold(
+        scaffoldKey: _scaffoldKey,
+        assistantPickerCloseTick: _assistantPickerCloseTick,
+        loadingConversationIds: _controller.loadingConversationIds,
+        title: l10n.playModeSwitcherGameLabel,
+        providerName: null,
+        modelDisplay: null,
+        tabletSidebarOpen: _controller.tabletSidebarOpen,
+        rightSidebarOpen: _controller.rightSidebarOpen,
+        embeddedSidebarWidth: _controller.embeddedSidebarWidth,
+        rightSidebarWidth: _controller.rightSidebarWidth,
+        sidebarMinWidth: HomePageController.sidebarMinWidth,
+        sidebarMaxWidth: HomePageController.sidebarMaxWidth,
+        onToggleSidebar: _controller.toggleTabletSidebar,
+        onToggleRightSidebar: _controller.toggleRightSidebar,
+        onSelectConversation: (id) {
+          _controller.switchConversationAnimated(id);
+        },
+        onNewConversation: () async {
+          await _controller.createNewConversationAnimated();
+        },
+        onCreateNewConversation: () async {
+          await _controller.createNewConversationAnimated();
+          if (mounted) _controller.forceScrollToBottomSoon(animate: false);
+        },
+        onToggleTemporaryConversation: () async {
+          await _controller.toggleTemporaryConversation();
+          if (mounted) _controller.forceScrollToBottomSoon(animate: false);
+        },
+        canToggleTemporaryConversation:
+            _controller.canToggleTemporaryConversation,
+        temporaryConversationEnabled: _controller.isTemporaryConversation,
+        globalSearchMode: _controller.isGlobalSearchMode,
+        globalSearchQuery: _controller.globalSearchQuery,
+        onGlobalSearchQueryChanged: _controller.setGlobalSearchQuery,
+        onOpenGlobalSearchResult: (convId, msgId) => _controller
+            .openGlobalSearchResult(conversationId: convId, messageId: msgId),
+        onSelectModel: () {},
+        onOpenFavorites: _openFavorites,
+        favoritesOpen: _favoritesOpen,
+        favoritesScope: _favoritesScope(),
+        favoriteReferenceIds: _mediaController.favoriteCardIds,
+        onToggleFavorites: _openFavorites,
+        onFavoriteReference: (ref) => _mediaController.toggleFavoriteCard(ref),
+        musicPlayerOpen: _musicPlayerOpen,
+        onToggleMusicPlayer: _openMusicPlayer,
+        onSidebarWidthChanged: _controller.updateSidebarWidth,
+        onSidebarWidthChangeEnd: _controller.saveSidebarWidth,
+        onRightSidebarWidthChanged: _controller.updateRightSidebarWidth,
+        onRightSidebarWidthChangeEnd: _controller.saveRightSidebarWidth,
+        buildAssistantBackground: _buildAssistantBackground,
+        appBarOverride: gameAppBar,
+        forceAssistantsOnly: true,
+        body: GameContent(
+          hasStarted: _controller.messages.isNotEmpty,
+          activeOpening: activeOpening,
+          onTavernCardImported: () async {
+            if (mounted) setState(() {});
+          },
+          onOpeningSelected: (opening) async {
+            await _controller.createNewGameOpeningConversation(opening);
+          },
+        ),
+      );
+    }
+
+    return HomeMobileScaffold(
+      scaffoldKey: _scaffoldKey,
+      drawerController: _drawerController,
+      assistantPickerCloseTick: _assistantPickerCloseTick,
+      loadingConversationIds: _controller.loadingConversationIds,
+      title: l10n.playModeSwitcherGameLabel,
+      providerName: null,
+      modelDisplay: null,
+      onToggleDrawer: () => _drawerController.toggle(),
+      onDismissKeyboard: _controller.dismissKeyboard,
+      onSelectConversation: (id) {
+        _controller.switchConversationAnimated(id);
+      },
+      onNewConversation: () async {
+        await _controller.createNewConversationAnimated();
+      },
+      onOpenMiniMap: _openMiniMap,
+      onOpenFavorites: _openFavorites,
+      favoriteReferenceIds: _mediaController.favoriteCardIds,
+      onFavoriteReference: (ref) => _mediaController.toggleFavoriteCard(ref),
+      musicPlayerOpen: _musicPlayerOpen,
+      onToggleMusicPlayer: _openMusicPlayer,
+      onCreateNewConversation: () async {
+        await _controller.createNewConversationAnimated();
+        if (mounted) {
+          _controller.forceScrollToBottomSoon(animate: false);
+        }
+      },
+      onToggleTemporaryConversation: () async {
+        await _controller.toggleTemporaryConversation();
+        if (mounted) {
+          _controller.forceScrollToBottomSoon(animate: false);
+        }
+      },
+      canToggleTemporaryConversation:
+          _controller.canToggleTemporaryConversation,
+      temporaryConversationEnabled: _controller.isTemporaryConversation,
+      globalSearchMode: _controller.isGlobalSearchMode,
+      globalSearchQuery: _controller.globalSearchQuery,
+      onGlobalSearchQueryChanged: _controller.setGlobalSearchQuery,
+      onOpenGlobalSearchResult: (convId, msgId) => _controller
+          .openGlobalSearchResult(conversationId: convId, messageId: msgId),
+      onSelectModel: () {},
+      onEnterGlobalSearch: () {},
+      onExitGlobalSearch: () {},
+      appBarOverride: gameAppBar,
+      body: GameContent(
+        hasStarted: _controller.messages.isNotEmpty,
+        activeOpening: activeOpening,
+        onTavernCardImported: () async {
+          if (mounted) setState(() {});
+        },
+        onOpeningSelected: (opening) async {
+          await _controller.createNewGameOpeningConversation(opening);
+        },
+      ),
+    );
+  }
+
+  String? _activeGameOpening() {
+    for (final message in _controller.messages) {
+      if (message.role == 'assistant' && message.content.trim().isNotEmpty) {
+        return message.content.trim();
+      }
+    }
+    return null;
   }
 
   Widget _buildMobileLayout(
@@ -1006,17 +1196,9 @@ class _HomePageState extends State<HomePage>
         return Stack(
           children: [
             Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: provider,
-                    fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                      Colors.black.withValues(alpha: 0.04),
-                      BlendMode.srcATop,
-                    ),
-                  ),
-                ),
+              child: ImageFiltered(
+                imageFilter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: Image(image: provider, fit: BoxFit.cover),
               ),
             ),
             Positioned.fill(
@@ -1072,7 +1254,14 @@ class _HomePageState extends State<HomePage>
         fit: StackFit.expand,
         children: [
           ColoredBox(color: cs.surface),
-          if (bg != null) Opacity(opacity: 0.9, child: bg),
+          if (bg != null)
+            Opacity(
+              opacity: 0.8,
+              child: ImageFiltered(
+                imageFilter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: bg,
+              ),
+            ),
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(

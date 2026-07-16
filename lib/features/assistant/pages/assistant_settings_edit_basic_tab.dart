@@ -169,7 +169,9 @@ class _BasicSettingsTabState extends State<_BasicSettingsTab> {
         PlayModeSelector(
           currentMode: a.playMode,
           onModeChanged: (mode) {
-            context.read<AssistantProvider>().updateAssistant(a.copyWith(playMode: mode));
+            context.read<AssistantProvider>().updateAssistant(
+              a.copyWith(playMode: mode),
+            );
           },
         ),
         const SizedBox(height: 16),

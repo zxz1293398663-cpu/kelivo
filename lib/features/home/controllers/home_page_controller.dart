@@ -641,19 +641,7 @@ class HomePageController extends ChangeNotifier {
       await _createNewConversation();
     }
 
-    final ChatInputData actualInput = input.favoriteCards.isEmpty
-        ? input
-        : ChatInputData(
-            text: input.text.trim().isNotEmpty
-                ? '${input.text.trim()}\n\n${input.favoriteCards.map((c) => c.text).join('\n\n')}'
-                : input.favoriteCards.map((c) => c.text).join('\n\n'),
-            imagePaths: input.imagePaths,
-            documents: input.documents,
-            favoriteCards: input.favoriteCards,
-            allowImagesApiRouting: input.allowImagesApiRouting,
-          );
-
-    final result = await _viewModel.sendMessage(actualInput);
+    final result = await _viewModel.sendMessage(input);
     if (result != ChatInputSubmissionResult.rejected) {
       notifyListeners();
     }
@@ -850,6 +838,17 @@ class HomePageController extends ChangeNotifier {
         _inputFocus.requestFocus();
       });
     }
+  }
+
+  Future<void> createNewGameOpeningConversation(String opening) async {
+    try {
+      await _viewModel.flushCurrentConversationProgress();
+    } catch (_) {}
+    _exitUserMessageEdit(clearDraft: true);
+    _translations.clear();
+    await _viewModel.createNewConversationWithOpening(opening);
+    notifyListeners();
+    _scrollToBottomSoon(animate: false);
   }
 
   Future<void> _createNewConversation() async {

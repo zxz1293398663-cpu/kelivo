@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/assistant_play_mode.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/ios_tactile.dart';
 import '../../../icons/lucide_adapter.dart';
 import '../../../theme/app_font_weights.dart';
@@ -16,8 +17,8 @@ class PlayModeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -29,7 +30,7 @@ class PlayModeSelector extends StatelessWidget {
         children: [
           Expanded(
             child: _ModeOption(
-              label: '小说模式', // Localize later
+              label: l10n.playModeSwitcherNovelLabel,
               icon: Lucide.BookOpen,
               isSelected: currentMode == AssistantPlayMode.novel,
               onTap: () => onModeChanged(AssistantPlayMode.novel),
@@ -37,7 +38,7 @@ class PlayModeSelector extends StatelessWidget {
           ),
           Expanded(
             child: _ModeOption(
-              label: '文游/酒馆', // Localize later
+              label: l10n.playModeSwitcherGameLabel,
               icon: Lucide.Wand2,
               isSelected: currentMode == AssistantPlayMode.game,
               onTap: () => onModeChanged(AssistantPlayMode.game),
@@ -80,15 +81,21 @@ class _ModeOption extends StatelessWidget {
           Icon(
             icon,
             size: 16,
-            color: isSelected ? cs.primary : cs.onSurface.withValues(alpha: 0.5),
+            color: isSelected
+                ? cs.primary
+                : cs.onSurface.withValues(alpha: 0.5),
           ),
           const SizedBox(width: 8),
           Text(
             label,
             style: TextStyle(
               fontSize: 13,
-              fontWeight: isSelected ? AppFontWeights.emphasis : AppFontWeights.medium,
-              color: isSelected ? cs.onSurface : cs.onSurface.withValues(alpha: 0.5),
+              fontWeight: isSelected
+                  ? AppFontWeights.emphasis
+                  : AppFontWeights.medium,
+              color: isSelected
+                  ? cs.onSurface
+                  : cs.onSurface.withValues(alpha: 0.5),
             ),
           ),
         ],

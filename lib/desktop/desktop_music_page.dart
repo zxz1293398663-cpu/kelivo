@@ -169,7 +169,9 @@ class _DesktopMusicPageState extends State<DesktopMusicPage> {
         ? WebViewWidget(
             controller: _flutterCtrl!,
             gestureRecognizers: {
-              Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
+              Factory<OneSequenceGestureRecognizer>(
+                () => EagerGestureRecognizer(),
+              ),
             },
           )
         : const SizedBox.shrink();

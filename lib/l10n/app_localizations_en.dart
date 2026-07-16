@@ -1380,6 +1380,429 @@ class AppLocalizationsEn extends AppLocalizations {
   String get codeBlockExpandButton => 'Expand';
 
   @override
+  String get codeBlockArtifactBadge => 'Artifact';
+
+  @override
+  String get playModeSwitcherNovelLabel => 'Novel';
+
+  @override
+  String get playModeSwitcherGameLabel => 'Game';
+
+  @override
+  String get gameTabStory => 'Story';
+
+  @override
+  String get gameTabPhone => 'Phone';
+
+  @override
+  String get gameTabWorld => 'World';
+
+  @override
+  String get gameTabSettings => 'Settings';
+
+  @override
+  String get gameEmptyStartCreating => 'Start Creating';
+
+  @override
+  String get gameEmptyScriptCardTitle => 'Create Script';
+
+  @override
+  String get gameEmptyScriptCardDescription =>
+      'Build an AI text adventure world: attributes, NPCs, timelines, and story direction.';
+
+  @override
+  String get gameEmptyVisualEditor => 'Visual editor';
+
+  @override
+  String get gameEmptyAiOpening => 'AI one-click opening';
+
+  @override
+  String get gameEmptyStartButton => 'Start';
+
+  @override
+  String get gameSceneCardImportButton => 'Import Scene Card';
+
+  @override
+  String get gameSceneCardImportDialogTitle => 'Import Scene Card';
+
+  @override
+  String get gameSceneCardPasteHint =>
+      'Paste content like :::newspaper time / character # note # scene';
+
+  @override
+  String get gameSceneCardParseButton => 'Parse and import';
+
+  @override
+  String get gameSceneCardInvalidFormat => 'Invalid scene card format.';
+
+  @override
+  String get gameImportTavernCardButton => 'Import Character Card';
+
+  @override
+  String get gameImportTavernCardSuccess => 'Character card imported.';
+
+  @override
+  String get gameImportTavernCardFailed => 'Failed to import character card.';
+
+  @override
+  String get gameImportAnotherTavernCardButton =>
+      'Import Another Character Card';
+
+  @override
+  String get gameImportTavernCardEntryDescription =>
+      'Start from a character card and choose one opening to enter the game.';
+
+  @override
+  String get gameOpeningSelectionTitle => 'Choose an Opening';
+
+  @override
+  String get gameOpeningSelectionSubtitle =>
+      'Pick one opening from this character card to begin inside game mode.';
+
+  @override
+  String gameOpeningSelectionOption(int index) {
+    return 'Opening $index';
+  }
+
+  @override
+  String get gameOpeningStartButton => 'Start from This Opening';
+
+  @override
+  String get gameOpeningChangeButton => 'Change Opening';
+
+  @override
+  String get gameOpeningCurrentTitle => 'Opening Active';
+
+  @override
+  String get gameOpeningCurrentSubtitle =>
+      'This opening anchors the current game state. You can switch to another opening later.';
+
+  @override
+  String get gameOpeningCurrentEmpty => 'No opening has been selected yet.';
+
+  @override
+  String get gameOpeningUserTokenTitle => 'User name';
+
+  @override
+  String get gameOpeningEditUserNameButton => 'Edit user name';
+
+  @override
+  String get gameOpeningEditUserNameTitle => 'Edit user name';
+
+  @override
+  String gameOpeningPageIndicator(int index, int total) {
+    return '$index / $total';
+  }
+
+  @override
+  String get gameSceneCardInstructionsTypeLabel => 'Scene card type: ';
+
+  @override
+  String get gameSceneCardInstructionsTimeLabel => 'Time: ';
+
+  @override
+  String get gameSceneCardInstructionsCharacterLabel => 'Character: ';
+
+  @override
+  String get gameSceneCardInstructionsItemsLabel => 'Scene items:';
+
+  @override
+  String get gameScriptStepStyle => 'Tone';
+
+  @override
+  String get gameScriptStepDescribe => 'Describe';
+
+  @override
+  String get gameScriptStepConfirm => 'Confirm';
+
+  @override
+  String get gameScriptStyleTitle => 'Choose narrative genre';
+
+  @override
+  String get gameScriptStyleSubtitle =>
+      'The genre decides story direction, event type, NPC roles, and narrative tone.';
+
+  @override
+  String get gameScriptSelectedToneLabel => 'Selected tone';
+
+  @override
+  String get gameScriptStyleDailyHealing => 'Daily Healing';
+
+  @override
+  String get gameScriptStyleDailyHealingDescription =>
+      'Slice-of-life details, small goals, low conflict, and slow-burn relationships.';
+
+  @override
+  String get gameScriptStyleDailyHealingRule =>
+      'Narrative genre: Daily Healing. Prioritize everyday details, small goals, warm interactions, and low-conflict events. NPC interactions should emphasize companionship, subtle emotion, and gradual relationship growth.';
+
+  @override
+  String get gameScriptStyleEpicAdventure => 'Epic Adventure';
+
+  @override
+  String get gameScriptStyleEpicAdventureDescription =>
+      'Missions, challenges, danger, growth, and exploration.';
+
+  @override
+  String get gameScriptStyleEpicAdventureRule =>
+      'Narrative genre: Epic Adventure. Prioritize missions, challenges, crisis escalation, character growth, and exploration. NPCs should provide goals, obstacles, alliances, rivalries, or key clues.';
+
+  @override
+  String get gameScriptStyleSuspenseMystery => 'Suspense Mystery';
+
+  @override
+  String get gameScriptStyleSuspenseMysteryDescription =>
+      'Clues, doubts, reversals, truth chains, and hidden motives.';
+
+  @override
+  String get gameScriptStyleSuspenseMysteryRule =>
+      'Narrative genre: Suspense Mystery. Prioritize clues, doubts, reversals, hidden motives, and a traceable truth chain. Avoid revealing the answer too early. NPCs should have suspicious behavior, secrets, or misleading information.';
+
+  @override
+  String get gameScriptStyleRomanceEnsemble => 'Romance Ensemble';
+
+  @override
+  String get gameScriptStyleRomanceEnsembleDescription =>
+      'Multiple character relationships, ambiguity, tension, and emotional progression.';
+
+  @override
+  String get gameScriptStyleRomanceEnsembleRule =>
+      'Narrative genre: Romance Ensemble. Prioritize multi-character interaction, ambiguity, relationship tension, emotional choices, and gradual emotional progression. NPCs should carry distinct desires, boundaries, and relationship conflicts.';
+
+  @override
+  String get gameScriptStyleUrbanWeird => 'Urban Weird';
+
+  @override
+  String get gameScriptStyleUrbanWeirdDescription =>
+      'Modern settings, rumors, abnormal rules, and hidden organizations.';
+
+  @override
+  String get gameScriptStyleUrbanWeirdRule =>
+      'Narrative genre: Urban Weird. Prioritize modern settings, urban rumors, abnormal rules, hidden organizations, and the contrast between everyday life and the uncanny. NPCs should connect to anomalies, rules, witnesses, or concealed factions.';
+
+  @override
+  String get gameScriptStyleAncientPower => 'Ancient Power';
+
+  @override
+  String get gameScriptStyleAncientPowerDescription =>
+      'Factions, identity, schemes, probing, and restrained expression.';
+
+  @override
+  String get gameScriptStyleAncientPowerRule =>
+      'Narrative genre: Ancient Power. Prioritize factions, status, schemes, probing, alliances, betrayal, and restrained expression. NPCs should represent interests, secrets, leverage, or political pressure.';
+
+  @override
+  String get gameScriptStyleRomanceDrama => 'Romance Drama';
+
+  @override
+  String get gameScriptStyleRomanceDramaDescription =>
+      'Emotion-led relationships, intimate tension, choices, and character bonds.';
+
+  @override
+  String get gameScriptStyleRomanceDramaRule =>
+      'Narrative genre: Romance Drama. Prioritize emotion-led relationships, intimate tension, meaningful choices, character bonds, and gradual emotional payoff. NPCs should have clear desires, boundaries, emotional history, and relationship pressure.';
+
+  @override
+  String get gameScriptInstructionsHint =>
+      'Write the world, gameplay, and rules';
+
+  @override
+  String get gameScriptInstructionsHelper =>
+      'Write the world, gameplay, and rules. When AI polish is enabled, AI will organize your instructions into narrative rules during generation (up to 10000 characters).';
+
+  @override
+  String get gameScriptUntitled => 'Untitled';
+
+  @override
+  String get gameScriptEmptyInstructionsForPolish =>
+      'The user has not provided detailed settings yet. Please complete a playable text adventure opening based on the title and narrative tone.';
+
+  @override
+  String gameScriptAiPolishInstruction(
+    Object styleName,
+    Object styleRule,
+    Object title,
+    Object base,
+  ) {
+    return 'AI polish is enabled.\nDo not change the user\'s core direction. Organize the user\'s settings into clear, executable text-adventure narrative rules.\n\nRequirements:\n1. Preserve the user\'s intent and do not change the genre without permission.\n2. Complete the world, gameplay goal, initial conflict, NPC direction, and event progression.\n3. The output should serve as long-term rules for future game generation, not a one-off reply.\n4. Narrative genre: $styleName.\n5. Genre rule: $styleRule\n6. Game title: $title.\n\nUser\'s original settings:\n$base';
+  }
+
+  @override
+  String get gameScriptNextButton => 'Next';
+
+  @override
+  String get gameScriptChangeStyleButton => 'Change';
+
+  @override
+  String get gameScriptTitleLabel => 'Game title';
+
+  @override
+  String get gameScriptTitleHint => 'Example: Coffee Shop Simulator';
+
+  @override
+  String get gameScriptInstructionsLabel => 'Game instructions';
+
+  @override
+  String get gameScriptAllowAiPolishLabel => 'Allow AI to polish instructions';
+
+  @override
+  String get gameScriptConfirmButton => 'Confirm';
+
+  @override
+  String get gameScriptInstructionsPreviewLabel => 'Game instructions preview';
+
+  @override
+  String get gameScriptBackToEditButton => 'Back to edit';
+
+  @override
+  String get gameScriptStartGenerateButton => 'Start generating';
+
+  @override
+  String get gameScriptImportTavernStyleTooltip => 'Import tavern style';
+
+  @override
+  String get gameScriptImportTavernStyleSuccess => 'Tavern style imported.';
+
+  @override
+  String get gameScriptImportTavernStyleFailed =>
+      'Failed to import tavern style.';
+
+  @override
+  String get gameSettingsAiModelSection => 'AI Model';
+
+  @override
+  String get gameSettingsWorldBookSection => 'World Book';
+
+  @override
+  String get gameSettingsImportWorldBook => 'Import World Book';
+
+  @override
+  String get gameSettingsImportWorldBookDescription =>
+      'Import a JSON world book and enable it for this game.';
+
+  @override
+  String gameSettingsImportWorldBookSuccess(String name) {
+    return 'Imported world book: $name';
+  }
+
+  @override
+  String get gameSettingsScriptSection => 'Script Management';
+
+  @override
+  String get gameSettingsModelNotSet => 'Not set';
+
+  @override
+  String get gameSettingsDeleteCurrentScript => 'Delete current script';
+
+  @override
+  String get gameSettingsDeleteIrreversible => 'This cannot be undone';
+
+  @override
+  String get gameSettingsDeleteDialogTitle => 'Delete script';
+
+  @override
+  String get gameSettingsDeleteDialogMessage =>
+      'Delete the current script? All game data will be lost.';
+
+  @override
+  String get gamePhoneFeatureTitle => 'Phone Features';
+
+  @override
+  String get gamePhoneFeatureSubtitle =>
+      'Messages, inventory, diary, and more are coming soon.';
+
+  @override
+  String gameWorldTitle(Object title) {
+    return '$title - World';
+  }
+
+  @override
+  String gameWorldNpcCount(int count) {
+    return 'Met $count characters';
+  }
+
+  @override
+  String get gameWorldImportFromFavorites => 'Import from Favorites';
+
+  @override
+  String get gameWorldCreateNpc => 'New NPC';
+
+  @override
+  String get gameWorldNoNpc => 'No NPCs yet';
+
+  @override
+  String get desktopSettingsPresetsMenu => 'Presets';
+
+  @override
+  String get desktopPresetsImportFailed => 'Import failed or format mismatch.';
+
+  @override
+  String desktopPresetsImportSuccess(Object name) {
+    return 'Imported preset: $name';
+  }
+
+  @override
+  String get desktopPresetsEditNameTitle => 'Edit preset name';
+
+  @override
+  String get desktopPresetsNoApplicableAssistants =>
+      'No applicable characters. Create a character first.';
+
+  @override
+  String desktopPresetsAppliedToAssistants(int count) {
+    return 'Applied to $count characters';
+  }
+
+  @override
+  String get desktopPresetsSelectAssistantsTitle =>
+      'Choose characters to apply the preset';
+
+  @override
+  String get desktopPresetsSelectAll => 'Select all';
+
+  @override
+  String desktopPresetsApplyCount(int count) {
+    return 'Apply ($count)';
+  }
+
+  @override
+  String get desktopPresetsTitle => 'Preset Management';
+
+  @override
+  String get desktopPresetsImportButton => 'Import Preset';
+
+  @override
+  String get desktopPresetsEmpty =>
+      'No presets yet. Import one from the top right.';
+
+  @override
+  String get desktopPresetsEditNameTooltip => 'Edit name';
+
+  @override
+  String get desktopPresetsApplyTooltip => 'Apply to characters';
+
+  @override
+  String get desktopPresetsDeleteTooltip => 'Delete preset';
+
+  @override
+  String get desktopPresetsMainPrompt => 'Main Prompt';
+
+  @override
+  String get desktopPresetsEditMainPromptTooltip => 'Edit main prompt';
+
+  @override
+  String get desktopPresetsRules => 'Rules';
+
+  @override
+  String get desktopPresetsEditRuleTooltip => 'Edit rule';
+
+  @override
+  String get desktopPresetsDeleteRuleTooltip => 'Delete rule';
+
+  @override
+  String get desktopPresetsEditMainPromptTitle => 'Edit main prompt';
+
+  @override
   String get codeBlockDefaultFileNameStem => 'code';
 
   @override
@@ -4988,6 +5411,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assistantEditPresetRoleAssistant => 'Assistant';
 
   @override
+  String get assistantEditRulesTitle => 'Rules';
+
+  @override
+  String get assistantEditMainPromptLabel => 'Main Prompt';
+
+  @override
+  String get assistantEditRulesEmpty => 'No rules';
+
+  @override
+  String get assistantEditRuleAddTitle => 'Add Rule';
+
+  @override
+  String get assistantEditRuleEditTitle => 'Edit Rule';
+
+  @override
+  String get assistantEditRuleNameLabel => 'Rule Name';
+
+  @override
+  String get assistantEditRuleContentLabel => 'Content';
+
+  @override
+  String get assistantSettingsImportTavernCard =>
+      'Import Character Card (Tavern JSON)';
+
+  @override
+  String get assistantSettingsImportTavernPreset =>
+      'Import Preset Rules (JSON)';
+
+  @override
+  String get assistantSettingsImportParseFailed =>
+      'Parse failed or format mismatch.';
+
+  @override
   String get desktopTtsPleaseAddProvider => 'Please add a TTS provider first';
 
   @override
@@ -5651,4 +6107,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get desktopNavPhoneTooltip => 'Virtual Phone';
+
+  @override
+  String get gameStoryEmptyHint =>
+      'Tap the button below to start the adventure.';
+
+  @override
+  String get gameStoryActiveEventsTitle => 'Current Events';
+
+  @override
+  String get gameStoryCompletedEventsTitle => 'Completed';
+
+  @override
+  String get gameStoryAdvanceButton => 'Advance Story';
+
+  @override
+  String get gameStoryPlayerFallbackName => 'Traveler';
+
+  @override
+  String get gameStoryPlayerFallbackInitial => 'T';
 }

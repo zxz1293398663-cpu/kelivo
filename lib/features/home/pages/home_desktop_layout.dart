@@ -76,6 +76,7 @@ class HomeDesktopScaffold extends StatelessWidget {
     required this.buildAssistantBackground,
     this.appBarOverride,
     required this.body,
+    this.forceAssistantsOnly = false,
   });
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -123,6 +124,7 @@ class HomeDesktopScaffold extends StatelessWidget {
   final Widget Function(BuildContext context) buildAssistantBackground;
   final PreferredSizeWidget? appBarOverride;
   final Widget body;
+  final bool forceAssistantsOnly;
 
   static const Duration _sidebarAnimDuration = Duration(milliseconds: 260);
   static const Curve _sidebarAnimCurve = Curves.easeOutCubic;
@@ -230,7 +232,8 @@ class HomeDesktopScaffold extends StatelessWidget {
       closePickerTicker: assistantPickerCloseTick,
       loadingConversationIds: loadingConversationIds,
       useDesktopTabs: _isDesktop && !topicsOnRight,
-      desktopAssistantsOnly: _isDesktop && topicsOnRight,
+      desktopAssistantsOnly:
+          forceAssistantsOnly || (_isDesktop && topicsOnRight),
       globalSearchMode: globalSearchMode,
       globalSearchQuery: globalSearchQuery,
       onGlobalSearchQueryChanged: onGlobalSearchQueryChanged,
@@ -608,17 +611,17 @@ class HomeDesktopScaffold extends StatelessWidget {
         icon: Lucide.Heart,
         onTap: onOpenFavorites,
       ),
-        const SizedBox(width: 2),
-        IosIconButton(
-          size: 20,
-          padding: const EdgeInsets.all(8),
-          minSize: 40,
-          semanticLabel: AppLocalizations.of(context)!.desktopNavMusicTooltip,
-          icon: Lucide.AudioWaveform,
-          onTap: onToggleMusicPlayer,
-        ),
-        const SizedBox(width: 2),
-        IosIconButton(
+      const SizedBox(width: 2),
+      IosIconButton(
+        size: 20,
+        padding: const EdgeInsets.all(8),
+        minSize: 40,
+        semanticLabel: AppLocalizations.of(context)!.desktopNavMusicTooltip,
+        icon: Lucide.AudioWaveform,
+        onTap: onToggleMusicPlayer,
+      ),
+      const SizedBox(width: 2),
+      IosIconButton(
         size: 20,
         padding: const EdgeInsets.all(8),
         minSize: 40,

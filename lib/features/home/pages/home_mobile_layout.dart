@@ -21,7 +21,8 @@ import '../../../shared/widgets/ios_tactile.dart';
 import '../../../utils/sandbox_path_resolver.dart';
 import '../widgets/assistant_avatar.dart';
 import '../widgets/assistant_entry_actions.dart';
-import '../../favorites/services/favorite_cards_store.dart' show FavoriteCardReference;
+import '../../favorites/services/favorite_cards_store.dart'
+    show FavoriteCardReference;
 import 'package:Kelivo/theme/app_font_weights.dart';
 
 /// Mobile layout scaffold for the home page

@@ -400,6 +400,10 @@ class _ChatInputBarState extends State<ChatInputBar>
   }
 
   String _hint(BuildContext context) {
+    final a = context.watch<AssistantProvider>().currentAssistant;
+    if (a != null && a.name.isNotEmpty) {
+      return 'to ${a.name}';
+    }
     final l10n = AppLocalizations.of(context)!;
     return l10n.chatInputBarHint;
   }
@@ -417,7 +421,12 @@ class _ChatInputBarState extends State<ChatInputBar>
   Future<void> _handleSend() async {
     if (_isSubmitting) return;
     final text = _controller.text.trim();
-    if (text.isEmpty && _images.isEmpty && _docs.isEmpty) return;
+    if (text.isEmpty &&
+        _images.isEmpty &&
+        _docs.isEmpty &&
+        _favoriteCards.isEmpty) {
+      return;
+    }
     _isSubmitting = true;
     try {
       final result =
@@ -426,6 +435,7 @@ class _ChatInputBarState extends State<ChatInputBar>
               text: text,
               imagePaths: List.of(_images),
               documents: List.of(_docs),
+              favoriteCards: List.of(_favoriteCards),
               allowImagesApiRouting: _allowImagesApiRouting,
             ),
           ) ??
@@ -2114,7 +2124,10 @@ class _ChatInputBarState extends State<ChatInputBar>
                                     ],
                                     _CompactSendButton(
                                       enabled:
-                                          (hasText || hasImages || hasDocs || hasFavorites) &&
+                                          (hasText ||
+                                              hasImages ||
+                                              hasDocs ||
+                                              hasFavorites) &&
                                           !widget.loading,
                                       loading: widget.loading,
                                       onSend: _handleSend,

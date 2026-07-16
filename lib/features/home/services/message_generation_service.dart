@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import '../../../core/models/assistant.dart';
 import '../../../core/models/chat_input_data.dart';
@@ -166,6 +168,22 @@ class MessageGenerationService {
 
     // Inject prompts
     messageBuilderService.injectSystemPrompt(apiMessages, assistant, modelId);
+
+    // Meta popup injection
+    if (settings.metaPopupEnabled &&
+        math.Random().nextDouble() < settings.metaPopupProbability) {
+      final metaText = settings.metaPopupPrompt;
+      final sysIdx = apiMessages.indexWhere(
+        (m) => m['role'] == 'system' || m['role'] == 'developer',
+      );
+      if (sysIdx >= 0) {
+        final existing = apiMessages[sysIdx]['content'] as String? ?? '';
+        apiMessages[sysIdx]['content'] = '$existing\n\n$metaText';
+      } else {
+        apiMessages.insert(0, {'role': 'system', 'content': metaText});
+      }
+    }
+
     await messageBuilderService.injectMemoryAndRecentChats(
       apiMessages,
       assistant,
@@ -248,6 +266,12 @@ class MessageGenerationService {
     final docMarkers = input.documents
         .map((d) => '\n[file:${d.path}|${d.fileName}|${d.mime}]')
         .join();
+    final favoriteMarkers = input.favoriteCards
+        .map(
+          (c) =>
+              '\n[favorite:${_encodeFavoriteMarkerPart(c.id)}|${_encodeFavoriteMarkerPart(c.title)}|${_encodeFavoriteMarkerPart(c.text)}]',
+        )
+        .join();
 
     final processedUserText = applyAssistantRegexes(
       content,
@@ -256,8 +280,11 @@ class MessageGenerationService {
       target: AssistantRegexTransformTarget.persist,
     );
 
-    return processedUserText + imageMarkers + docMarkers;
+    return processedUserText + imageMarkers + docMarkers + favoriteMarkers;
   }
+
+  static String _encodeFavoriteMarkerPart(String value) =>
+      base64Url.encode(utf8.encode(value));
 
   /// Create assistant message placeholder.
   Future<ChatMessage> createAssistantPlaceholder({

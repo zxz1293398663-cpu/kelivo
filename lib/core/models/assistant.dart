@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'assistant_regex.dart';
 import 'preset_message.dart';
 import 'assistant_play_mode.dart';
+import 'saved_preset.dart';
 
 class Assistant {
   static const int defaultRecentChatsSummaryMessageCount = 5;
@@ -33,6 +34,8 @@ class Assistant {
   thinkingBudget; // null = use global/default; 0=off; >0 tokens budget
   final int? maxTokens; // null = unlimited
   final String systemPrompt;
+  final String mainPrompt; // structured prompt: content of the "main" entry
+  final List<PresetRule> rules; // structured rules with name/enabled/content
   final String messageTemplate; // e.g. "{{ message }}"
   final bool searchEnabled; // per-assistant external web search switch
   final List<String> mcpServerIds; // bound MCP server IDs
@@ -69,6 +72,8 @@ class Assistant {
     this.thinkingBudget,
     this.maxTokens,
     this.systemPrompt = '',
+    this.mainPrompt = '',
+    this.rules = const <PresetRule>[],
     this.messageTemplate = '{{ message }}',
     this.searchEnabled = false,
     this.mcpServerIds = const <String>[],
@@ -113,6 +118,8 @@ class Assistant {
     List<PresetMessage>? presetMessages,
     List<AssistantRegex>? regexRules,
     AssistantPlayMode? playMode,
+    String? mainPrompt,
+    List<PresetRule>? rules,
     bool clearChatModel = false,
     bool clearAvatar = false,
     bool clearTemperature = false,
@@ -155,6 +162,9 @@ class Assistant {
           recentChatsSummaryMessageCount ?? this.recentChatsSummaryMessageCount,
       presetMessages: presetMessages ?? this.presetMessages,
       regexRules: regexRules ?? this.regexRules,
+      playMode: playMode ?? this.playMode,
+      mainPrompt: mainPrompt ?? this.mainPrompt,
+      rules: rules ?? this.rules,
     );
   }
 
@@ -174,6 +184,8 @@ class Assistant {
     'thinkingBudget': thinkingBudget,
     'maxTokens': maxTokens,
     'systemPrompt': systemPrompt,
+    'mainPrompt': mainPrompt,
+    'rules': rules.map((e) => e.toJson()).toList(),
     'messageTemplate': messageTemplate,
     'searchEnabled': searchEnabled,
     'mcpServerIds': mcpServerIds,
@@ -205,6 +217,17 @@ class Assistant {
     thinkingBudget: (json['thinkingBudget'] as num?)?.toInt(),
     maxTokens: (json['maxTokens'] as num?)?.toInt(),
     systemPrompt: (json['systemPrompt'] as String?) ?? '',
+    mainPrompt: (json['mainPrompt'] as String?) ?? '',
+    rules: (() {
+      final raw = json['rules'];
+      if (raw is List) {
+        return raw
+            .whereType<Map>()
+            .map((e) => PresetRule.fromJson(e.cast<String, dynamic>()))
+            .toList();
+      }
+      return const <PresetRule>[];
+    })(),
     messageTemplate: (json['messageTemplate'] as String?) ?? '{{ message }}',
     searchEnabled: json['searchEnabled'] as bool? ?? false,
     mcpServerIds:
@@ -271,6 +294,18 @@ class Assistant {
     })(),
     playMode: AssistantPlayModeExt.fromName(json['playMode'] as String?),
   );
+
+  String computeSystemPrompt() {
+    final sb = StringBuffer();
+    if (mainPrompt.isNotEmpty) {
+      sb.writeln(mainPrompt);
+    }
+    for (final rule in rules.where((r) => r.enabled)) {
+      sb.writeln('\n### Rule: ${rule.name}');
+      sb.writeln(rule.content);
+    }
+    return sb.toString().trim();
+  }
 
   static String encodeList(List<Assistant> list) =>
       jsonEncode(list.map((e) => e.toJson()).toList());

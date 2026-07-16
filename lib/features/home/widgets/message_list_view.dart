@@ -19,7 +19,6 @@ import '../controllers/streaming_content_notifier.dart';
 import '../services/ask_user_interaction_service.dart';
 import '../utils/chat_layout_constants.dart';
 import 'model_icon.dart';
-import 'mini_map_status_hub.dart';
 
 /// Callback types for message list view actions
 typedef OnVersionChange = Future<void> Function(String groupId, int version);
@@ -282,13 +281,11 @@ class _MessageListViewState extends State<MessageListView> {
         return ValueListenableBuilder<bool>(
           valueListenable: widget.isProcessingFiles,
           builder: (context, isProcessing, child) {
-            final statusEntries = parseMiniMapStatusHub(widget.messages);
-            final hasStatusHub = statusEntries.isNotEmpty;
             final list = ListView.builder(
               controller: widget.scrollController,
               padding: EdgeInsets.fromLTRB(
                 horizontalPad,
-                widget.topContentPadding + (hasStatusHub ? 198 : 0),
+                widget.topContentPadding,
                 horizontalPad,
                 widget.bottomContentPadding +
                     (widget.isPinnedIndicatorActive ? 12 : 0),
@@ -329,13 +326,6 @@ class _MessageListViewState extends State<MessageListView> {
             return Stack(
               children: [
                 userScrollAwareList,
-                if (hasStatusHub)
-                  Positioned(
-                    top: widget.topContentPadding,
-                    left: horizontalPad + 12,
-                    right: horizontalPad + 12,
-                    child: MiniMapStatusHubStrip(entries: statusEntries),
-                  ),
                 if (widget.isPinnedIndicatorActive &&
                     widget.buildPinnedStreamingIndicator != null)
                   widget.buildPinnedStreamingIndicator!(),

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../icons/lucide_adapter.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +15,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../core/services/importers/tavern_card_importer.dart';
 import '../../../core/services/importers/tavern_preset_importer.dart';
+import '../../../core/providers/world_book_provider.dart';
 import '../../../shared/widgets/snackbar.dart';
 import '../../../theme/app_font_weights.dart';
 
@@ -45,7 +46,9 @@ class AssistantSettingsPage extends StatelessWidget {
             message: l10n.assistantSettingsAddSheetSave,
             child: PopupMenuButton<int>(
               icon: Icon(Lucide.Plus, color: cs.onSurface),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               itemBuilder: (context) => [
                 PopupMenuItem(
                   value: 0,
@@ -63,7 +66,7 @@ class AssistantSettingsPage extends StatelessWidget {
                     children: [
                       Icon(Lucide.FileText, size: 18, color: cs.onSurface),
                       const SizedBox(width: 8),
-                      const Text('导入角色卡 (Tavern JSON)'),
+                      Text(l10n.assistantSettingsImportTavernCard),
                     ],
                   ),
                 ),
@@ -73,7 +76,7 @@ class AssistantSettingsPage extends StatelessWidget {
                     children: [
                       Icon(Lucide.Settings2, size: 18, color: cs.onSurface),
                       const SizedBox(width: 8),
-                      const Text('导入预设规则 (JSON)'),
+                      Text(l10n.assistantSettingsImportTavernPreset),
                     ],
                   ),
                 ),
@@ -469,18 +472,33 @@ Future<String?> _importTavernCard(BuildContext context) async {
     final file = result.files.first;
     if (file.path == null) return null;
 
-    final String content = await File(file.path!).readAsString();
-    final assistant = TavernCardImporter.parseV2Json(content);
-    if (assistant == null) {
+    final content = await File(file.path!).readAsBytes();
+    final importResult = TavernCardImporter.parseFileBytes(
+      content,
+      fileName: file.name,
+    );
+    if (importResult == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('解析失败或格式不匹配')));
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.assistantSettingsImportParseFailed)),
+        );
       }
       return null;
     }
+    final assistant = importResult.assistant;
 
     if (context.mounted) {
       final ap = context.read<AssistantProvider>();
+      final worldBookProvider = context.read<WorldBookProvider>();
       await ap.addAssistantObject(assistant);
+      final worldBook = importResult.worldBook;
+      if (worldBook != null) {
+        await worldBookProvider.addBook(worldBook);
+        await worldBookProvider.setActiveBookIds(<String>[
+          worldBook.id,
+        ], assistantId: assistant.id);
+      }
     }
     return assistant.id;
   } catch (e) {
@@ -502,7 +520,10 @@ Future<String?> _importTavernPreset(BuildContext context) async {
     final assistant = TavernPresetImporter.parsePresetJson(content);
     if (assistant == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('解析失败或格式不匹配')));
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.assistantSettingsImportParseFailed)),
+        );
       }
       return null;
     }
@@ -850,4 +871,3 @@ class _IosFilledButtonState extends State<_IosFilledButton> {
     );
   }
 }
-

@@ -47,6 +47,8 @@ class _HtmlPreviewDialogState extends State<_HtmlPreviewDialog> {
   bool _ready = false;
   bool _loadedOnce = false;
   bool? _lastDark;
+  String? _lastHtml;
+  int _htmlLoadToken = 0;
   final List<_ConsoleMessage> _console = <_ConsoleMessage>[];
   StreamSubscription? _msgSub;
 
@@ -116,13 +118,21 @@ class _HtmlPreviewDialogState extends State<_HtmlPreviewDialog> {
     _loadWithTheme();
   }
 
+  @override
+  void didUpdateWidget(covariant _HtmlPreviewDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.html == widget.html) return;
+    _loadedOnce = false;
+    _loadWithTheme();
+  }
+
   String _wrapWithTheme(String input, {required bool isDark}) {
     final hasHtmlTag = input.toLowerCase().contains('<html');
     final hasBodyTag = input.toLowerCase().contains('<body');
     if (hasHtmlTag && hasBodyTag) return input;
     final bg = isDark ? '#111111' : '#ffffff';
     final fg = isDark ? '#eaeaea' : '#222222';
-    return '''<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><style>html,body{background:$bg;color:$fg;margin:0;padding:0}.container{padding:12px}img,video,canvas,iframe{max-width:100%;height:auto}pre,code{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;}</style></head><body><div class="container">$input</div></body></html>''';
+    return '''<!doctype html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><script src="https://cdn.tailwindcss.com"></script><style>html,body{background:$bg;color:$fg;margin:0;padding:0}.container{padding:12px}img,video,canvas,iframe{max-width:100%;height:auto}pre,code{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;}</style></head><body><div class="container">$input</div></body></html>''';
   }
 
   Future<String> _writeTempHtml(String html) async {
@@ -136,16 +146,29 @@ class _HtmlPreviewDialogState extends State<_HtmlPreviewDialog> {
 
   Future<void> _loadWithTheme() async {
     if (!_ready) return;
+    final token = ++_htmlLoadToken;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    if (_loadedOnce && _lastDark == isDark) return; // no change
+    if (_loadedOnce && _lastDark == isDark && _lastHtml == widget.html) return;
     _lastDark = isDark;
+    _lastHtml = widget.html;
     final html = _wrapWithTheme(widget.html, isDark: isDark);
     if (Platform.isWindows) {
       final path = await _writeTempHtml(html);
-      await _winCtrl?.loadUrl(Uri.file(path).toString());
+      if (!mounted || token != _htmlLoadToken) return;
+      await _winCtrl?.loadUrl(
+        Uri.file(path)
+            .replace(
+              queryParameters: {
+                'v': DateTime.now().microsecondsSinceEpoch.toString(),
+              },
+            )
+            .toString(),
+      );
     } else {
+      if (!mounted || token != _htmlLoadToken) return;
       await _flutterCtrl?.loadHtmlString(html);
     }
+    if (!mounted || token != _htmlLoadToken) return;
     _loadedOnce = true;
     if (mounted) setState(() {});
   }

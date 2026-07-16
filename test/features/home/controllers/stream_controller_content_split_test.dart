@@ -138,6 +138,42 @@ void main() {
     expect(controller.deserializeContentSplits(json), isNull);
   });
 
+  test('extractInlineReasoningTags strips thinking tags from content', () {
+    final controller = buildController();
+
+    final first = controller.extractInlineReasoningTags(
+      'before <thinking>hidden',
+      'assistant-message',
+    );
+    final second = controller.extractInlineReasoningTags(
+      '</thinking> after',
+      'assistant-message',
+    );
+
+    expect(first.content, 'before ');
+    expect(first.reasoning, 'hidden');
+    expect(second.content, ' after');
+    expect(second.reasoning, '');
+  });
+
+  test('extractInlineReasoningTags handles split thinking open tag', () {
+    final controller = buildController();
+
+    final first = controller.extractInlineReasoningTags(
+      'before <think',
+      'assistant-message',
+    );
+    final second = controller.extractInlineReasoningTags(
+      'ing>hidden</thinking> after',
+      'assistant-message',
+    );
+
+    expect(first.content, 'before ');
+    expect(first.reasoning, '');
+    expect(second.content, ' after');
+    expect(second.reasoning, 'hidden');
+  });
+
   test('StreamingState resumes from existing assistant content', () {
     final settings = SettingsProvider();
     final state = buildStreamingStateWithContent(settings, '先确认一下。');

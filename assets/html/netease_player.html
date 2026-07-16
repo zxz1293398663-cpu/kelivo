@@ -365,14 +365,26 @@
 
         const dragZone = document.getElementById('drag-zone');
         let isDragging = false, sx = 0, sy = 0;
-        dragZone.addEventListener('mousedown', e => { isDragging = true; sx = e.clientX; sy = e.clientY; });
-        document.addEventListener('mousemove', e => {
+        function startDrag(cx, cy) { isDragging = true; sx = cx; sy = cy; }
+        function moveDrag(cx, cy) {
             if (!isDragging) return;
-            const dx = e.clientX - sx, dy = e.clientY - sy;
-            sx = e.clientX; sy = e.clientY;
+            const dx = cx - sx, dy = cy - sy;
+            sx = cx; sy = cy;
             sendHost({ type: 'drag', dx, dy });
-        });
-        document.addEventListener('mouseup', () => isDragging = false);
+        }
+        function endDrag() { isDragging = false; }
+        dragZone.addEventListener('mousedown', e => startDrag(e.clientX, e.clientY));
+        document.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
+        document.addEventListener('mouseup', endDrag);
+        dragZone.addEventListener('touchstart', e => {
+            const t = e.touches[0];
+            if (t) startDrag(t.clientX, t.clientY);
+        }, { passive: true });
+        document.addEventListener('touchmove', e => {
+            const t = e.touches[0];
+            if (t) moveDrag(t.clientX, t.clientY);
+        }, { passive: true });
+        document.addEventListener('touchend', endDrag, { passive: true });
 
         // Fetch 带超时
         function fetchWithTimeout(url, ms = 5000, opts = {}) {

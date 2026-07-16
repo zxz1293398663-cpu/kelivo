@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:Kelivo/core/providers/settings_provider.dart';
+import 'package:Kelivo/features/assistant/utils/assistant_edit_tab_layout.dart';
 
 Future<void> _waitForSettingsLoad() async {
   for (var i = 0; i < 25; i++) {
@@ -14,13 +15,13 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('SettingsProvider mobile assistant tab layout', () {
-    test('defaults to no custom order or hidden tabs', () async {
+    test('defaults to standard order and no hidden tabs', () async {
       SharedPreferences.setMockInitialValues({});
       final settings = SettingsProvider();
 
       await _waitForSettingsLoad();
 
-      expect(settings.mobileAssistantEditTabOrder, isEmpty);
+      expect(settings.mobileAssistantEditTabOrder, defaultAssistantEditTabIds);
       expect(settings.hiddenMobileAssistantEditTabs, isEmpty);
     });
 

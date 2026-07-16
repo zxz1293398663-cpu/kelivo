@@ -779,10 +779,492 @@ class _PromptTabState extends State<_PromptTab> {
         const SizedBox(height: 12),
         tmplCard,
         const SizedBox(height: 12),
+        _buildRulesCard(a),
+        const SizedBox(height: 12),
         presetCard(),
       ],
     );
   }
+
+  Future<void> _addRule(BuildContext context, Assistant a) async {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final nameCtrl = TextEditingController();
+    final contentCtrl = TextEditingController();
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        final l10nCtx = AppLocalizations.of(ctx)!;
+        return Dialog(
+          backgroundColor: cs.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560, maxHeight: 500),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.assistantEditRuleAddTitle,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: AppFontWeights.emphasis,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: InputDecoration(
+                      labelText: l10n.assistantEditRuleNameLabel,
+                      filled: true,
+                      fillColor: Theme.of(ctx).brightness == Brightness.dark
+                          ? Colors.white10
+                          : const Color(0xFFF7F7F9),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: contentCtrl,
+                      maxLines: null,
+                      expands: true,
+                      textAlignVertical: TextAlignVertical.top,
+                      decoration: InputDecoration(
+                        labelText: l10n.assistantEditRuleContentLabel,
+                        filled: true,
+                        fillColor: Theme.of(ctx).brightness == Brightness.dark
+                            ? Colors.white10
+                            : const Color(0xFFF7F7F9),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _IosButton(
+                        label: l10nCtx.assistantEditEmojiDialogCancel,
+                        filled: false,
+                        neutral: true,
+                        dense: true,
+                        onTap: () => Navigator.of(ctx).pop(false),
+                      ),
+                      const SizedBox(width: 8),
+                      _IosButton(
+                        label: l10nCtx.assistantEditEmojiDialogSave,
+                        filled: true,
+                        neutral: false,
+                        dense: true,
+                        onTap: () => Navigator.of(ctx).pop(true),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    if (!mounted || !context.mounted) return;
+    if (saved != true) return;
+    final name = nameCtrl.text.trim();
+    if (name.isEmpty) return;
+    final ap = context.read<AssistantProvider>();
+    final updated = a.copyWith(
+      rules: List<PresetRule>.from(a.rules)
+        ..add(PresetRule(name: name, content: contentCtrl.text)),
+    );
+    await ap.updateAssistant(
+      updated.copyWith(systemPrompt: updated.computeSystemPrompt()),
+    );
+  }
+
+  Widget _buildRulesCard(Assistant a) {
+    final l10n = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseBg = isDark
+        ? Colors.white10
+        : Colors.white.withValues(alpha: 0.96);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: baseBg,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.assistantEditRulesTitle,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: AppFontWeights.emphasis,
+                    ),
+                  ),
+                ),
+                _HoverIconButton(
+                  icon: Lucide.Plus,
+                  onTap: () => _addRule(context, a),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            if (a.mainPrompt.isNotEmpty) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : const Color(0xFFF7F7F9),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border(
+                    left: BorderSide(
+                      color: cs.primary.withValues(alpha: 0.3),
+                      width: 3,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.assistantEditMainPromptLabel,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: AppFontWeights.semibold,
+                        color: cs.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    SelectableText(
+                      a.mainPrompt,
+                      maxLines: 4,
+                      style: TextStyle(
+                        fontSize: 12,
+                        height: 1.4,
+                        color: cs.onSurface.withValues(alpha: 0.75),
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+            if (a.rules.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  l10n.assistantEditRulesEmpty,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: cs.onSurface.withValues(alpha: 0.4),
+                  ),
+                ),
+              )
+            else
+              ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                buildDefaultDragHandles: false,
+                itemCount: a.rules.length,
+                onReorderItem: (oldIndex, newIndex) async {
+                  final list = List<PresetRule>.from(a.rules);
+                  final item = list.removeAt(oldIndex);
+                  list.insert(newIndex, item);
+                  final updated = a.copyWith(rules: list);
+                  await context.read<AssistantProvider>().updateAssistant(
+                    updated.copyWith(
+                      systemPrompt: updated.computeSystemPrompt(),
+                    ),
+                  );
+                },
+                itemBuilder: (ctx, i) {
+                  final rule = a.rules[i];
+                  return _RuleToggleItem(
+                    key: ValueKey(rule.id),
+                    rule: rule,
+                    assistantId: a.id,
+                    dragHandle: ReorderableDragStartListener(
+                      index: i,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Icon(
+                          Lucide.GripVertical,
+                          size: 14,
+                          color: cs.onSurface.withValues(alpha: 0.35),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RuleToggleItem extends StatefulWidget {
+  final PresetRule rule;
+  final String assistantId;
+  final Widget? dragHandle;
+  const _RuleToggleItem({
+    super.key,
+    required this.rule,
+    required this.assistantId,
+    this.dragHandle,
+  });
+
+  @override
+  State<_RuleToggleItem> createState() => _RuleToggleItemState();
+}
+
+class _RuleToggleItemState extends State<_RuleToggleItem> {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final opacity = widget.rule.enabled ? 1.0 : 0.45;
+    final ap = context.read<AssistantProvider>();
+    final a = ap.getById(widget.assistantId)!;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.05 * opacity)
+              : const Color(0xFFF7F7F9).withValues(alpha: opacity),
+          borderRadius: BorderRadius.circular(10),
+          border: Border(
+            left: BorderSide(
+              color: (widget.rule.enabled ? cs.primary : cs.onSurface)
+                  .withValues(alpha: 0.2),
+              width: 3,
+            ),
+          ),
+        ),
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                if (widget.dragHandle != null) ...[
+                  widget.dragHandle!,
+                  const SizedBox(width: 2),
+                ],
+                GestureDetector(
+                  onTap: () async {
+                    widget.rule.enabled = !widget.rule.enabled;
+                    setState(() {});
+                    final updated = a.copyWith(
+                      rules: List<PresetRule>.from(a.rules),
+                    );
+                    await ap.updateAssistant(
+                      updated.copyWith(
+                        systemPrompt: updated.computeSystemPrompt(),
+                      ),
+                    );
+                  },
+                  child: Icon(
+                    widget.rule.enabled
+                        ? Lucide.CheckCircle
+                        : Icons.circle_outlined,
+                    size: 18,
+                    color: widget.rule.enabled
+                        ? cs.primary
+                        : cs.onSurface.withValues(alpha: 0.4),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    widget.rule.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: AppFontWeights.semibold,
+                      color: cs.onSurface.withValues(alpha: 0.8 * opacity),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => _editRuleDialog(context, widget.rule, a),
+                  child: Icon(
+                    Lucide.Pencil,
+                    size: 14,
+                    color: cs.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () async {
+                    final list = List<PresetRule>.from(a.rules);
+                    list.removeWhere((r) => r.id == widget.rule.id);
+                    final updated = a.copyWith(rules: list);
+                    await ap.updateAssistant(
+                      updated.copyWith(
+                        systemPrompt: updated.computeSystemPrompt(),
+                      ),
+                    );
+                  },
+                  child: Icon(
+                    Lucide.Trash2,
+                    size: 14,
+                    color: cs.error.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ),
+            if (widget.rule.content.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              SelectableText(
+                widget.rule.content,
+                maxLines: widget.rule.enabled ? 2 : 1,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  height: 1.35,
+                  color: cs.onSurface.withValues(alpha: 0.55 * opacity),
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Future<void> _editRuleDialog(
+  BuildContext context,
+  PresetRule rule,
+  Assistant assistant,
+) async {
+  final l10n = AppLocalizations.of(context)!;
+  final cs = Theme.of(context).colorScheme;
+  final nameCtrl = TextEditingController(text: rule.name);
+  final contentCtrl = TextEditingController(text: rule.content);
+  final saved = await showDialog<bool>(
+    context: context,
+    builder: (ctx) {
+      final l10nCtx = AppLocalizations.of(ctx)!;
+      return Dialog(
+        backgroundColor: cs.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560, maxHeight: 500),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.assistantEditRuleEditTitle,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: AppFontWeights.emphasis,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    labelText: l10n.assistantEditRuleNameLabel,
+                    filled: true,
+                    fillColor: Theme.of(ctx).brightness == Brightness.dark
+                        ? Colors.white10
+                        : const Color(0xFFF7F7F9),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: TextField(
+                    controller: contentCtrl,
+                    maxLines: null,
+                    expands: true,
+                    textAlignVertical: TextAlignVertical.top,
+                    decoration: InputDecoration(
+                      labelText: l10n.assistantEditRuleContentLabel,
+                      filled: true,
+                      fillColor: Theme.of(ctx).brightness == Brightness.dark
+                          ? Colors.white10
+                          : const Color(0xFFF7F7F9),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    _IosButton(
+                      label: l10nCtx.assistantEditEmojiDialogCancel,
+                      filled: false,
+                      neutral: true,
+                      dense: true,
+                      onTap: () => Navigator.of(ctx).pop(false),
+                    ),
+                    const SizedBox(width: 8),
+                    _IosButton(
+                      label: l10nCtx.assistantEditEmojiDialogSave,
+                      filled: true,
+                      neutral: false,
+                      dense: true,
+                      onTap: () => Navigator.of(ctx).pop(true),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+  if (saved != true || !context.mounted) return;
+  rule.name = nameCtrl.text.trim().isEmpty ? rule.name : nameCtrl.text.trim();
+  rule.content = contentCtrl.text;
+  final ap = context.read<AssistantProvider>();
+  final updated = assistant.copyWith(
+    rules: List<PresetRule>.from(assistant.rules),
+  );
+  await ap.updateAssistant(
+    updated.copyWith(systemPrompt: updated.computeSystemPrompt()),
+  );
 }
 
 class _PresetMessageCard extends StatefulWidget {

@@ -1,4 +1,5 @@
 import 'package:Kelivo/core/models/chat_input_data.dart';
+import 'package:Kelivo/features/favorites/services/favorite_cards_store.dart';
 import 'package:Kelivo/features/home/services/message_generation_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -35,6 +36,25 @@ void main() {
       );
 
       expect(content, '\n[image:C:/tmp/image.png]');
+    });
+
+    test('stores favorite cards as compact attachment markers', () {
+      final content = MessageGenerationService.buildPersistedUserMessageContent(
+        const ChatInputData(
+          text: 'use this',
+          favoriteCards: [
+            FavoriteCardReference(
+              id: 'card|1',
+              title: 'Card Title',
+              text: '## Card Title\nbody with | and [brackets]',
+            ),
+          ],
+        ),
+        assistant: null,
+      );
+
+      expect(content, startsWith('use this\n[favorite:'));
+      expect(content, isNot(contains('body with | and [brackets]')));
     });
   });
 }

@@ -13,6 +13,7 @@ class HtmlPreviewPage extends StatefulWidget {
 class _HtmlPreviewPageState extends State<HtmlPreviewPage> {
   late final WebViewController _controller;
   bool _didInit = false;
+  int _htmlLoadToken = 0;
 
   @override
   void initState() {
@@ -24,20 +25,23 @@ class _HtmlPreviewPageState extends State<HtmlPreviewPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Safe place to access Theme.of(context)
-    if (!_didInit) {
-      _didInit = true;
-      _loadHtml();
-    } else {
-      // Reload on theme changes
-      _loadHtml();
-    }
+    _didInit = true;
+    _loadHtml();
+  }
+
+  @override
+  void didUpdateWidget(covariant HtmlPreviewPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_didInit || oldWidget.html == widget.html) return;
+    _loadHtml();
   }
 
   Future<void> _loadHtml() async {
+    final token = ++_htmlLoadToken;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final html = _wrapIfNeeded(widget.html, isDark: isDark);
     await _controller.loadHtmlString(html);
+    if (!mounted || token != _htmlLoadToken) return;
   }
 
   String _wrapIfNeeded(String input, {required bool isDark}) {
@@ -51,6 +55,7 @@ class _HtmlPreviewPageState extends State<HtmlPreviewPage> {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       html, body { background: $bg; color: $fg; margin: 0; padding: 0; }
       .container { padding: 12px; }

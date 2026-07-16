@@ -1334,6 +1334,410 @@ class AppLocalizationsZh extends AppLocalizations {
   String get codeBlockExpandButton => '展开';
 
   @override
+  String get codeBlockArtifactBadge => '产物';
+
+  @override
+  String get playModeSwitcherNovelLabel => '小说';
+
+  @override
+  String get playModeSwitcherGameLabel => '游戏';
+
+  @override
+  String get gameTabStory => '剧情';
+
+  @override
+  String get gameTabPhone => '手机';
+
+  @override
+  String get gameTabWorld => '世界';
+
+  @override
+  String get gameTabSettings => '设置';
+
+  @override
+  String get gameEmptyStartCreating => '开始创造';
+
+  @override
+  String get gameEmptyScriptCardTitle => '创作剧本';
+
+  @override
+  String get gameEmptyScriptCardDescription =>
+      '打造一个 AI 文字冒险世界：属性、NPC、时间线与剧情走向。';
+
+  @override
+  String get gameEmptyVisualEditor => '可视化编辑器';
+
+  @override
+  String get gameEmptyAiOpening => 'AI 一键生成开局';
+
+  @override
+  String get gameEmptyStartButton => '开始';
+
+  @override
+  String get gameSceneCardImportButton => '导入场景卡';
+
+  @override
+  String get gameSceneCardImportDialogTitle => '导入场景卡';
+
+  @override
+  String get gameSceneCardPasteHint =>
+      '粘贴类似 :::newspaper 时间 / 角色 # 备注 # 场景 的内容';
+
+  @override
+  String get gameSceneCardParseButton => '解析并导入';
+
+  @override
+  String get gameSceneCardInvalidFormat => '场景卡格式无效。';
+
+  @override
+  String get gameImportTavernCardButton => '导入角色卡';
+
+  @override
+  String get gameImportTavernCardSuccess => '已导入角色卡。';
+
+  @override
+  String get gameImportTavernCardFailed => '导入角色卡失败。';
+
+  @override
+  String get gameImportAnotherTavernCardButton => '导入其他角色卡';
+
+  @override
+  String get gameImportTavernCardEntryDescription => '从角色卡开始，选择一个开场白进入游戏。';
+
+  @override
+  String get gameOpeningSelectionTitle => '选择开场白';
+
+  @override
+  String get gameOpeningSelectionSubtitle => '从这张角色卡里选择一个开场白，在游戏模式中开始。';
+
+  @override
+  String gameOpeningSelectionOption(int index) {
+    return '开场 $index';
+  }
+
+  @override
+  String get gameOpeningStartButton => '从这个开场开始';
+
+  @override
+  String get gameOpeningChangeButton => '更换开场白';
+
+  @override
+  String get gameOpeningCurrentTitle => '开场已启用';
+
+  @override
+  String get gameOpeningCurrentSubtitle => '这个开场白会作为当前游戏状态的起点，之后仍可更换。';
+
+  @override
+  String get gameOpeningCurrentEmpty => '尚未选择开场白。';
+
+  @override
+  String get gameOpeningUserTokenTitle => '用户名称';
+
+  @override
+  String get gameOpeningEditUserNameButton => '编辑用户名称';
+
+  @override
+  String get gameOpeningEditUserNameTitle => '编辑用户名称';
+
+  @override
+  String gameOpeningPageIndicator(int index, int total) {
+    return '$index / $total';
+  }
+
+  @override
+  String get gameSceneCardInstructionsTypeLabel => '场景卡类型：';
+
+  @override
+  String get gameSceneCardInstructionsTimeLabel => '时间：';
+
+  @override
+  String get gameSceneCardInstructionsCharacterLabel => '角色：';
+
+  @override
+  String get gameSceneCardInstructionsItemsLabel => '场景要素：';
+
+  @override
+  String get gameScriptStepStyle => '叙事基调';
+
+  @override
+  String get gameScriptStepDescribe => '描述游戏';
+
+  @override
+  String get gameScriptStepConfirm => '确认生成';
+
+  @override
+  String get gameScriptStyleTitle => '请选择叙事分类';
+
+  @override
+  String get gameScriptStyleSubtitle => '分类决定题材、事件类型、NPC 功能和叙事基调。';
+
+  @override
+  String get gameScriptSelectedToneLabel => '已选基调';
+
+  @override
+  String get gameScriptStyleDailyHealing => '日常治愈';
+
+  @override
+  String get gameScriptStyleDailyHealingDescription => '生活细节、小目标、低冲突、关系慢热';
+
+  @override
+  String get gameScriptStyleDailyHealingRule =>
+      '叙事分类：日常治愈。请优先生成生活细节、小目标、温柔互动和低冲突事件。NPC 互动应偏细腻、陪伴、关系渐进。';
+
+  @override
+  String get gameScriptStyleEpicAdventure => '热血冒险';
+
+  @override
+  String get gameScriptStyleEpicAdventureDescription => '任务、挑战、危机、成长、探索';
+
+  @override
+  String get gameScriptStyleEpicAdventureRule =>
+      '叙事分类：热血冒险。请优先生成任务、挑战、危机升级、角色成长与探索目标。NPC 应承担委托、阻碍、盟友、劲敌或关键线索功能。';
+
+  @override
+  String get gameScriptStyleSuspenseMystery => '悬疑推理';
+
+  @override
+  String get gameScriptStyleSuspenseMysteryDescription => '线索、疑点、反转、真相链、隐藏动机';
+
+  @override
+  String get gameScriptStyleSuspenseMysteryRule =>
+      '叙事分类：悬疑推理。请优先生成线索、疑点、反转、隐藏动机与可追踪的真相链。避免过早揭示答案。NPC 应具有可疑行为、秘密或误导性信息。';
+
+  @override
+  String get gameScriptStyleRomanceEnsemble => '恋爱群像';
+
+  @override
+  String get gameScriptStyleRomanceEnsembleDescription => '多角色互动、暧昧、关系张力、情感推进';
+
+  @override
+  String get gameScriptStyleRomanceEnsembleRule =>
+      '叙事分类：恋爱群像。请优先生成多角色互动、暧昧、关系张力、情感选择和渐进式情感推进。NPC 应有明确欲望、边界和关系冲突。';
+
+  @override
+  String get gameScriptStyleUrbanWeird => '都市异闻';
+
+  @override
+  String get gameScriptStyleUrbanWeirdDescription => '现代背景、怪谈、异常规则、隐秘组织';
+
+  @override
+  String get gameScriptStyleUrbanWeirdRule =>
+      '叙事分类：都市异闻。请优先生成现代背景、城市怪谈、异常规则、隐秘组织和日常与异常的反差。NPC 应关联异常、规则、目击信息或隐藏阵营。';
+
+  @override
+  String get gameScriptStyleAncientPower => '古风权谋';
+
+  @override
+  String get gameScriptStyleAncientPowerDescription => '阵营、身份、谋局、试探、克制表达';
+
+  @override
+  String get gameScriptStyleAncientPowerRule =>
+      '叙事分类：古风权谋。请优先生成阵营、身份、谋局、试探、联盟、背叛和克制表达。NPC 应代表利益、秘密、筹码或政治压力。';
+
+  @override
+  String get gameScriptStyleRomanceDrama => '言情群像';
+
+  @override
+  String get gameScriptStyleRomanceDramaDescription => '情感关系、暧昧拉扯、选择与人物羁绊';
+
+  @override
+  String get gameScriptStyleRomanceDramaRule =>
+      '叙事分类：言情群像。请优先生成情感关系、暧昧拉扯、关键选择、人物羁绊和渐进式情感回报。NPC 应有明确欲望、边界、情感过往和关系压力。';
+
+  @override
+  String get gameScriptInstructionsHint => '写下世界观、玩法与规则';
+
+  @override
+  String get gameScriptInstructionsHelper =>
+      '写下世界观、玩法与规则。勾选 AI 润色后，生成时 AI 会在你的指令基础上整理为叙事规则（最多 10000 字）。';
+
+  @override
+  String get gameScriptUntitled => '未命名';
+
+  @override
+  String get gameScriptEmptyInstructionsForPolish =>
+      '用户暂未提供详细设定。请根据标题和叙事基调，补全一个可游玩的文字冒险开局。';
+
+  @override
+  String gameScriptAiPolishInstruction(
+    Object styleName,
+    Object styleRule,
+    Object title,
+    Object base,
+  ) {
+    return 'AI 润色已开启。\n请不要改变用户想玩的核心方向；请在用户设定基础上，将内容整理为清晰、可执行的文字冒险叙事规则。\n\n要求：\n1. 保留用户原意，不擅自改题材。\n2. 补齐世界观、玩法目标、初始冲突、NPC 登场方向、事件推进方式。\n3. 输出应适合作为后续游戏生成的长期规则，而不是一次性回复。\n4. 叙事分类：$styleName。\n5. 分类规则：$styleRule\n6. 游戏标题：$title。\n\n用户原始设定：\n$base';
+  }
+
+  @override
+  String get gameScriptNextButton => '下一步';
+
+  @override
+  String get gameScriptChangeStyleButton => '更换';
+
+  @override
+  String get gameScriptTitleLabel => '游戏标题';
+
+  @override
+  String get gameScriptTitleHint => '例如：咖啡店模拟器';
+
+  @override
+  String get gameScriptInstructionsLabel => '游戏指令';
+
+  @override
+  String get gameScriptAllowAiPolishLabel => '允许 AI 润色指令';
+
+  @override
+  String get gameScriptConfirmButton => '确认';
+
+  @override
+  String get gameScriptInstructionsPreviewLabel => '游戏指令预览';
+
+  @override
+  String get gameScriptBackToEditButton => '返回修改';
+
+  @override
+  String get gameScriptStartGenerateButton => '开始生成';
+
+  @override
+  String get gameScriptImportTavernStyleTooltip => '导入酒馆美化';
+
+  @override
+  String get gameScriptImportTavernStyleSuccess => '已导入酒馆美化。';
+
+  @override
+  String get gameScriptImportTavernStyleFailed => '导入酒馆美化失败。';
+
+  @override
+  String get gameSettingsAiModelSection => 'AI 模型';
+
+  @override
+  String get gameSettingsWorldBookSection => '世界书';
+
+  @override
+  String get gameSettingsImportWorldBook => '导入世界书';
+
+  @override
+  String get gameSettingsImportWorldBookDescription =>
+      '导入一个 JSON 世界书，并为当前游戏启用。';
+
+  @override
+  String gameSettingsImportWorldBookSuccess(String name) {
+    return '已导入世界书：$name';
+  }
+
+  @override
+  String get gameSettingsScriptSection => '剧本管理';
+
+  @override
+  String get gameSettingsModelNotSet => '未设置';
+
+  @override
+  String get gameSettingsDeleteCurrentScript => '删除当前剧本';
+
+  @override
+  String get gameSettingsDeleteIrreversible => '此操作不可撤销';
+
+  @override
+  String get gameSettingsDeleteDialogTitle => '删除剧本';
+
+  @override
+  String get gameSettingsDeleteDialogMessage => '确定要删除当前剧本吗？所有游戏数据将丢失。';
+
+  @override
+  String get gamePhoneFeatureTitle => '手机功能';
+
+  @override
+  String get gamePhoneFeatureSubtitle => '消息、背包、日记等功能即将上线';
+
+  @override
+  String gameWorldTitle(Object title) {
+    return '$title - 世界';
+  }
+
+  @override
+  String gameWorldNpcCount(int count) {
+    return '已邂逅 $count 位角色';
+  }
+
+  @override
+  String get gameWorldImportFromFavorites => '从收藏引入';
+
+  @override
+  String get gameWorldCreateNpc => '新建 NPC';
+
+  @override
+  String get gameWorldNoNpc => '暂无 NPC';
+
+  @override
+  String get desktopSettingsPresetsMenu => '预设';
+
+  @override
+  String get desktopPresetsImportFailed => '导入失败或格式不匹配';
+
+  @override
+  String desktopPresetsImportSuccess(Object name) {
+    return '已导入预设: $name';
+  }
+
+  @override
+  String get desktopPresetsEditNameTitle => '编辑预设名称';
+
+  @override
+  String get desktopPresetsNoApplicableAssistants => '没有可应用的角色，请先创建角色';
+
+  @override
+  String desktopPresetsAppliedToAssistants(int count) {
+    return '已应用到 $count 个角色';
+  }
+
+  @override
+  String get desktopPresetsSelectAssistantsTitle => '选择要应用预设的角色';
+
+  @override
+  String get desktopPresetsSelectAll => '全选';
+
+  @override
+  String desktopPresetsApplyCount(int count) {
+    return '应用 ($count)';
+  }
+
+  @override
+  String get desktopPresetsTitle => '预设管理';
+
+  @override
+  String get desktopPresetsImportButton => '导入预设';
+
+  @override
+  String get desktopPresetsEmpty => '暂无预设，点击右上角导入';
+
+  @override
+  String get desktopPresetsEditNameTooltip => '编辑名称';
+
+  @override
+  String get desktopPresetsApplyTooltip => '应用到角色';
+
+  @override
+  String get desktopPresetsDeleteTooltip => '删除预设';
+
+  @override
+  String get desktopPresetsMainPrompt => '主提示词';
+
+  @override
+  String get desktopPresetsEditMainPromptTooltip => '编辑主提示词';
+
+  @override
+  String get desktopPresetsRules => '规则条目';
+
+  @override
+  String get desktopPresetsEditRuleTooltip => '编辑规则';
+
+  @override
+  String get desktopPresetsDeleteRuleTooltip => '删除规则';
+
+  @override
+  String get desktopPresetsEditMainPromptTitle => '编辑主提示词';
+
+  @override
   String get codeBlockDefaultFileNameStem => '代码';
 
   @override
@@ -4791,6 +5195,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get assistantEditPresetRoleAssistant => '助手';
 
   @override
+  String get assistantEditRulesTitle => '规则开关';
+
+  @override
+  String get assistantEditMainPromptLabel => '主提示词';
+
+  @override
+  String get assistantEditRulesEmpty => '暂无规则';
+
+  @override
+  String get assistantEditRuleAddTitle => '添加规则';
+
+  @override
+  String get assistantEditRuleEditTitle => '编辑规则';
+
+  @override
+  String get assistantEditRuleNameLabel => '规则名称';
+
+  @override
+  String get assistantEditRuleContentLabel => '内容';
+
+  @override
+  String get assistantSettingsImportTavernCard => '导入角色卡 (Tavern JSON)';
+
+  @override
+  String get assistantSettingsImportTavernPreset => '导入预设规则 (JSON)';
+
+  @override
+  String get assistantSettingsImportParseFailed => '解析失败或格式不匹配';
+
+  @override
   String get desktopTtsPleaseAddProvider => '请先在设置中添加语音服务商';
 
   @override
@@ -5431,6 +5865,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get desktopNavPhoneTooltip => '虚拟手机';
+
+  @override
+  String get gameStoryEmptyHint => '点击下方按钮开始冒险';
+
+  @override
+  String get gameStoryActiveEventsTitle => '当前事件';
+
+  @override
+  String get gameStoryCompletedEventsTitle => '已完结';
+
+  @override
+  String get gameStoryAdvanceButton => '推进剧情';
+
+  @override
+  String get gameStoryPlayerFallbackName => '旅人';
+
+  @override
+  String get gameStoryPlayerFallbackInitial => '旅';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -6761,6 +7213,410 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get codeBlockExpandButton => '展开';
+
+  @override
+  String get codeBlockArtifactBadge => '产物';
+
+  @override
+  String get playModeSwitcherNovelLabel => '小说';
+
+  @override
+  String get playModeSwitcherGameLabel => '游戏';
+
+  @override
+  String get gameTabStory => '剧情';
+
+  @override
+  String get gameTabPhone => '手机';
+
+  @override
+  String get gameTabWorld => '世界';
+
+  @override
+  String get gameTabSettings => '设置';
+
+  @override
+  String get gameEmptyStartCreating => '开始创造';
+
+  @override
+  String get gameEmptyScriptCardTitle => '创作剧本';
+
+  @override
+  String get gameEmptyScriptCardDescription =>
+      '打造一个 AI 文字冒险世界：属性、NPC、时间线与剧情走向。';
+
+  @override
+  String get gameEmptyVisualEditor => '可视化编辑器';
+
+  @override
+  String get gameEmptyAiOpening => 'AI 一键生成开局';
+
+  @override
+  String get gameEmptyStartButton => '开始';
+
+  @override
+  String get gameSceneCardImportButton => '导入场景卡';
+
+  @override
+  String get gameSceneCardImportDialogTitle => '导入场景卡';
+
+  @override
+  String get gameSceneCardPasteHint =>
+      '粘贴类似 :::newspaper 时间 / 角色 # 备注 # 场景 的内容';
+
+  @override
+  String get gameSceneCardParseButton => '解析并导入';
+
+  @override
+  String get gameSceneCardInvalidFormat => '场景卡格式无效。';
+
+  @override
+  String get gameImportTavernCardButton => '导入角色卡';
+
+  @override
+  String get gameImportTavernCardSuccess => '已导入角色卡。';
+
+  @override
+  String get gameImportTavernCardFailed => '导入角色卡失败。';
+
+  @override
+  String get gameImportAnotherTavernCardButton => '导入其他角色卡';
+
+  @override
+  String get gameImportTavernCardEntryDescription => '从角色卡开始，选择一个开场白进入游戏。';
+
+  @override
+  String get gameOpeningSelectionTitle => '选择开场白';
+
+  @override
+  String get gameOpeningSelectionSubtitle => '从这张角色卡里选择一个开场白，在游戏模式中开始。';
+
+  @override
+  String gameOpeningSelectionOption(int index) {
+    return '开场 $index';
+  }
+
+  @override
+  String get gameOpeningStartButton => '从这个开场开始';
+
+  @override
+  String get gameOpeningChangeButton => '更换开场白';
+
+  @override
+  String get gameOpeningCurrentTitle => '开场已启用';
+
+  @override
+  String get gameOpeningCurrentSubtitle => '这个开场白会作为当前游戏状态的起点，之后仍可更换。';
+
+  @override
+  String get gameOpeningCurrentEmpty => '尚未选择开场白。';
+
+  @override
+  String get gameOpeningUserTokenTitle => '用户名称';
+
+  @override
+  String get gameOpeningEditUserNameButton => '编辑用户名称';
+
+  @override
+  String get gameOpeningEditUserNameTitle => '编辑用户名称';
+
+  @override
+  String gameOpeningPageIndicator(int index, int total) {
+    return '$index / $total';
+  }
+
+  @override
+  String get gameSceneCardInstructionsTypeLabel => '场景卡类型：';
+
+  @override
+  String get gameSceneCardInstructionsTimeLabel => '时间：';
+
+  @override
+  String get gameSceneCardInstructionsCharacterLabel => '角色：';
+
+  @override
+  String get gameSceneCardInstructionsItemsLabel => '场景要素：';
+
+  @override
+  String get gameScriptStepStyle => '叙事基调';
+
+  @override
+  String get gameScriptStepDescribe => '描述游戏';
+
+  @override
+  String get gameScriptStepConfirm => '确认生成';
+
+  @override
+  String get gameScriptStyleTitle => '请选择叙事分类';
+
+  @override
+  String get gameScriptStyleSubtitle => '分类决定题材、事件类型、NPC 功能和叙事基调。';
+
+  @override
+  String get gameScriptSelectedToneLabel => '已选基调';
+
+  @override
+  String get gameScriptStyleDailyHealing => '日常治愈';
+
+  @override
+  String get gameScriptStyleDailyHealingDescription => '生活细节、小目标、低冲突、关系慢热';
+
+  @override
+  String get gameScriptStyleDailyHealingRule =>
+      '叙事分类：日常治愈。请优先生成生活细节、小目标、温柔互动和低冲突事件。NPC 互动应偏细腻、陪伴、关系渐进。';
+
+  @override
+  String get gameScriptStyleEpicAdventure => '热血冒险';
+
+  @override
+  String get gameScriptStyleEpicAdventureDescription => '任务、挑战、危机、成长、探索';
+
+  @override
+  String get gameScriptStyleEpicAdventureRule =>
+      '叙事分类：热血冒险。请优先生成任务、挑战、危机升级、角色成长与探索目标。NPC 应承担委托、阻碍、盟友、劲敌或关键线索功能。';
+
+  @override
+  String get gameScriptStyleSuspenseMystery => '悬疑推理';
+
+  @override
+  String get gameScriptStyleSuspenseMysteryDescription => '线索、疑点、反转、真相链、隐藏动机';
+
+  @override
+  String get gameScriptStyleSuspenseMysteryRule =>
+      '叙事分类：悬疑推理。请优先生成线索、疑点、反转、隐藏动机与可追踪的真相链。避免过早揭示答案。NPC 应具有可疑行为、秘密或误导性信息。';
+
+  @override
+  String get gameScriptStyleRomanceEnsemble => '恋爱群像';
+
+  @override
+  String get gameScriptStyleRomanceEnsembleDescription => '多角色互动、暧昧、关系张力、情感推进';
+
+  @override
+  String get gameScriptStyleRomanceEnsembleRule =>
+      '叙事分类：恋爱群像。请优先生成多角色互动、暧昧、关系张力、情感选择和渐进式情感推进。NPC 应有明确欲望、边界和关系冲突。';
+
+  @override
+  String get gameScriptStyleUrbanWeird => '都市异闻';
+
+  @override
+  String get gameScriptStyleUrbanWeirdDescription => '现代背景、怪谈、异常规则、隐秘组织';
+
+  @override
+  String get gameScriptStyleUrbanWeirdRule =>
+      '叙事分类：都市异闻。请优先生成现代背景、城市怪谈、异常规则、隐秘组织和日常与异常的反差。NPC 应关联异常、规则、目击信息或隐藏阵营。';
+
+  @override
+  String get gameScriptStyleAncientPower => '古风权谋';
+
+  @override
+  String get gameScriptStyleAncientPowerDescription => '阵营、身份、谋局、试探、克制表达';
+
+  @override
+  String get gameScriptStyleAncientPowerRule =>
+      '叙事分类：古风权谋。请优先生成阵营、身份、谋局、试探、联盟、背叛和克制表达。NPC 应代表利益、秘密、筹码或政治压力。';
+
+  @override
+  String get gameScriptStyleRomanceDrama => '言情群像';
+
+  @override
+  String get gameScriptStyleRomanceDramaDescription => '情感关系、暧昧拉扯、选择与人物羁绊';
+
+  @override
+  String get gameScriptStyleRomanceDramaRule =>
+      '叙事分类：言情群像。请优先生成情感关系、暧昧拉扯、关键选择、人物羁绊和渐进式情感回报。NPC 应有明确欲望、边界、情感过往和关系压力。';
+
+  @override
+  String get gameScriptInstructionsHint => '写下世界观、玩法与规则';
+
+  @override
+  String get gameScriptInstructionsHelper =>
+      '写下世界观、玩法与规则。勾选 AI 润色后，生成时 AI 会在你的指令基础上整理为叙事规则（最多 10000 字）。';
+
+  @override
+  String get gameScriptUntitled => '未命名';
+
+  @override
+  String get gameScriptEmptyInstructionsForPolish =>
+      '用户暂未提供详细设定。请根据标题和叙事基调，补全一个可游玩的文字冒险开局。';
+
+  @override
+  String gameScriptAiPolishInstruction(
+    Object styleName,
+    Object styleRule,
+    Object title,
+    Object base,
+  ) {
+    return 'AI 润色已开启。\n请不要改变用户想玩的核心方向；请在用户设定基础上，将内容整理为清晰、可执行的文字冒险叙事规则。\n\n要求：\n1. 保留用户原意，不擅自改题材。\n2. 补齐世界观、玩法目标、初始冲突、NPC 登场方向、事件推进方式。\n3. 输出应适合作为后续游戏生成的长期规则，而不是一次性回复。\n4. 叙事分类：$styleName。\n5. 分类规则：$styleRule\n6. 游戏标题：$title。\n\n用户原始设定：\n$base';
+  }
+
+  @override
+  String get gameScriptNextButton => '下一步';
+
+  @override
+  String get gameScriptChangeStyleButton => '更换';
+
+  @override
+  String get gameScriptTitleLabel => '游戏标题';
+
+  @override
+  String get gameScriptTitleHint => '例如：咖啡店模拟器';
+
+  @override
+  String get gameScriptInstructionsLabel => '游戏指令';
+
+  @override
+  String get gameScriptAllowAiPolishLabel => '允许 AI 润色指令';
+
+  @override
+  String get gameScriptConfirmButton => '确认';
+
+  @override
+  String get gameScriptInstructionsPreviewLabel => '游戏指令预览';
+
+  @override
+  String get gameScriptBackToEditButton => '返回修改';
+
+  @override
+  String get gameScriptStartGenerateButton => '开始生成';
+
+  @override
+  String get gameScriptImportTavernStyleTooltip => '导入酒馆美化';
+
+  @override
+  String get gameScriptImportTavernStyleSuccess => '已导入酒馆美化。';
+
+  @override
+  String get gameScriptImportTavernStyleFailed => '导入酒馆美化失败。';
+
+  @override
+  String get gameSettingsAiModelSection => 'AI 模型';
+
+  @override
+  String get gameSettingsWorldBookSection => '世界书';
+
+  @override
+  String get gameSettingsImportWorldBook => '导入世界书';
+
+  @override
+  String get gameSettingsImportWorldBookDescription =>
+      '导入一个 JSON 世界书，并为当前游戏启用。';
+
+  @override
+  String gameSettingsImportWorldBookSuccess(String name) {
+    return '已导入世界书：$name';
+  }
+
+  @override
+  String get gameSettingsScriptSection => '剧本管理';
+
+  @override
+  String get gameSettingsModelNotSet => '未设置';
+
+  @override
+  String get gameSettingsDeleteCurrentScript => '删除当前剧本';
+
+  @override
+  String get gameSettingsDeleteIrreversible => '此操作不可撤销';
+
+  @override
+  String get gameSettingsDeleteDialogTitle => '删除剧本';
+
+  @override
+  String get gameSettingsDeleteDialogMessage => '确定要删除当前剧本吗？所有游戏数据将丢失。';
+
+  @override
+  String get gamePhoneFeatureTitle => '手机功能';
+
+  @override
+  String get gamePhoneFeatureSubtitle => '消息、背包、日记等功能即将上线';
+
+  @override
+  String gameWorldTitle(Object title) {
+    return '$title - 世界';
+  }
+
+  @override
+  String gameWorldNpcCount(int count) {
+    return '已邂逅 $count 位角色';
+  }
+
+  @override
+  String get gameWorldImportFromFavorites => '从收藏引入';
+
+  @override
+  String get gameWorldCreateNpc => '新建 NPC';
+
+  @override
+  String get gameWorldNoNpc => '暂无 NPC';
+
+  @override
+  String get desktopSettingsPresetsMenu => '预设';
+
+  @override
+  String get desktopPresetsImportFailed => '导入失败或格式不匹配';
+
+  @override
+  String desktopPresetsImportSuccess(Object name) {
+    return '已导入预设: $name';
+  }
+
+  @override
+  String get desktopPresetsEditNameTitle => '编辑预设名称';
+
+  @override
+  String get desktopPresetsNoApplicableAssistants => '没有可应用的角色，请先创建角色';
+
+  @override
+  String desktopPresetsAppliedToAssistants(int count) {
+    return '已应用到 $count 个角色';
+  }
+
+  @override
+  String get desktopPresetsSelectAssistantsTitle => '选择要应用预设的角色';
+
+  @override
+  String get desktopPresetsSelectAll => '全选';
+
+  @override
+  String desktopPresetsApplyCount(int count) {
+    return '应用 ($count)';
+  }
+
+  @override
+  String get desktopPresetsTitle => '预设管理';
+
+  @override
+  String get desktopPresetsImportButton => '导入预设';
+
+  @override
+  String get desktopPresetsEmpty => '暂无预设，点击右上角导入';
+
+  @override
+  String get desktopPresetsEditNameTooltip => '编辑名称';
+
+  @override
+  String get desktopPresetsApplyTooltip => '应用到角色';
+
+  @override
+  String get desktopPresetsDeleteTooltip => '删除预设';
+
+  @override
+  String get desktopPresetsMainPrompt => '主提示词';
+
+  @override
+  String get desktopPresetsEditMainPromptTooltip => '编辑主提示词';
+
+  @override
+  String get desktopPresetsRules => '规则条目';
+
+  @override
+  String get desktopPresetsEditRuleTooltip => '编辑规则';
+
+  @override
+  String get desktopPresetsDeleteRuleTooltip => '删除规则';
+
+  @override
+  String get desktopPresetsEditMainPromptTitle => '编辑主提示词';
 
   @override
   String get codeBlockDefaultFileNameStem => '代码';
@@ -10220,6 +11076,36 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get assistantEditPresetRoleAssistant => '助手';
 
   @override
+  String get assistantEditRulesTitle => '规则开关';
+
+  @override
+  String get assistantEditMainPromptLabel => '主提示词';
+
+  @override
+  String get assistantEditRulesEmpty => '暂无规则';
+
+  @override
+  String get assistantEditRuleAddTitle => '添加规则';
+
+  @override
+  String get assistantEditRuleEditTitle => '编辑规则';
+
+  @override
+  String get assistantEditRuleNameLabel => '规则名称';
+
+  @override
+  String get assistantEditRuleContentLabel => '内容';
+
+  @override
+  String get assistantSettingsImportTavernCard => '导入角色卡 (Tavern JSON)';
+
+  @override
+  String get assistantSettingsImportTavernPreset => '导入预设规则 (JSON)';
+
+  @override
+  String get assistantSettingsImportParseFailed => '解析失败或格式不匹配';
+
+  @override
   String get desktopTtsPleaseAddProvider => '请先在设置中添加语音服务商';
 
   @override
@@ -10860,6 +11746,24 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get desktopNavPhoneTooltip => '虚拟手机';
+
+  @override
+  String get gameStoryEmptyHint => '点击下方按钮开始冒险';
+
+  @override
+  String get gameStoryActiveEventsTitle => '当前事件';
+
+  @override
+  String get gameStoryCompletedEventsTitle => '已完结';
+
+  @override
+  String get gameStoryAdvanceButton => '推进剧情';
+
+  @override
+  String get gameStoryPlayerFallbackName => '旅人';
+
+  @override
+  String get gameStoryPlayerFallbackInitial => '旅';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -12190,6 +13094,410 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get codeBlockExpandButton => '展開';
+
+  @override
+  String get codeBlockArtifactBadge => '產物';
+
+  @override
+  String get playModeSwitcherNovelLabel => '小說';
+
+  @override
+  String get playModeSwitcherGameLabel => '遊戲';
+
+  @override
+  String get gameTabStory => '劇情';
+
+  @override
+  String get gameTabPhone => '手機';
+
+  @override
+  String get gameTabWorld => '世界';
+
+  @override
+  String get gameTabSettings => '設定';
+
+  @override
+  String get gameEmptyStartCreating => '開始創造';
+
+  @override
+  String get gameEmptyScriptCardTitle => '創作劇本';
+
+  @override
+  String get gameEmptyScriptCardDescription =>
+      '打造一個 AI 文字冒險世界：屬性、NPC、時間線與劇情走向。';
+
+  @override
+  String get gameEmptyVisualEditor => '視覺化編輯器';
+
+  @override
+  String get gameEmptyAiOpening => 'AI 一鍵生成開局';
+
+  @override
+  String get gameEmptyStartButton => '開始';
+
+  @override
+  String get gameSceneCardImportButton => '匯入場景卡';
+
+  @override
+  String get gameSceneCardImportDialogTitle => '匯入場景卡';
+
+  @override
+  String get gameSceneCardPasteHint =>
+      '貼上類似 :::newspaper 時間 / 角色 # 備註 # 場景 的內容';
+
+  @override
+  String get gameSceneCardParseButton => '解析並匯入';
+
+  @override
+  String get gameSceneCardInvalidFormat => '場景卡格式無效。';
+
+  @override
+  String get gameImportTavernCardButton => '匯入角色卡';
+
+  @override
+  String get gameImportTavernCardSuccess => '已匯入角色卡。';
+
+  @override
+  String get gameImportTavernCardFailed => '匯入角色卡失敗。';
+
+  @override
+  String get gameImportAnotherTavernCardButton => '匯入其他角色卡';
+
+  @override
+  String get gameImportTavernCardEntryDescription => '從角色卡開始，選擇一個開場白進入遊戲。';
+
+  @override
+  String get gameOpeningSelectionTitle => '選擇開場白';
+
+  @override
+  String get gameOpeningSelectionSubtitle => '從這張角色卡裡選擇一個開場白，在遊戲模式中開始。';
+
+  @override
+  String gameOpeningSelectionOption(int index) {
+    return '開場 $index';
+  }
+
+  @override
+  String get gameOpeningStartButton => '從這個開場開始';
+
+  @override
+  String get gameOpeningChangeButton => '更換開場白';
+
+  @override
+  String get gameOpeningCurrentTitle => '開場已啟用';
+
+  @override
+  String get gameOpeningCurrentSubtitle => '這個開場白會作為目前遊戲狀態的起點，之後仍可更換。';
+
+  @override
+  String get gameOpeningCurrentEmpty => '尚未選擇開場白。';
+
+  @override
+  String get gameOpeningUserTokenTitle => '使用者名稱';
+
+  @override
+  String get gameOpeningEditUserNameButton => '編輯使用者名稱';
+
+  @override
+  String get gameOpeningEditUserNameTitle => '編輯使用者名稱';
+
+  @override
+  String gameOpeningPageIndicator(int index, int total) {
+    return '$index / $total';
+  }
+
+  @override
+  String get gameSceneCardInstructionsTypeLabel => '場景卡類型：';
+
+  @override
+  String get gameSceneCardInstructionsTimeLabel => '時間：';
+
+  @override
+  String get gameSceneCardInstructionsCharacterLabel => '角色：';
+
+  @override
+  String get gameSceneCardInstructionsItemsLabel => '場景要素：';
+
+  @override
+  String get gameScriptStepStyle => '敘事基調';
+
+  @override
+  String get gameScriptStepDescribe => '描述遊戲';
+
+  @override
+  String get gameScriptStepConfirm => '確認生成';
+
+  @override
+  String get gameScriptStyleTitle => '請選擇敘事分類';
+
+  @override
+  String get gameScriptStyleSubtitle => '分類決定題材、事件類型、NPC 功能和敘事基調。';
+
+  @override
+  String get gameScriptSelectedToneLabel => '已選基調';
+
+  @override
+  String get gameScriptStyleDailyHealing => '日常治癒';
+
+  @override
+  String get gameScriptStyleDailyHealingDescription => '生活細節、小目標、低衝突、關係慢熱';
+
+  @override
+  String get gameScriptStyleDailyHealingRule =>
+      '敘事分類：日常治癒。請優先生成生活細節、小目標、溫柔互動和低衝突事件。NPC 互動應偏細膩、陪伴、關係漸進。';
+
+  @override
+  String get gameScriptStyleEpicAdventure => '熱血冒險';
+
+  @override
+  String get gameScriptStyleEpicAdventureDescription => '任務、挑戰、危機、成長、探索';
+
+  @override
+  String get gameScriptStyleEpicAdventureRule =>
+      '敘事分類：熱血冒險。請優先生成任務、挑戰、危機升級、角色成長與探索目標。NPC 應承擔委託、阻礙、盟友、勁敵或關鍵線索功能。';
+
+  @override
+  String get gameScriptStyleSuspenseMystery => '懸疑推理';
+
+  @override
+  String get gameScriptStyleSuspenseMysteryDescription => '線索、疑點、反轉、真相鏈、隱藏動機';
+
+  @override
+  String get gameScriptStyleSuspenseMysteryRule =>
+      '敘事分類：懸疑推理。請優先生成線索、疑點、反轉、隱藏動機與可追蹤的真相鏈。避免過早揭示答案。NPC 應具有可疑行為、秘密或誤導性資訊。';
+
+  @override
+  String get gameScriptStyleRomanceEnsemble => '戀愛群像';
+
+  @override
+  String get gameScriptStyleRomanceEnsembleDescription => '多角色互動、曖昧、關係張力、情感推進';
+
+  @override
+  String get gameScriptStyleRomanceEnsembleRule =>
+      '敘事分類：戀愛群像。請優先生成多角色互動、曖昧、關係張力、情感選擇和漸進式情感推進。NPC 應有明確欲望、邊界和關係衝突。';
+
+  @override
+  String get gameScriptStyleUrbanWeird => '都市異聞';
+
+  @override
+  String get gameScriptStyleUrbanWeirdDescription => '現代背景、怪談、異常規則、隱秘組織';
+
+  @override
+  String get gameScriptStyleUrbanWeirdRule =>
+      '敘事分類：都市異聞。請優先生成現代背景、城市怪談、異常規則、隱秘組織和日常與異常的反差。NPC 應關聯異常、規則、目擊資訊或隱藏陣營。';
+
+  @override
+  String get gameScriptStyleAncientPower => '古風權謀';
+
+  @override
+  String get gameScriptStyleAncientPowerDescription => '陣營、身份、謀局、試探、克制表達';
+
+  @override
+  String get gameScriptStyleAncientPowerRule =>
+      '敘事分類：古風權謀。請優先生成陣營、身份、謀局、試探、聯盟、背叛和克制表達。NPC 應代表利益、秘密、籌碼或政治壓力。';
+
+  @override
+  String get gameScriptStyleRomanceDrama => '言情群像';
+
+  @override
+  String get gameScriptStyleRomanceDramaDescription => '情感關係、曖昧拉扯、選擇與人物羈絆';
+
+  @override
+  String get gameScriptStyleRomanceDramaRule =>
+      '敘事分類：言情群像。請優先生成情感關係、曖昧拉扯、關鍵選擇、人物羈絆和漸進式情感回報。NPC 應有明確欲望、邊界、情感過往和關係壓力。';
+
+  @override
+  String get gameScriptInstructionsHint => '寫下世界觀、玩法與規則';
+
+  @override
+  String get gameScriptInstructionsHelper =>
+      '寫下世界觀、玩法與規則。勾選 AI 潤色後，生成時 AI 會在你的指令基礎上整理為敘事規則（最多 10000 字）。';
+
+  @override
+  String get gameScriptUntitled => '未命名';
+
+  @override
+  String get gameScriptEmptyInstructionsForPolish =>
+      '使用者暫未提供詳細設定。請根據標題和敘事基調，補全一個可遊玩的文字冒險開局。';
+
+  @override
+  String gameScriptAiPolishInstruction(
+    Object styleName,
+    Object styleRule,
+    Object title,
+    Object base,
+  ) {
+    return 'AI 潤色已開啟。\n請不要改變使用者想玩的核心方向；請在使用者設定基礎上，將內容整理為清晰、可執行的文字冒險敘事規則。\n\n要求：\n1. 保留使用者原意，不擅自改題材。\n2. 補齊世界觀、玩法目標、初始衝突、NPC 登場方向、事件推進方式。\n3. 輸出應適合作為後續遊戲生成的長期規則，而不是一次性回覆。\n4. 敘事分類：$styleName。\n5. 分類規則：$styleRule\n6. 遊戲標題：$title。\n\n使用者原始設定：\n$base';
+  }
+
+  @override
+  String get gameScriptNextButton => '下一步';
+
+  @override
+  String get gameScriptChangeStyleButton => '更換';
+
+  @override
+  String get gameScriptTitleLabel => '遊戲標題';
+
+  @override
+  String get gameScriptTitleHint => '例如：咖啡店模擬器';
+
+  @override
+  String get gameScriptInstructionsLabel => '遊戲指令';
+
+  @override
+  String get gameScriptAllowAiPolishLabel => '允許 AI 潤色指令';
+
+  @override
+  String get gameScriptConfirmButton => '確認';
+
+  @override
+  String get gameScriptInstructionsPreviewLabel => '遊戲指令預覽';
+
+  @override
+  String get gameScriptBackToEditButton => '返回修改';
+
+  @override
+  String get gameScriptStartGenerateButton => '開始生成';
+
+  @override
+  String get gameScriptImportTavernStyleTooltip => '匯入酒館美化';
+
+  @override
+  String get gameScriptImportTavernStyleSuccess => '已匯入酒館美化。';
+
+  @override
+  String get gameScriptImportTavernStyleFailed => '匯入酒館美化失敗。';
+
+  @override
+  String get gameSettingsAiModelSection => 'AI 模型';
+
+  @override
+  String get gameSettingsWorldBookSection => '世界書';
+
+  @override
+  String get gameSettingsImportWorldBook => '匯入世界書';
+
+  @override
+  String get gameSettingsImportWorldBookDescription =>
+      '匯入一個 JSON 世界書，並為目前遊戲啟用。';
+
+  @override
+  String gameSettingsImportWorldBookSuccess(String name) {
+    return '已匯入世界書：$name';
+  }
+
+  @override
+  String get gameSettingsScriptSection => '劇本管理';
+
+  @override
+  String get gameSettingsModelNotSet => '未設定';
+
+  @override
+  String get gameSettingsDeleteCurrentScript => '刪除目前劇本';
+
+  @override
+  String get gameSettingsDeleteIrreversible => '此操作不可復原';
+
+  @override
+  String get gameSettingsDeleteDialogTitle => '刪除劇本';
+
+  @override
+  String get gameSettingsDeleteDialogMessage => '確定要刪除目前劇本嗎？所有遊戲資料都會遺失。';
+
+  @override
+  String get gamePhoneFeatureTitle => '手機功能';
+
+  @override
+  String get gamePhoneFeatureSubtitle => '訊息、背包、日記等功能即將上線';
+
+  @override
+  String gameWorldTitle(Object title) {
+    return '$title - 世界';
+  }
+
+  @override
+  String gameWorldNpcCount(int count) {
+    return '已邂逅 $count 位角色';
+  }
+
+  @override
+  String get gameWorldImportFromFavorites => '從收藏引入';
+
+  @override
+  String get gameWorldCreateNpc => '新增 NPC';
+
+  @override
+  String get gameWorldNoNpc => '暫無 NPC';
+
+  @override
+  String get desktopSettingsPresetsMenu => '預設';
+
+  @override
+  String get desktopPresetsImportFailed => '匯入失敗或格式不相符';
+
+  @override
+  String desktopPresetsImportSuccess(Object name) {
+    return '已匯入預設: $name';
+  }
+
+  @override
+  String get desktopPresetsEditNameTitle => '編輯預設名稱';
+
+  @override
+  String get desktopPresetsNoApplicableAssistants => '沒有可套用的角色，請先建立角色';
+
+  @override
+  String desktopPresetsAppliedToAssistants(int count) {
+    return '已套用到 $count 個角色';
+  }
+
+  @override
+  String get desktopPresetsSelectAssistantsTitle => '選擇要套用預設的角色';
+
+  @override
+  String get desktopPresetsSelectAll => '全選';
+
+  @override
+  String desktopPresetsApplyCount(int count) {
+    return '套用 ($count)';
+  }
+
+  @override
+  String get desktopPresetsTitle => '預設管理';
+
+  @override
+  String get desktopPresetsImportButton => '匯入預設';
+
+  @override
+  String get desktopPresetsEmpty => '暫無預設，點擊右上角匯入';
+
+  @override
+  String get desktopPresetsEditNameTooltip => '編輯名稱';
+
+  @override
+  String get desktopPresetsApplyTooltip => '套用到角色';
+
+  @override
+  String get desktopPresetsDeleteTooltip => '刪除預設';
+
+  @override
+  String get desktopPresetsMainPrompt => '主提示詞';
+
+  @override
+  String get desktopPresetsEditMainPromptTooltip => '編輯主提示詞';
+
+  @override
+  String get desktopPresetsRules => '規則條目';
+
+  @override
+  String get desktopPresetsEditRuleTooltip => '編輯規則';
+
+  @override
+  String get desktopPresetsDeleteRuleTooltip => '刪除規則';
+
+  @override
+  String get desktopPresetsEditMainPromptTitle => '編輯主提示詞';
 
   @override
   String get codeBlockDefaultFileNameStem => '程式碼';
@@ -15649,6 +16957,36 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get assistantEditPresetRoleAssistant => '助手';
 
   @override
+  String get assistantEditRulesTitle => '規則開關';
+
+  @override
+  String get assistantEditMainPromptLabel => '主提示詞';
+
+  @override
+  String get assistantEditRulesEmpty => '暫無規則';
+
+  @override
+  String get assistantEditRuleAddTitle => '新增規則';
+
+  @override
+  String get assistantEditRuleEditTitle => '編輯規則';
+
+  @override
+  String get assistantEditRuleNameLabel => '規則名稱';
+
+  @override
+  String get assistantEditRuleContentLabel => '內容';
+
+  @override
+  String get assistantSettingsImportTavernCard => '匯入角色卡 (Tavern JSON)';
+
+  @override
+  String get assistantSettingsImportTavernPreset => '匯入預設規則 (JSON)';
+
+  @override
+  String get assistantSettingsImportParseFailed => '解析失敗或格式不相符';
+
+  @override
   String get desktopTtsPleaseAddProvider => '請先在設定中新增語音服務商';
 
   @override
@@ -16289,4 +17627,22 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get desktopNavPhoneTooltip => '虛擬手機';
+
+  @override
+  String get gameStoryEmptyHint => '點擊下方按鈕開始冒險';
+
+  @override
+  String get gameStoryActiveEventsTitle => '當前事件';
+
+  @override
+  String get gameStoryCompletedEventsTitle => '已完結';
+
+  @override
+  String get gameStoryAdvanceButton => '推進劇情';
+
+  @override
+  String get gameStoryPlayerFallbackName => '旅人';
+
+  @override
+  String get gameStoryPlayerFallbackInitial => '旅';
 }

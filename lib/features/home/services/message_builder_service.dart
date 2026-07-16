@@ -24,6 +24,7 @@ import '../../../core/models/assistant_regex.dart';
 import '../../../core/utils/multimodal_input_utils.dart';
 import '../../../utils/assistant_regex.dart';
 import '../../../utils/markdown_media_sanitizer.dart';
+import '../../favorites/services/favorite_cards_store.dart';
 
 /// Service for building API messages from conversation state.
 ///
@@ -39,28 +40,16 @@ import '../../../utils/markdown_media_sanitizer.dart';
 class MessageBuilderService {
   static const String internalMediaPathsKey = multimodalInternalMediaPathsKey;
   static const String _htmlCardViewSystemInstruction = '''
-### 角色状态面板与关系图谱（原生 UI 组件）
-以下两个特殊标签会被客户端解析为原生界面组件，而非 HTML 网页。当回复涉及角色状态更新、场景切换、情感变化时，优先使用它们。
+### 角色状态面板与关系图谱
+当回复涉及角色状态更新、场景切换、情感变化时，优先用 fenced HTML 代码块直接生成可视化状态栏，不要使用 `<status_hub>`、`<orange>` 或 `<context>` 包裹。
 
-**角色状态卡 `<status_hub>`：**
-用于展示当前场景中角色的即时状态。格式：
-```
-<status_hub>
-角色名
-地点: 当前地点
-想法: 内心独白
----
-数值名称: 数值%
-另一数值: 数值%
----
-模块标题: 模块内容
-</status_hub>
-```
-- 每个角色用 `|||` 分隔
-- 第一个 `---` 前是文字信息区（地点、想法等）
-- 两个 `---` 之间是数值条区（任何加 `%` 的数值都会渲染为进度条，如好感度、体力、魔力等）
-- 第二个 `---` 后是模块标签区（自由定义任意 key:value）
-- 支持多个角色同时展示
+**角色状态栏 HTML：**
+- 必须输出完整 fenced HTML 代码块，格式为从 ```html 开始到 ``` 结束。
+- 只写状态栏 HTML 本身，不要在代码块外解释“这是状态栏”。
+- 可以展示角色名、地点、内心想法、好感度、体力、魔力、情绪、任务进度等。
+- 多角色状态可放在同一个 HTML 模块里，用卡片、标签、进度条或分栏区分。
+- 所有样式必须写成元素上的行内 style 属性；禁止使用 `<style>`、`<html>`、`<head>`、`<body>`、`<script>`、iframe、外部 JS 或外部 CSS。
+- 宽度不得超过 320px，居中显示，文字必须完整可读，不要滚动截断。
 
 **关系图谱 `<relationship_map>`：**
 用于展示角色之间的关系网络。格式：
@@ -74,7 +63,7 @@ class MessageBuilderService {
 - 亲密度 0-100，影响线条粗细和颜色
 
 **使用场景区分：**
-- 角色状态、数值变化、内心想法、位置移动 → 用 `<status_hub>`
+- 角色状态、数值变化、内心想法、位置移动 → 用 fenced HTML 状态栏
 - 角色之间的关系建立、变化、揭示 → 用 `<relationship_map>`
 - 手机界面、社交媒体、购物页面、视频播放器等视觉排版 → 用 HTML
 
@@ -328,13 +317,16 @@ HTML 模块必须与正文剧情、角色心理、场景物件或互动行为紧
   }) {
     final imgRe = RegExp(r"\[image:(.+?)\]");
     final fileRe = RegExp(r"\[file:(.+?)\|(.+?)\|(.+?)\]");
+    final favoriteRe = RegExp(r"\[favorite:([^|\]]*)\|([^|\]]*)\|([^\]]*)\]");
     final images = <String>[];
     final docs = <DocumentAttachment>[];
+    final favoriteCards = <FavoriteCardReference>[];
     final buffer = StringBuffer();
     int idx = 0;
     while (idx < raw.length) {
       final imgMatch = imgRe.matchAsPrefix(raw, idx);
       final fileMatch = fileRe.matchAsPrefix(raw, idx);
+      final favoriteMatch = favoriteRe.matchAsPrefix(raw, idx);
       if (imgMatch != null) {
         final p = imgMatch.group(1)?.trim();
         if (p != null && p.isNotEmpty) images.add(p);
@@ -357,6 +349,12 @@ HTML 模块必须与正文剧情、角色心理、场景物件或互动行为紧
         idx = fileMatch.end;
         continue;
       }
+      if (favoriteMatch != null) {
+        final ref = _favoriteReferenceFromMarker(favoriteMatch);
+        if (ref != null) favoriteCards.add(ref);
+        idx = favoriteMatch.end;
+        continue;
+      }
       buffer.write(raw[idx]);
       idx++;
     }
@@ -364,7 +362,26 @@ HTML 模块必须与正文剧情、角色心理、场景物件或互动行为紧
       text: buffer.toString().trim(),
       imagePaths: images,
       documents: docs,
+      favoriteCards: favoriteCards,
     );
+  }
+
+  FavoriteCardReference? _favoriteReferenceFromMarker(Match match) {
+    final id = _decodeFavoriteMarkerPart(match.group(1) ?? '');
+    final title = _decodeFavoriteMarkerPart(match.group(2) ?? '');
+    final text = _decodeFavoriteMarkerPart(match.group(3) ?? '');
+    if (id == null || title == null || text == null || text.trim().isEmpty) {
+      return null;
+    }
+    return FavoriteCardReference(id: id, title: title, text: text);
+  }
+
+  String? _decodeFavoriteMarkerPart(String value) {
+    try {
+      return utf8.decode(base64Url.decode(value));
+    } catch (_) {
+      return null;
+    }
   }
 
   String _effectiveAttachmentMime(DocumentAttachment attachment) {
@@ -514,7 +531,16 @@ HTML 模块必须与正文剧情、角色心理、场景物件或互动行为紧
         filePrompts.writeln();
       }
 
+      final favoritePrompts = parsedUser.favoriteCards
+          .map((card) => card.text.trim())
+          .where((text) => text.isNotEmpty)
+          .join('\n\n');
       String merged = (filePrompts.toString() + cleanedUser).trim();
+      if (favoritePrompts.isNotEmpty) {
+        merged = merged.isEmpty
+            ? favoritePrompts
+            : '$merged\n\n$favoritePrompts';
+      }
 
       if (ocrActive && ocrHandler != null) {
         final ocrTargets = parsedUser.imagePaths

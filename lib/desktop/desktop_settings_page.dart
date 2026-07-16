@@ -67,8 +67,11 @@ import '../features/provider/widgets/share_provider_sheet.dart'
     show encodeProviderConfig;
 import '../utils/clipboard_images.dart';
 import '../utils/provider_grouping_logic.dart';
+import '../core/services/importers/tavern_preset_importer.dart';
+import '../core/models/saved_preset.dart';
 
 part 'setting/assistants_pane.dart';
+part 'setting/presets_pane.dart';
 part 'setting/providers_pane.dart';
 part 'setting/display_pane.dart';
 
@@ -87,6 +90,7 @@ class DesktopSettingsPage extends StatefulWidget {
 enum _SettingsMenuItem {
   display,
   assistant,
+  presets,
   providers,
   defaultModel,
   search,
@@ -190,6 +194,10 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
                           return const _DesktopAssistantsBody(
                             key: ValueKey('assistants'),
                           );
+                        case _SettingsMenuItem.presets:
+                          return const DesktopPresetsPane(
+                            key: ValueKey('presets'),
+                          );
                         case _SettingsMenuItem.providers:
                           return _DesktopProvidersBody(
                             key: const ValueKey('providers'),
@@ -278,6 +286,11 @@ class _SettingsMenu extends StatelessWidget {
         _SettingsMenuItem.assistant,
         lucide.Lucide.Bot,
         l10n.settingsPageAssistant,
+      ),
+      (
+        _SettingsMenuItem.presets,
+        lucide.Lucide.ListTree,
+        l10n.desktopSettingsPresetsMenu,
       ),
       (
         _SettingsMenuItem.defaultModel,

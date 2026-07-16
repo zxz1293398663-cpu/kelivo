@@ -127,19 +127,28 @@ class _FavoritesPageState extends State<FavoritesPage> {
     await _save(_cards.where((item) => item.id != card.id).toList());
   }
 
-  Future<void> _copyForAi(FavoriteCard card) async {
+  String _referenceTextFor(FavoriteCard card, {String? selectedText}) {
+    final selected = selectedText?.trim();
+    if (selected == null || selected.isEmpty) return card.referenceText;
+    return '## ${card.title}\n$selected';
+  }
+
+  Future<void> _copyForAi(FavoriteCard card, {String? selectedText}) async {
     final l10n = AppLocalizations.of(context)!;
+    final text = _referenceTextFor(card, selectedText: selectedText);
     if (widget.onToggleReference != null) {
       widget.onToggleReference!(
         FavoriteCardReference(
-          id: card.id,
+          id: selectedText == null || selectedText.trim().isEmpty
+              ? card.id
+              : '${card.id}:selection:${selectedText.hashCode}',
           title: card.title,
-          text: card.referenceText,
+          text: text,
         ),
       );
       return;
     }
-    await Clipboard.setData(ClipboardData(text: card.referenceText));
+    await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
     showAppSnackBar(context, message: l10n.chatMessageWidgetCopiedToClipboard);
   }
@@ -236,76 +245,99 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   Future<void> _previewCard(FavoriteCard card) async {
+    String selectedText = '';
     await showDialog<void>(
       context: context,
       builder: (context) {
-        final cs = Theme.of(context).colorScheme;
-        return Dialog.fullscreen(
-          backgroundColor: Colors.transparent,
-          child: ClipRect(
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: cs.surface.withValues(alpha: 0.82),
-                ),
-                child: SafeArea(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 920),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
-                        child: Column(
-                          children: [
-                            Row(
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final cs = Theme.of(context).colorScheme;
+            final l10n = AppLocalizations.of(context)!;
+            return Dialog.fullscreen(
+              backgroundColor: Colors.transparent,
+              child: ClipRect(
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: cs.surface.withValues(alpha: 0.82),
+                    ),
+                    child: SafeArea(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 920),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
+                            child: Column(
                               children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        card.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: AppFontWeights.emphasis,
+                                        ),
+                                      ),
+                                    ),
+                                    IosIconButton(
+                                      icon: Lucide.Plus,
+                                      semanticLabel: l10n.favoritesCopyForAi,
+                                      onTap: () => _copyForAi(
+                                        card,
+                                        selectedText: selectedText,
+                                      ),
+                                    ),
+                                    IosIconButton(
+                                      icon: Lucide.X,
+                                      semanticLabel: l10n.homePageCancel,
+                                      onTap: () =>
+                                          Navigator.of(context).maybePop(),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
                                 Expanded(
-                                  child: Text(
-                                    card.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: AppFontWeights.emphasis,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(24),
+                                    child: ColoredBox(
+                                      color: cs.surfaceContainer.withValues(
+                                        alpha: 0.48,
+                                      ),
+                                      child: SelectionArea(
+                                        onSelectionChanged: (content) {
+                                          selectedText =
+                                              content?.plainText ?? '';
+                                          setDialogState(() {});
+                                        },
+                                        child: SingleChildScrollView(
+                                          padding: const EdgeInsets.all(22),
+                                          physics:
+                                              const BouncingScrollPhysics(),
+                                          child: MarkdownWithCodeHighlight(
+                                            text: _favoritePreviewText(
+                                              card.content,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                IosIconButton(
-                                  icon: Lucide.X,
-                                  semanticLabel: AppLocalizations.of(
-                                    context,
-                                  )!.homePageCancel,
-                                  onTap: () => Navigator.of(context).maybePop(),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
-                            Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(24),
-                                child: ColoredBox(
-                                  color: cs.surfaceContainer.withValues(
-                                    alpha: 0.48,
-                                  ),
-                                  child: SingleChildScrollView(
-                                    padding: const EdgeInsets.all(22),
-                                    physics: const BouncingScrollPhysics(),
-                                    child: MarkdownWithCodeHighlight(
-                                      text: _favoritePreviewText(card.content),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -512,9 +544,13 @@ class _FavoriteCardTile extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // 黑白灰毛玻璃基础配色
-    final headerBg = isDark ? const Color(0x33FFFFFF) : const Color(0x1A000000);
-    final bodyBg = isDark ? const Color(0x40000000) : const Color(0x40FFFFFF);
+    // 毛玻璃配色
+    final headerBg = isDark
+        ? const Color(0x3DFFFFFF) // 24% 白
+        : const Color(0x8FFFFFFF); // 56% 白
+    final bodyBg = isDark
+        ? const Color(0x1A000000) // 10% 黑
+        : const Color(0x33FFFFFF); // 20% 白
     final textColor = isDark
         ? const Color(0xFFCCCCCC)
         : const Color(0xFF666666);
@@ -534,9 +570,7 @@ class _FavoriteCardTile extends StatelessWidget {
       padding: EdgeInsets.zero,
       baseColor: Colors.transparent,
       child: Container(
-        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: bodyBg,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: referenced ? selectedColor : borderColor,
@@ -550,82 +584,91 @@ class _FavoriteCardTile extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ColoredBox(
-              color: headerBg,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                child: Row(
-                  children: [
-                    Icon(Lucide.Code, size: 13, color: titleColor),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        card.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: titleColor,
-                          fontSize: 12,
-                          fontFamily: 'Noto Serif SC',
-                          letterSpacing: 0.4,
-                          fontWeight: AppFontWeights.semibold,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Container(
+              color: bodyBg,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ColoredBox(
+                    color: headerBg,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Lucide.Code, size: 13, color: titleColor),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              card.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: titleColor,
+                                fontSize: 12,
+                                fontFamily: 'Noto Serif SC',
+                                letterSpacing: 0.4,
+                                fontWeight: AppFontWeights.semibold,
+                              ),
+                            ),
+                          ),
+                          IosIconButton(
+                            icon: referenced ? Lucide.Check : Lucide.Plus,
+                            semanticLabel: l10n.favoritesCopyForAi,
+                            onTap: onCopy,
+                            color: referenced ? selectedColor : titleColor,
+                            size: 15,
+                            padding: const EdgeInsets.all(3),
+                          ),
+                          IosIconButton(
+                            icon: Lucide.Edit,
+                            semanticLabel: l10n.messageMoreSheetEdit,
+                            onTap: onEdit,
+                            color: textColor,
+                            size: 15,
+                            padding: const EdgeInsets.all(3),
+                          ),
+                          IosIconButton(
+                            icon: Lucide.Trash2,
+                            semanticLabel: l10n.messageMoreSheetDelete,
+                            color: isDark
+                                ? const Color(0xFFD4878A)
+                                : const Color(0xFFB86B6E),
+                            onTap: onDelete,
+                            size: 15,
+                            padding: const EdgeInsets.all(3),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ClipRect(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
+                        physics: const BouncingScrollPhysics(),
+                        child: SelectableText(
+                          card.content,
+                          style: TextStyle(
+                            color: textColor,
+                            fontSize: 11,
+                            height: 1.35,
+                            fontFamily: 'monospace',
+                          ),
                         ),
                       ),
                     ),
-                    IosIconButton(
-                      icon: referenced ? Lucide.Check : Lucide.Plus,
-                      semanticLabel: l10n.favoritesCopyForAi,
-                      onTap: onCopy,
-                      color: referenced ? selectedColor : titleColor,
-                      size: 15,
-                      padding: const EdgeInsets.all(3),
-                    ),
-                    IosIconButton(
-                      icon: Lucide.Edit,
-                      semanticLabel: l10n.messageMoreSheetEdit,
-                      onTap: onEdit,
-                      color: textColor,
-                      size: 15,
-                      padding: const EdgeInsets.all(3),
-                    ),
-                    IosIconButton(
-                      icon: Lucide.Trash2,
-                      semanticLabel: l10n.messageMoreSheetDelete,
-                      color: isDark
-                          ? const Color(0xFFD4878A)
-                          : const Color(0xFFB86B6E),
-                      onTap: onDelete,
-                      size: 15,
-                      padding: const EdgeInsets.all(3),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: ClipRect(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
-                  physics: const BouncingScrollPhysics(),
-                  child: SelectableText(
-                    card.content,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 11,
-                      height: 1.35,
-                      fontFamily: 'monospace',
-                    ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

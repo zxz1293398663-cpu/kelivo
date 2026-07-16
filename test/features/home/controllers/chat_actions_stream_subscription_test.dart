@@ -1,9 +1,42 @@
 import 'dart:async' as async;
 
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:Kelivo/features/home/controllers/chat_actions.dart';
 
 void main() {
+  group('ChatActions.isManualCancellationError', () {
+    test('识别 Dio 主动取消异常', () {
+      expect(
+        ChatActions.isManualCancellationError(
+          DioException(
+            requestOptions: RequestOptions(path: '/v1/chat/completions'),
+            type: DioExceptionType.cancel,
+          ),
+        ),
+        isTrue,
+      );
+    });
+
+    test('识别被 http ClientException 包装后的取消异常文本', () {
+      expect(
+        ChatActions.isManualCancellationError(
+          'ClientException: DioException [request cancelled]: The request was manually cancelled by the user. Error: cancelled',
+        ),
+        isTrue,
+      );
+    });
+
+    test('不把普通网络错误误判为手动取消', () {
+      expect(
+        ChatActions.isManualCancellationError(
+          'ClientException: connection failed',
+        ),
+        isFalse,
+      );
+    });
+  });
+
   group('ChatActions.listenSequentiallyToStream', () {
     test('正常流按顺序处理 chunk 并调用 done', () async {
       final controller = async.StreamController<int>();

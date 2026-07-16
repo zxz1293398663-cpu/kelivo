@@ -109,6 +109,9 @@ class StreamController {
   final Map<String, String> _geminiThoughtSigs = <String, String>{};
   Map<String, String> get geminiThoughtSigs => _geminiThoughtSigs;
 
+  final Map<String, _InlineReasoningTagState> _inlineReasoningTagStates =
+      <String, _InlineReasoningTagState>{};
+
   // ============================================================================
   // Throttle State
   // ============================================================================
@@ -216,6 +219,7 @@ class StreamController {
     _contentSplits.remove(messageId);
     _toolParts.remove(messageId);
     _geminiThoughtSigs.remove(messageId);
+    _inlineReasoningTagStates.remove(messageId);
     _cleanupStreamTimers(messageId);
   }
 
@@ -226,6 +230,7 @@ class StreamController {
     _contentSplits.clear();
     _toolParts.clear();
     _geminiThoughtSigs.clear();
+    _inlineReasoningTagStates.clear();
     _cancelAllTimers();
     streamingContentNotifier.clear();
   }
@@ -249,6 +254,58 @@ class StreamController {
       content = content.replaceAll(_geminiThoughtSigRe, '').trimRight();
     }
     return content;
+  }
+
+  InlineReasoningExtraction extractInlineReasoningTags(
+    String content,
+    String messageId,
+  ) {
+    if (content.isEmpty) return const InlineReasoningExtraction.empty();
+    final state = _inlineReasoningTagStates.putIfAbsent(
+      messageId,
+      _InlineReasoningTagState.new,
+    );
+    final output = StringBuffer();
+    final reasoning = StringBuffer();
+    var scan = state.pending + content;
+    state.pending = '';
+
+    while (scan.isNotEmpty) {
+      if (state.insideReasoning) {
+        final close = _inlineReasoningCloseTagRe.firstMatch(scan);
+        if (close == null) {
+          reasoning.write(scan);
+          scan = '';
+        } else {
+          reasoning.write(scan.substring(0, close.start));
+          scan = scan.substring(close.end);
+          state.insideReasoning = false;
+        }
+        continue;
+      }
+
+      final open = _inlineReasoningOpenTagRe.firstMatch(scan);
+      if (open == null) {
+        final incompleteStart = _incompleteInlineReasoningTagStart(scan);
+        if (incompleteStart == -1) {
+          output.write(scan);
+          scan = '';
+        } else {
+          output.write(scan.substring(0, incompleteStart));
+          state.pending = scan.substring(incompleteStart);
+          scan = '';
+        }
+      } else {
+        output.write(scan.substring(0, open.start));
+        scan = scan.substring(open.end);
+        state.insideReasoning = true;
+      }
+    }
+
+    return InlineReasoningExtraction(
+      content: output.toString(),
+      reasoning: reasoning.toString(),
+    );
   }
 
   /// Append Gemini thought signature for API calls (when sending history).
@@ -750,8 +807,46 @@ class StreamController {
     })
     updateReasoningInDb,
   }) async {
-    if ((chunk.reasoning ?? '').isEmpty || !state.ctx.supportsReasoning) return;
+    if ((chunk.reasoning ?? '').isEmpty || !state.ctx.supportsReasoning) {
+      return;
+    }
+    await _appendReasoning(
+      chunk.reasoning!,
+      state,
+      updateReasoningInDb: updateReasoningInDb,
+    );
+  }
 
+  Future<void> handleInlineReasoning(
+    String reasoning,
+    StreamingState state, {
+    required Future<void> Function(
+      String messageId, {
+      String? reasoningText,
+      DateTime? reasoningStartAt,
+      String? reasoningSegmentsJson,
+    })
+    updateReasoningInDb,
+  }) async {
+    if (reasoning.isEmpty) return;
+    await _appendReasoning(
+      reasoning,
+      state,
+      updateReasoningInDb: updateReasoningInDb,
+    );
+  }
+
+  Future<void> _appendReasoning(
+    String reasoning,
+    StreamingState state, {
+    required Future<void> Function(
+      String messageId, {
+      String? reasoningText,
+      DateTime? reasoningStartAt,
+      String? reasoningSegmentsJson,
+    })
+    updateReasoningInDb,
+  }) async {
     final messageId = state.messageId;
     final conversationId = state.conversationId;
     state.hadThinkingBlock = true;
@@ -767,7 +862,7 @@ class StreamController {
       final initialExpanded = !getSettingsProvider().autoCollapseThinking;
       final isNewReasoning = !_reasoning.containsKey(messageId);
       final r = _reasoning[messageId] ?? ReasoningData();
-      r.text += chunk.reasoning!;
+      r.text += reasoning;
       r.startAt ??= DateTime.now();
       // NOTE: Do not reset r.expanded here - preserve user's toggle state during streaming
       if (isNewReasoning) {
@@ -780,7 +875,7 @@ class StreamController {
           _reasoningSegments[messageId] ?? <ReasoningSegmentData>[];
       if (segments.isEmpty) {
         final newSegment = ReasoningSegmentData();
-        newSegment.text = chunk.reasoning!;
+        newSegment.text = reasoning;
         newSegment.startAt = DateTime.now();
         newSegment.expanded = initialExpanded;
         newSegment.toolStartIndex = (_toolParts[messageId]?.length ?? 0);
@@ -791,13 +886,13 @@ class StreamController {
         final lastSegment = segments.last;
         if (hasToolsAfterLastSegment && lastSegment.finishedAt != null) {
           final newSegment = ReasoningSegmentData();
-          newSegment.text = chunk.reasoning!;
+          newSegment.text = reasoning;
           newSegment.startAt = DateTime.now();
           newSegment.expanded = initialExpanded;
           newSegment.toolStartIndex = (_toolParts[messageId]?.length ?? 0);
           segments.add(newSegment);
         } else {
-          lastSegment.text += chunk.reasoning!;
+          lastSegment.text += reasoning;
           lastSegment.startAt ??= DateTime.now();
         }
       }
@@ -834,7 +929,7 @@ class StreamController {
       );
     } else {
       state.reasoningStartAt ??= DateTime.now();
-      state.bufferedReasoning += chunk.reasoning!;
+      state.bufferedReasoning += reasoning;
       await updateReasoningInDb(
         messageId,
         reasoningText: state.bufferedReasoning,
@@ -1508,6 +1603,56 @@ class _StreamSmoothState {
 
     return math.max(minCount, (backlog * effectivePickRate).round());
   }
+}
+
+class _InlineReasoningTagState {
+  bool insideReasoning = false;
+  String pending = '';
+}
+
+class InlineReasoningExtraction {
+  const InlineReasoningExtraction({
+    required this.content,
+    required this.reasoning,
+  });
+
+  const InlineReasoningExtraction.empty() : content = '', reasoning = '';
+
+  final String content;
+  final String reasoning;
+}
+
+final RegExp _inlineReasoningOpenTagRe = RegExp(
+  r'<(?:think|thinking|thought)\b[^>]*>',
+  caseSensitive: false,
+);
+
+final RegExp _inlineReasoningCloseTagRe = RegExp(
+  r'<\/(?:think|thinking|thought)>',
+  caseSensitive: false,
+);
+
+int _incompleteInlineReasoningTagStart(String text) {
+  final lower = text.toLowerCase();
+  var best = -1;
+  for (final tag in const [
+    '<think',
+    '<thinking',
+    '<thought',
+    '</think',
+    '</thinking',
+    '</thought',
+  ]) {
+    final maxLength = math.min(tag.length - 1, lower.length);
+    for (var length = 1; length <= maxLength; length++) {
+      final suffixStart = lower.length - length;
+      if (best != -1 && suffixStart >= best) continue;
+      if (tag.startsWith(lower.substring(suffixStart))) {
+        best = suffixStart;
+      }
+    }
+  }
+  return best;
 }
 
 // ============================================================================

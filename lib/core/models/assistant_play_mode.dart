@@ -1,7 +1,4 @@
-enum AssistantPlayMode {
-  novel,
-  game,
-}
+enum AssistantPlayMode { novel, game }
 
 extension AssistantPlayModeExt on AssistantPlayMode {
   String get name {

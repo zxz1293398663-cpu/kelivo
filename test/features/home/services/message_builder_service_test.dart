@@ -3,9 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:Kelivo/core/models/assistant.dart';
 import 'package:Kelivo/core/models/chat_message.dart';
+import 'package:Kelivo/core/models/chat_input_data.dart';
 import 'package:Kelivo/core/models/conversation.dart';
 import 'package:Kelivo/core/services/chat/chat_service.dart';
+import 'package:Kelivo/features/favorites/services/favorite_cards_store.dart';
 import 'package:Kelivo/features/home/services/message_builder_service.dart';
+import 'package:Kelivo/features/home/services/message_generation_service.dart';
 
 class _FakeBuildContext implements BuildContext {
   @override
@@ -93,6 +96,33 @@ void main() {
         'clip.mp4',
         'audio.wav',
       ]);
+    });
+
+    test('收藏引用 marker 还原为卡片胶囊数据且不进入正文', () {
+      final service = MessageBuilderService(
+        chatService: _FakeChatService(const {}),
+        contextProvider: _FakeBuildContext(),
+      );
+      final raw = MessageGenerationService.buildPersistedUserMessageContent(
+        const ChatInputData(
+          text: 'hello',
+          favoriteCards: [
+            FavoriteCardReference(
+              id: 'fav-1',
+              title: '收藏卡',
+              text: '## 收藏卡\n正文',
+            ),
+          ],
+        ),
+        assistant: null,
+      );
+
+      final input = service.parseInputFromRaw(raw);
+
+      expect(input.text, 'hello');
+      expect(input.favoriteCards, hasLength(1));
+      expect(input.favoriteCards.single.title, '收藏卡');
+      expect(input.favoriteCards.single.text, '## 收藏卡\n正文');
     });
   });
 

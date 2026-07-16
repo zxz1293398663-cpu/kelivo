@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'package:flutter/widgets.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/chat_input_data.dart';
 import '../../../core/models/chat_message.dart';
@@ -260,6 +261,17 @@ class ChatActions {
   }
 
   @visibleForTesting
+  static bool isManualCancellationError(Object error) {
+    if (error is DioException) {
+      return error.type == DioExceptionType.cancel;
+    }
+    final text = error.toString().toLowerCase();
+    return text.contains('request cancelled') ||
+        text.contains('manually cancelled') ||
+        text.contains('error: cancelled');
+  }
+
+  @visibleForTesting
   static StreamSubscription<T> listenSequentiallyToStream<T>({
     required Stream<T> stream,
     required Future<void> Function(T chunk) onData,
@@ -444,7 +456,8 @@ class ChatActions {
     final content = input.text.trim();
     if (content.isEmpty &&
         input.imagePaths.isEmpty &&
-        input.documents.isEmpty) {
+        input.documents.isEmpty &&
+        input.favoriteCards.isEmpty) {
       return ChatActionResult.error('empty_input');
     }
 
@@ -1054,16 +1067,24 @@ class ChatActions {
     ChatStreamChunk chunk,
     stream_ctrl.StreamingState state,
   ) async {
-    final chunkContent = chunk.content.isNotEmpty
+    var chunkContent = chunk.content.isNotEmpty
         ? streamController.captureGeminiThoughtSignature(
             chunk.content,
             state.messageId,
           )
         : '';
+    final inlineReasoning = streamController.extractInlineReasoningTags(
+      chunkContent,
+      state.messageId,
+    );
+    chunkContent = inlineReasoning.content;
 
     // Handle reasoning
     if ((chunk.reasoning ?? '').isNotEmpty && state.ctx.supportsReasoning) {
       await _handleReasoningChunk(chunk, state);
+    }
+    if (inlineReasoning.reasoning.isNotEmpty) {
+      await _handleInlineReasoning(inlineReasoning.reasoning, state);
     }
 
     // Handle tool calls
@@ -1100,6 +1121,30 @@ class ChatActions {
             String? reasoningSegmentsJson,
           }) async {
             // Use silent update during streaming to avoid UI rebuilds
+            await chatService.updateMessageSilent(
+              messageId,
+              reasoningText: reasoningText,
+              reasoningStartAt: reasoningStartAt,
+              reasoningSegmentsJson: reasoningSegmentsJson,
+            );
+          },
+    );
+  }
+
+  Future<void> _handleInlineReasoning(
+    String reasoning,
+    stream_ctrl.StreamingState state,
+  ) async {
+    await streamController.handleInlineReasoning(
+      reasoning,
+      state,
+      updateReasoningInDb:
+          (
+            String messageId, {
+            String? reasoningText,
+            DateTime? reasoningStartAt,
+            String? reasoningSegmentsJson,
+          }) async {
             await chatService.updateMessageSilent(
               messageId,
               reasoningText: reasoningText,
@@ -1443,7 +1488,38 @@ class ChatActions {
     }
 
     // Replace extremely long inline base64 images with local files to avoid jank
-    final processedContent = _transformAssistantContent(state);
+    String processedContent = _transformAssistantContent(state);
+
+    // Extract meta popup content
+    final metaRegExp = RegExp(
+      r'<div\s+class="xj-meta"[^>]*>(.*?)</div>',
+      dotAll: true,
+      caseSensitive: false,
+    );
+    final metaMatch = metaRegExp.firstMatch(processedContent);
+    if (metaMatch != null) {
+      final metaContent = metaMatch.group(1)?.trim() ?? '';
+      processedContent = processedContent.replaceAll(metaRegExp, '').trim();
+      if (metaContent.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (contextProvider.mounted) {
+            showDialog(
+              context: contextProvider,
+              builder: (ctx) => AlertDialog(
+                title: const Text('吐槽'),
+                content: SingleChildScrollView(child: Text(metaContent)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          }
+        });
+      }
+    }
 
     // Compute final duration
     final finalDurationMs = state.streamStartedAt != null
@@ -1547,6 +1623,54 @@ class ChatActions {
     final messageId = state.messageId;
     final conversationId = state.conversationId;
     final errorText = e.toString();
+
+    if (isManualCancellationError(e)) {
+      onFileProcessingFinished?.call();
+      streamController.markStreamingEnded(messageId);
+      streamController.cleanupTimers(messageId);
+
+      final index = _messages.indexWhere((m) => m.id == messageId);
+      final latestContent = index == -1
+          ? state.fullContentRaw
+          : _messages[index].content;
+      await chatService.updateMessage(
+        messageId,
+        content: latestContent,
+        totalTokens: state.totalTokens,
+        isStreaming: false,
+      );
+      if (index != -1) {
+        _messages[index] = _messages[index].copyWith(
+          content: latestContent,
+          isStreaming: false,
+          totalTokens: state.totalTokens,
+        );
+        onMessagesChanged?.call();
+      }
+      streamController.removeStreamingNotifier(messageId);
+      _setConversationLoading(conversationId, false);
+      await streamController.finishReasoningAndPersist(
+        messageId,
+        updateReasoningInDb:
+            (
+              String messageId, {
+              String? reasoningText,
+              DateTime? reasoningFinishedAt,
+              String? reasoningSegmentsJson,
+            }) async {
+              await chatService.updateMessage(
+                messageId,
+                reasoningText: reasoningText,
+                reasoningFinishedAt: reasoningFinishedAt,
+                reasoningSegmentsJson: reasoningSegmentsJson,
+              );
+            },
+      );
+      await _conversationStreams.remove(conversationId)?.cancel();
+      onStreamFinished?.call();
+      await _cancelIosBackgroundGeneration();
+      return;
+    }
 
     // Reset file processing state on error
     onFileProcessingFinished?.call();

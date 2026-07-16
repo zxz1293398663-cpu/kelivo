@@ -1668,12 +1668,17 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     required _ParsedUserContent parsed,
     required bool isDark,
   }) {
-    if (parsed.images.isEmpty && parsed.docs.isEmpty) return null;
+    if (parsed.images.isEmpty &&
+        parsed.docs.isEmpty &&
+        parsed.favorites.isEmpty) {
+      return null;
+    }
 
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
     final imageItems = <Widget>[];
     final docItems = <Widget>[];
+    final favoriteItems = <Widget>[];
 
     if (parsed.images.isNotEmpty) {
       final imgs = parsed.images;
@@ -1817,6 +1822,67 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
       );
     }
 
+    if (parsed.favorites.isNotEmpty) {
+      favoriteItems.addAll(
+        parsed.favorites.map((favorite) {
+          final preview = favorite.text.replaceAll(RegExp(r'\s+'), ' ').trim();
+          return IosCardPress(
+            baseColor: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : cs.surface.withValues(alpha: 0.92),
+            pressedScale: 0.99,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: cs.outlineVariant.withValues(alpha: 0.18),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Lucide.Bookmark,
+                  size: 16,
+                  color: cs.primary.withValues(alpha: 0.72),
+                ),
+                const SizedBox(width: 6),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 220),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        favorite.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: AppFontWeights.semibold,
+                          color: cs.onSurface.withValues(alpha: 0.86),
+                        ),
+                      ),
+                      if (preview.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          preview,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cs.onSurface.withValues(alpha: 0.55),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      );
+    }
+
     return Align(
       key: ValueKey('user-message-attachments:${widget.message.id}'),
       alignment: Alignment.centerRight,
@@ -1840,6 +1906,17 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
               spacing: 8,
               runSpacing: 8,
               children: docItems,
+            ),
+          if ((imageItems.isNotEmpty || docItems.isNotEmpty) &&
+              favoriteItems.isNotEmpty)
+            const SizedBox(height: 8),
+          if (favoriteItems.isNotEmpty)
+            Wrap(
+              key: ValueKey('user-message-favorites:${widget.message.id}'),
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              runSpacing: 8,
+              children: favoriteItems,
             ),
         ],
       ),
@@ -1879,13 +1956,16 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
   _ParsedUserContent _parseUserContent(String raw) {
     final imgRe = RegExp(r"\[image:(.+?)\]");
     final fileRe = RegExp(r"\[file:(.+?)\|(.+?)\|(.+?)\]");
+    final favoriteRe = RegExp(r"\[favorite:([^|\]]*)\|([^|\]]*)\|([^\]]*)\]");
     final images = <String>[];
     final docs = <_DocRef>[];
+    final favorites = <_FavoriteRef>[];
     final buffer = StringBuffer();
     int idx = 0;
     while (idx < raw.length) {
       final m1 = imgRe.matchAsPrefix(raw, idx);
       final m2 = fileRe.matchAsPrefix(raw, idx);
+      final m3 = favoriteRe.matchAsPrefix(raw, idx);
       if (m1 != null) {
         final p = m1.group(1)?.trim();
         if (p != null && p.isNotEmpty) images.add(p);
@@ -1900,10 +1980,39 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
         idx = m2.end;
         continue;
       }
+      if (m3 != null) {
+        final favorite = _favoriteRefFromMarker(m3);
+        if (favorite != null) favorites.add(favorite);
+        idx = m3.end;
+        continue;
+      }
       buffer.write(raw[idx]);
       idx++;
     }
-    return _ParsedUserContent(buffer.toString().trim(), images, docs);
+    return _ParsedUserContent(
+      buffer.toString().trim(),
+      images,
+      docs,
+      favorites,
+    );
+  }
+
+  _FavoriteRef? _favoriteRefFromMarker(Match match) {
+    final id = _decodeFavoriteMarkerPart(match.group(1) ?? '');
+    final title = _decodeFavoriteMarkerPart(match.group(2) ?? '');
+    final text = _decodeFavoriteMarkerPart(match.group(3) ?? '');
+    if (id == null || title == null || text == null || text.trim().isEmpty) {
+      return null;
+    }
+    return _FavoriteRef(id: id, title: title, text: text);
+  }
+
+  String? _decodeFavoriteMarkerPart(String value) {
+    try {
+      return utf8.decode(base64Url.decode(value));
+    } catch (_) {
+      return null;
+    }
   }
 
   Widget _buildAssistantTextContent(
@@ -2144,12 +2253,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     );
     visualContent = visualContent.replaceAllMapped(
       RegExp(
-        r'<status_hub>[\s\S]*?<\/status_hub>|'
-        r'<status_hub>[\s\S]*|'
-        r'<\/status_hub>|'
-        r'<relationship_map>[\s\S]*?<\/relationship_map>|'
-        r'<relationship_map>[\s\S]*|'
-        r'<\/relationship_map>',
+        r'<\/?(?:status_hub|relationship_map|orange|context)\b[^>]*>',
         caseSensitive: false,
       ),
       (_) => '',
@@ -3363,7 +3467,8 @@ class _ParsedUserContent {
   final String text;
   final List<String> images;
   final List<_DocRef> docs;
-  _ParsedUserContent(this.text, this.images, this.docs);
+  final List<_FavoriteRef> favorites;
+  _ParsedUserContent(this.text, this.images, this.docs, this.favorites);
 }
 
 class _DocRef {
@@ -3371,6 +3476,13 @@ class _DocRef {
   final String fileName;
   final String mime;
   _DocRef({required this.path, required this.fileName, required this.mime});
+}
+
+class _FavoriteRef {
+  final String id;
+  final String title;
+  final String text;
+  _FavoriteRef({required this.id, required this.title, required this.text});
 }
 
 // UI data for MCP tool calls/results

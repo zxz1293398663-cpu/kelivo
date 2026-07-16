@@ -2,53 +2,72 @@ import 'dart:convert';
 import 'package:uuid/uuid.dart';
 import '../../models/assistant.dart';
 import '../../models/assistant_play_mode.dart';
+import '../../models/saved_preset.dart';
 
 class TavernPresetImporter {
   static Assistant? parsePresetJson(String jsonString) {
+    final preset = parseToSavedPreset(jsonString);
+    if (preset == null) return null;
+    return Assistant(
+      id: const Uuid().v4(),
+      name: preset.name,
+      systemPrompt: preset.systemPrompt,
+      mainPrompt: preset.mainPrompt,
+      rules: List<PresetRule>.from(preset.rules),
+      playMode: AssistantPlayMode.game,
+    );
+  }
+
+  static SavedPreset? parseToSavedPreset(String jsonString) {
     try {
       final Map<String, dynamic> data = jsonDecode(jsonString);
-      
-      // Check if it's a SillyTavern or compatible Prompt/Preset format
-      if (!data.containsKey('prompts') && data['format'] != 'ai-phone-toolbox') {
+
+      if (!data.containsKey('prompts') &&
+          data['format'] != 'ai-phone-toolbox') {
         return null;
       }
 
       final prompts = data['prompts'] as List?;
       if (prompts == null || prompts.isEmpty) return null;
 
-      final StringBuffer sb = StringBuffer();
-      
-      final mainPrompt = prompts.firstWhere(
-        (p) => (p['identifier'] == 'main' || p['name'] == 'main' || p['name'] == '汪🐶'), 
-        orElse: () => null
+      final mainEntry = prompts.firstWhere(
+        (p) =>
+            (p is Map &&
+            (p['identifier'] == 'main' ||
+                p['name'] == 'main' ||
+                p['name'] == '汪🐶')),
+        orElse: () => null,
       );
-      
-      if (mainPrompt != null && mainPrompt['enabled'] == true) {
-        sb.writeln(mainPrompt['content'] ?? '');
-      }
 
-      sb.writeln('\n[Extensions & Rules]');
-      for (final p in prompts) {
-          if (p is Map && p['enabled'] == true && p['identifier'] != 'main') {
-            final pName = p['name'] ?? 'Unknown Rule';
-            final pContent = p['content'];
-            if (pContent != null && pContent.toString().trim().isNotEmpty) {
-               sb.writeln('\n### Rule: $pName');
-               sb.writeln(pContent.toString());
-            }
-          }
-      }
-      
       String presetName = '导入预设';
-      if (mainPrompt != null && mainPrompt['name'] != null) {
-          presetName = mainPrompt['name'].toString();
+      String mainPrompt = '';
+      final rules = <PresetRule>[];
+
+      if (mainEntry is Map && mainEntry['enabled'] == true) {
+        presetName = (mainEntry['name'] as String?) ?? presetName;
+        mainPrompt = (mainEntry['content'] as String?) ?? '';
       }
 
-      return Assistant(
-        id: const Uuid().v4(),
+      for (final p in prompts) {
+        if (p is Map && p['identifier'] != 'main') {
+          final pName = p['name']?.toString() ?? 'Unknown Rule';
+          final pContent = p['content']?.toString() ?? '';
+          if (pContent.trim().isNotEmpty) {
+            rules.add(
+              PresetRule(
+                name: pName,
+                content: pContent,
+                enabled: p['enabled'] == true,
+              ),
+            );
+          }
+        }
+      }
+
+      return SavedPreset(
         name: presetName,
-        systemPrompt: sb.toString().trim(),
-        playMode: AssistantPlayMode.game,
+        mainPrompt: mainPrompt,
+        rules: rules,
       );
     } catch (e) {
       return null;

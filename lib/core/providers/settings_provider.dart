@@ -25,6 +25,7 @@ import '../utils/openai_model_compat.dart';
 import '../../utils/provider_grouping_logic.dart';
 import '../../features/assistant/utils/assistant_edit_tab_layout.dart';
 import '../../utils/brand_assets.dart';
+import '../models/saved_preset.dart';
 
 // Desktop: topic list position
 enum DesktopTopicPosition { left, right }
@@ -102,6 +103,9 @@ class SettingsProvider extends ChangeNotifier {
       'suggestion_insert_on_tap_only_v1';
   static const String _compressModelKey = 'compress_model_v1';
   static const String _compressPromptKey = 'compress_prompt_v1';
+  static const String _metaPopupEnabledKey = 'meta_popup_enabled_v1';
+  static const String _metaPopupProbabilityKey = 'meta_popup_probability_v1';
+  static const String _metaPopupPromptKey = 'meta_popup_prompt_v1';
   static const String _themePaletteKey = 'theme_palette_v1';
   static const String _useDynamicColorKey = 'use_dynamic_color_v1';
   static const String _thinkingBudgetKey = 'thinking_budget_v1';
@@ -903,6 +907,13 @@ class SettingsProvider extends ChangeNotifier {
     _compressPrompt = (compressp == null || compressp.trim().isEmpty)
         ? defaultCompressPrompt
         : compressp;
+    // meta popup
+    _metaPopupEnabled = prefs.getBool(_metaPopupEnabledKey) ?? false;
+    _metaPopupProbability = prefs.getDouble(_metaPopupProbabilityKey) ?? 0.3;
+    final mpp = prefs.getString(_metaPopupPromptKey);
+    _metaPopupPrompt = (mpp == null || mpp.trim().isEmpty)
+        ? defaultMetaPopupPrompt
+        : mpp;
     // learning mode
     _learningModeEnabled = prefs.getBool(_learningModeEnabledKey) ?? false;
     final lmp = prefs.getString(_learningModePromptKey);
@@ -1113,7 +1124,8 @@ class SettingsProvider extends ChangeNotifier {
         _chatMessageBackgroundStyle = ChatMessageBackgroundStyle.defaultStyle;
     }
     _mobileAssistantEditTabOrder = List.unmodifiable(
-      prefs.getStringList(_mobileAssistantEditTabOrderKey) ?? defaultAssistantEditTabIds,
+      prefs.getStringList(_mobileAssistantEditTabOrderKey) ??
+          defaultAssistantEditTabIds,
     );
     _hiddenMobileAssistantEditTabs = Set.unmodifiable(
       prefs.getStringList(_mobileAssistantEditTabHiddenKey) ?? const <String>[],
@@ -1282,6 +1294,7 @@ class SettingsProvider extends ChangeNotifier {
       } catch (_) {}
     }
 
+    await _loadSavedPresets();
     notifyListeners();
   }
 
@@ -2349,6 +2362,65 @@ class SettingsProvider extends ChangeNotifier {
     await prefs.setBool(_mobileAssistantDetailOutlineEnabledKey, enabled);
   }
 
+  // ===== Saved presets =====
+  static const String _savedPresetsKey = 'saved_presets_v1';
+  List<SavedPreset> _savedPresets = [];
+  List<SavedPreset> get savedPresets => List.unmodifiable(_savedPresets);
+
+  Future<void> _loadSavedPresets() async {
+    final prefs = await SharedPreferences.getInstance();
+    final json = prefs.getString(_savedPresetsKey);
+    if (json != null) {
+      final list = jsonDecode(json) as List;
+      _savedPresets = list.map((e) {
+        final map = e as Map<String, dynamic>;
+        // Migrate old format (with systemPrompt) to new format (mainPrompt+rules)
+        if (map.containsKey('systemPrompt') && !map.containsKey('mainPrompt')) {
+          return SavedPreset.fromPromptString(
+            id: (map['id'] as String?) ?? const Uuid().v4(),
+            name: map['name'] as String? ?? '',
+            systemPrompt: map['systemPrompt'] as String? ?? '',
+          );
+        }
+        return SavedPreset.fromJson(map);
+      }).toList();
+    }
+  }
+
+  Future<void> _saveSavedPresets() async {
+    final prefs = await SharedPreferences.getInstance();
+    final json = jsonEncode(_savedPresets.map((p) => p.toJson()).toList());
+    await prefs.setString(_savedPresetsKey, json);
+  }
+
+  Future<void> addSavedPreset(SavedPreset preset) async {
+    _savedPresets.add(preset);
+    notifyListeners();
+    await _saveSavedPresets();
+  }
+
+  Future<void> removeSavedPreset(String id) async {
+    _savedPresets.removeWhere((p) => p.id == id);
+    notifyListeners();
+    await _saveSavedPresets();
+  }
+
+  Future<void> updateSavedPreset(SavedPreset updated) async {
+    final i = _savedPresets.indexWhere((p) => p.id == updated.id);
+    if (i < 0) return;
+    _savedPresets[i] = updated;
+    notifyListeners();
+    await _saveSavedPresets();
+  }
+
+  Future<void> reorderSavedPreset(int oldIndex, int newIndex) async {
+    if (oldIndex == newIndex) return;
+    final item = _savedPresets.removeAt(oldIndex);
+    _savedPresets.insert(newIndex, item);
+    notifyListeners();
+    await _saveSavedPresets();
+  }
+
   // ===== Android background chat generation =====
   AndroidBackgroundChatMode _androidBackgroundChatMode =
       AndroidBackgroundChatMode.off;
@@ -3217,6 +3289,41 @@ Requirements:
 
   Future<void> resetCompressPrompt() async =>
       setCompressPrompt(defaultCompressPrompt);
+
+  // Meta popup (吐槽弹窗)
+  bool _metaPopupEnabled = false;
+  bool get metaPopupEnabled => _metaPopupEnabled;
+  Future<void> setMetaPopupEnabled(bool v) async {
+    if (_metaPopupEnabled == v) return;
+    _metaPopupEnabled = v;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_metaPopupEnabledKey, v);
+  }
+
+  double _metaPopupProbability = 0.3;
+  double get metaPopupProbability => _metaPopupProbability;
+  Future<void> setMetaPopupProbability(double v) async {
+    _metaPopupProbability = v.clamp(0.0, 1.0);
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_metaPopupProbabilityKey, _metaPopupProbability);
+  }
+
+  static const String defaultMetaPopupPrompt =
+      '''请在回复最后添加一个 <div class="xj-meta">标签，内容为对当前对话的吐槽或内心独白，风格幽默犀利。确保标签独立成行。</div>''';
+
+  String _metaPopupPrompt = defaultMetaPopupPrompt;
+  String get metaPopupPrompt => _metaPopupPrompt;
+  Future<void> setMetaPopupPrompt(String prompt) async {
+    _metaPopupPrompt = prompt.trim().isEmpty ? defaultMetaPopupPrompt : prompt;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_metaPopupPromptKey, _metaPopupPrompt);
+  }
+
+  Future<void> resetMetaPopupPrompt() async =>
+      setMetaPopupPrompt(defaultMetaPopupPrompt);
 
   // Learning Mode
   bool _learningModeEnabled = false;
@@ -4216,6 +4323,9 @@ DO NOT GIVE ANSWERS OR DO HOMEWORK FOR THE USER. If the user asks a math or logi
     copy._compressModelProvider = _compressModelProvider;
     copy._compressModelId = _compressModelId;
     copy._compressPrompt = _compressPrompt;
+    copy._metaPopupEnabled = _metaPopupEnabled;
+    copy._metaPopupProbability = _metaPopupProbability;
+    copy._metaPopupPrompt = _metaPopupPrompt;
     copy._translateModelProvider = _translateModelProvider;
     copy._translateModelId = _translateModelId;
     copy._translatePrompt = _translatePrompt;

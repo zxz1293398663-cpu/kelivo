@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../../utils/sandbox_path_resolver.dart';
 import '../models/assistant.dart';
+import '../models/assistant_play_mode.dart';
 import '../models/assistant_regex.dart';
 import '../models/preset_message.dart';
 import '../services/chat/chat_service.dart';
@@ -332,7 +333,11 @@ class AssistantProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> addAssistant({String? name, dynamic context}) async {
+  Future<String> addAssistant({
+    String? name,
+    dynamic context,
+    AssistantPlayMode playMode = AssistantPlayMode.novel,
+  }) async {
     final a = Assistant(
       id: const Uuid().v4(),
       name:
@@ -342,6 +347,7 @@ class AssistantProvider extends ChangeNotifier {
               : 'New Assistant')),
       temperature: 0.6,
       topP: null,
+      playMode: playMode,
     );
     _assistants.add(a);
     await _persist();

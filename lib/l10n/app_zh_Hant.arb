@@ -388,6 +388,192 @@
   "codeBlockSaveAsButton": "另存為檔案",
   "codeBlockCollapseButton": "摺疊",
   "codeBlockExpandButton": "展開",
+  "codeBlockArtifactBadge": "產物",
+  "playModeSwitcherNovelLabel": "小說",
+  "playModeSwitcherGameLabel": "遊戲",
+  "gameTabStory": "劇情",
+  "gameTabPhone": "手機",
+  "gameTabWorld": "世界",
+  "gameTabSettings": "設定",
+  "gameEmptyStartCreating": "開始創造",
+  "gameEmptyScriptCardTitle": "創作劇本",
+  "gameEmptyScriptCardDescription": "打造一個 AI 文字冒險世界：屬性、NPC、時間線與劇情走向。",
+  "gameEmptyVisualEditor": "視覺化編輯器",
+  "gameEmptyAiOpening": "AI 一鍵生成開局",
+  "gameEmptyStartButton": "開始",
+  "gameSceneCardImportButton": "匯入場景卡",
+  "gameSceneCardImportDialogTitle": "匯入場景卡",
+  "gameSceneCardPasteHint": "貼上類似 :::newspaper 時間 / 角色 # 備註 # 場景 的內容",
+  "gameSceneCardParseButton": "解析並匯入",
+  "gameSceneCardInvalidFormat": "場景卡格式無效。",
+  "gameImportTavernCardButton": "匯入角色卡",
+  "gameImportTavernCardSuccess": "已匯入角色卡。",
+  "gameImportTavernCardFailed": "匯入角色卡失敗。",
+  "gameImportAnotherTavernCardButton": "匯入其他角色卡",
+  "gameImportTavernCardEntryDescription": "從角色卡開始，選擇一個開場白進入遊戲。",
+  "gameOpeningSelectionTitle": "選擇開場白",
+  "gameOpeningSelectionSubtitle": "從這張角色卡裡選擇一個開場白，在遊戲模式中開始。",
+  "gameOpeningSelectionOption": "開場 {index}",
+  "@gameOpeningSelectionOption": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "gameOpeningStartButton": "從這個開場開始",
+  "gameOpeningChangeButton": "更換開場白",
+  "gameOpeningCurrentTitle": "開場已啟用",
+  "gameOpeningCurrentSubtitle": "這個開場白會作為目前遊戲狀態的起點，之後仍可更換。",
+  "gameOpeningCurrentEmpty": "尚未選擇開場白。",
+  "gameOpeningUserTokenTitle": "使用者名稱",
+  "gameOpeningEditUserNameButton": "編輯使用者名稱",
+  "gameOpeningEditUserNameTitle": "編輯使用者名稱",
+  "gameOpeningPageIndicator": "{index} / {total}",
+  "@gameOpeningPageIndicator": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "gameSceneCardInstructionsTypeLabel": "場景卡類型：",
+  "gameSceneCardInstructionsTimeLabel": "時間：",
+  "gameSceneCardInstructionsCharacterLabel": "角色：",
+  "gameSceneCardInstructionsItemsLabel": "場景要素：",
+  "gameScriptStepStyle": "敘事基調",
+  "gameScriptStepDescribe": "描述遊戲",
+  "gameScriptStepConfirm": "確認生成",
+  "gameScriptStyleTitle": "請選擇敘事分類",
+  "gameScriptStyleSubtitle": "分類決定題材、事件類型、NPC 功能和敘事基調。",
+  "gameScriptSelectedToneLabel": "已選基調",
+  "gameScriptStyleDailyHealing": "日常治癒",
+  "gameScriptStyleDailyHealingDescription": "生活細節、小目標、低衝突、關係慢熱",
+  "gameScriptStyleDailyHealingRule": "敘事分類：日常治癒。請優先生成生活細節、小目標、溫柔互動和低衝突事件。NPC 互動應偏細膩、陪伴、關係漸進。",
+  "gameScriptStyleEpicAdventure": "熱血冒險",
+  "gameScriptStyleEpicAdventureDescription": "任務、挑戰、危機、成長、探索",
+  "gameScriptStyleEpicAdventureRule": "敘事分類：熱血冒險。請優先生成任務、挑戰、危機升級、角色成長與探索目標。NPC 應承擔委託、阻礙、盟友、勁敵或關鍵線索功能。",
+  "gameScriptStyleSuspenseMystery": "懸疑推理",
+  "gameScriptStyleSuspenseMysteryDescription": "線索、疑點、反轉、真相鏈、隱藏動機",
+  "gameScriptStyleSuspenseMysteryRule": "敘事分類：懸疑推理。請優先生成線索、疑點、反轉、隱藏動機與可追蹤的真相鏈。避免過早揭示答案。NPC 應具有可疑行為、秘密或誤導性資訊。",
+  "gameScriptStyleRomanceEnsemble": "戀愛群像",
+  "gameScriptStyleRomanceEnsembleDescription": "多角色互動、曖昧、關係張力、情感推進",
+  "gameScriptStyleRomanceEnsembleRule": "敘事分類：戀愛群像。請優先生成多角色互動、曖昧、關係張力、情感選擇和漸進式情感推進。NPC 應有明確欲望、邊界和關係衝突。",
+  "gameScriptStyleUrbanWeird": "都市異聞",
+  "gameScriptStyleUrbanWeirdDescription": "現代背景、怪談、異常規則、隱秘組織",
+  "gameScriptStyleUrbanWeirdRule": "敘事分類：都市異聞。請優先生成現代背景、城市怪談、異常規則、隱秘組織和日常與異常的反差。NPC 應關聯異常、規則、目擊資訊或隱藏陣營。",
+  "gameScriptStyleAncientPower": "古風權謀",
+  "gameScriptStyleAncientPowerDescription": "陣營、身份、謀局、試探、克制表達",
+  "gameScriptStyleAncientPowerRule": "敘事分類：古風權謀。請優先生成陣營、身份、謀局、試探、聯盟、背叛和克制表達。NPC 應代表利益、秘密、籌碼或政治壓力。",
+  "gameScriptStyleRomanceDrama": "言情群像",
+  "gameScriptStyleRomanceDramaDescription": "情感關係、曖昧拉扯、選擇與人物羈絆",
+  "gameScriptStyleRomanceDramaRule": "敘事分類：言情群像。請優先生成情感關係、曖昧拉扯、關鍵選擇、人物羈絆和漸進式情感回報。NPC 應有明確欲望、邊界、情感過往和關係壓力。",
+  "gameScriptInstructionsHint": "寫下世界觀、玩法與規則",
+  "gameScriptInstructionsHelper": "寫下世界觀、玩法與規則。勾選 AI 潤色後，生成時 AI 會在你的指令基礎上整理為敘事規則（最多 10000 字）。",
+  "gameScriptUntitled": "未命名",
+  "gameScriptEmptyInstructionsForPolish": "使用者暫未提供詳細設定。請根據標題和敘事基調，補全一個可遊玩的文字冒險開局。",
+  "gameScriptAiPolishInstruction": "AI 潤色已開啟。\n請不要改變使用者想玩的核心方向；請在使用者設定基礎上，將內容整理為清晰、可執行的文字冒險敘事規則。\n\n要求：\n1. 保留使用者原意，不擅自改題材。\n2. 補齊世界觀、玩法目標、初始衝突、NPC 登場方向、事件推進方式。\n3. 輸出應適合作為後續遊戲生成的長期規則，而不是一次性回覆。\n4. 敘事分類：{styleName}。\n5. 分類規則：{styleRule}\n6. 遊戲標題：{title}。\n\n使用者原始設定：\n{base}",
+  "@gameScriptAiPolishInstruction": {
+    "placeholders": {
+      "styleName": {},
+      "styleRule": {},
+      "title": {},
+      "base": {}
+    }
+  },
+  "gameScriptNextButton": "下一步",
+  "gameScriptChangeStyleButton": "更換",
+  "gameScriptTitleLabel": "遊戲標題",
+  "gameScriptTitleHint": "例如：咖啡店模擬器",
+  "gameScriptInstructionsLabel": "遊戲指令",
+  "gameScriptAllowAiPolishLabel": "允許 AI 潤色指令",
+  "gameScriptConfirmButton": "確認",
+  "gameScriptInstructionsPreviewLabel": "遊戲指令預覽",
+  "gameScriptBackToEditButton": "返回修改",
+  "gameScriptStartGenerateButton": "開始生成",
+  "gameScriptImportTavernStyleTooltip": "匯入酒館美化",
+  "gameScriptImportTavernStyleSuccess": "已匯入酒館美化。",
+  "gameScriptImportTavernStyleFailed": "匯入酒館美化失敗。",
+  "gameSettingsAiModelSection": "AI 模型",
+  "gameSettingsWorldBookSection": "世界書",
+  "gameSettingsImportWorldBook": "匯入世界書",
+  "gameSettingsImportWorldBookDescription": "匯入一個 JSON 世界書，並為目前遊戲啟用。",
+  "gameSettingsImportWorldBookSuccess": "已匯入世界書：{name}",
+  "@gameSettingsImportWorldBookSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "gameSettingsScriptSection": "劇本管理",
+  "gameSettingsModelNotSet": "未設定",
+  "gameSettingsDeleteCurrentScript": "刪除目前劇本",
+  "gameSettingsDeleteIrreversible": "此操作不可復原",
+  "gameSettingsDeleteDialogTitle": "刪除劇本",
+  "gameSettingsDeleteDialogMessage": "確定要刪除目前劇本嗎？所有遊戲資料都會遺失。",
+  "gamePhoneFeatureTitle": "手機功能",
+  "gamePhoneFeatureSubtitle": "訊息、背包、日記等功能即將上線",
+  "gameWorldTitle": "{title} - 世界",
+  "@gameWorldTitle": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "gameWorldNpcCount": "已邂逅 {count} 位角色",
+  "@gameWorldNpcCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gameWorldImportFromFavorites": "從收藏引入",
+  "gameWorldCreateNpc": "新增 NPC",
+  "gameWorldNoNpc": "暫無 NPC",
+  "desktopSettingsPresetsMenu": "預設",
+  "desktopPresetsImportFailed": "匯入失敗或格式不相符",
+  "desktopPresetsImportSuccess": "已匯入預設: {name}",
+  "@desktopPresetsImportSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "desktopPresetsEditNameTitle": "編輯預設名稱",
+  "desktopPresetsNoApplicableAssistants": "沒有可套用的角色，請先建立角色",
+  "desktopPresetsAppliedToAssistants": "已套用到 {count} 個角色",
+  "@desktopPresetsAppliedToAssistants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "desktopPresetsSelectAssistantsTitle": "選擇要套用預設的角色",
+  "desktopPresetsSelectAll": "全選",
+  "desktopPresetsApplyCount": "套用 ({count})",
+  "@desktopPresetsApplyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "desktopPresetsTitle": "預設管理",
+  "desktopPresetsImportButton": "匯入預設",
+  "desktopPresetsEmpty": "暫無預設，點擊右上角匯入",
+  "desktopPresetsEditNameTooltip": "編輯名稱",
+  "desktopPresetsApplyTooltip": "套用到角色",
+  "desktopPresetsDeleteTooltip": "刪除預設",
+  "desktopPresetsMainPrompt": "主提示詞",
+  "desktopPresetsEditMainPromptTooltip": "編輯主提示詞",
+  "desktopPresetsRules": "規則條目",
+  "desktopPresetsEditRuleTooltip": "編輯規則",
+  "desktopPresetsDeleteRuleTooltip": "刪除規則",
+  "desktopPresetsEditMainPromptTitle": "編輯主提示詞",
   "codeBlockDefaultFileNameStem": "程式碼",
   "markdownTableLabel": "表格",
   "markdownTableExportCsvTooltip": "匯出 CSV",
@@ -1702,6 +1888,16 @@
   "assistantEditPresetEditDialogTitle": "編輯預設訊息",
   "assistantEditPresetRoleUser": "使用者",
   "assistantEditPresetRoleAssistant": "助手",
+  "assistantEditRulesTitle": "規則開關",
+  "assistantEditMainPromptLabel": "主提示詞",
+  "assistantEditRulesEmpty": "暫無規則",
+  "assistantEditRuleAddTitle": "新增規則",
+  "assistantEditRuleEditTitle": "編輯規則",
+  "assistantEditRuleNameLabel": "規則名稱",
+  "assistantEditRuleContentLabel": "內容",
+  "assistantSettingsImportTavernCard": "匯入角色卡 (Tavern JSON)",
+  "assistantSettingsImportTavernPreset": "匯入預設規則 (JSON)",
+  "assistantSettingsImportParseFailed": "解析失敗或格式不相符",
   "desktopTtsPleaseAddProvider": "請先在設定中新增語音服務商",
   "settingsPageNetworkProxy": "網絡代理",
   "networkProxyEnableLabel": "啟動代理",
@@ -1995,5 +2191,11 @@
   "newsGeneratorLocalPrompt": "基於虛構小鎮或社區生成 3 條本地新聞。描述帶有地方色彩的日常事件。以純文字返回，每條一行，以 \"- \" 開頭。",
   "newsGeneratorSocialPrompt": "生成 4 條虛構角色對近期事件的社交媒體動態。混合幽默、戲劇和日常觀察。以純文字返回，每條一行，以 \"- \" 開頭。",
   "musicPlayerUnavailable": "音樂播放器不可用",
-  "desktopNavPhoneTooltip": "虛擬手機"
+  "desktopNavPhoneTooltip": "虛擬手機",
+  "gameStoryEmptyHint": "點擊下方按鈕開始冒險",
+  "gameStoryActiveEventsTitle": "當前事件",
+  "gameStoryCompletedEventsTitle": "已完結",
+  "gameStoryAdvanceButton": "推進劇情",
+  "gameStoryPlayerFallbackName": "旅人",
+  "gameStoryPlayerFallbackInitial": "旅"
 }

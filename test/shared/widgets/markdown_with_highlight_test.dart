@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:Kelivo/features/chat/pages/image_viewer_page.dart';
-import 'package:Kelivo/shared/pages/webview_page.dart';
 import 'package:Kelivo/shared/widgets/markdown_with_highlight.dart';
 import 'package:Kelivo/shared/widgets/export_capture_scope.dart';
 import 'package:Kelivo/shared/widgets/mermaid_image_cache.dart';
@@ -262,6 +261,18 @@ List<int> _displayedImageBytes(WidgetTester tester) {
 
 Finder _findSoftHorizontalRule() {
   return find.byKey(const ValueKey('markdown-soft-horizontal-rule'));
+}
+
+List<Key?> _inlineHtmlPreviewKeys(WidgetTester tester) {
+  return find
+      .byWidgetPredicate(
+        (widget) =>
+            widget.runtimeType.toString() == '_InlineHtmlPreview' &&
+            widget.key is ValueKey<String>,
+      )
+      .evaluate()
+      .map((element) => element.widget.key)
+      .toList();
 }
 
 Widget _markdownHarness(
@@ -543,6 +554,45 @@ Inline ***strong emphasis*** text.
     expect(find.textContaining('citation:1:96d0ed'), findsOneWidget);
     expect(find.text('1'), findsNothing);
   });
+
+  testWidgets(
+    'MarkdownWithCodeHighlight keys inline html preview by full html content',
+    (tester) async {
+      const firstHtml = '<div>first</div>';
+      const secondHtml = '<div>second</div>';
+
+      await tester.pumpWidget(_markdownHarness('```html\n$firstHtml\n```'));
+      final firstKeys = _inlineHtmlPreviewKeys(tester);
+      expect(firstKeys, hasLength(1));
+      expect(firstKeys.single.toString(), contains(firstHtml));
+      expect(firstKeys.single.toString(), isNot(contains(secondHtml)));
+
+      await tester.pumpWidget(_markdownHarness('```html\n$secondHtml\n```'));
+      final secondKeys = _inlineHtmlPreviewKeys(tester);
+      expect(secondKeys, hasLength(1));
+      expect(secondKeys.single.toString(), contains(secondHtml));
+      expect(secondKeys.single.toString(), isNot(firstKeys.single.toString()));
+    },
+  );
+
+  testWidgets(
+    'MarkdownWithCodeHighlight replaces standalone html preview when content changes',
+    (tester) async {
+      const firstHtml = '<section>chat room</section>';
+      const secondHtml = '<section>werewolf roles</section>';
+
+      await tester.pumpWidget(_markdownHarness(firstHtml));
+      final firstKeys = _inlineHtmlPreviewKeys(tester);
+      expect(firstKeys, hasLength(1));
+      expect(firstKeys.single.toString(), contains(firstHtml));
+
+      await tester.pumpWidget(_markdownHarness(secondHtml));
+      final secondKeys = _inlineHtmlPreviewKeys(tester);
+      expect(secondKeys, hasLength(1));
+      expect(secondKeys.single.toString(), contains(secondHtml));
+      expect(secondKeys.single.toString(), isNot(firstKeys.single.toString()));
+    },
+  );
 
   testWidgets(
     'MarkdownWithCodeHighlight keeps citation-labeled normal links as links',

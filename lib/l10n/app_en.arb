@@ -569,6 +569,192 @@
   "codeBlockSaveAsButton": "Save as file",
   "codeBlockCollapseButton": "Collapse",
   "codeBlockExpandButton": "Expand",
+  "codeBlockArtifactBadge": "Artifact",
+  "playModeSwitcherNovelLabel": "Novel",
+  "playModeSwitcherGameLabel": "Game",
+  "gameTabStory": "Story",
+  "gameTabPhone": "Phone",
+  "gameTabWorld": "World",
+  "gameTabSettings": "Settings",
+  "gameEmptyStartCreating": "Start Creating",
+  "gameEmptyScriptCardTitle": "Create Script",
+  "gameEmptyScriptCardDescription": "Build an AI text adventure world: attributes, NPCs, timelines, and story direction.",
+  "gameEmptyVisualEditor": "Visual editor",
+  "gameEmptyAiOpening": "AI one-click opening",
+  "gameEmptyStartButton": "Start",
+  "gameSceneCardImportButton": "Import Scene Card",
+  "gameSceneCardImportDialogTitle": "Import Scene Card",
+  "gameSceneCardPasteHint": "Paste content like :::newspaper time / character # note # scene",
+  "gameSceneCardParseButton": "Parse and import",
+  "gameSceneCardInvalidFormat": "Invalid scene card format.",
+  "gameImportTavernCardButton": "Import Character Card",
+  "gameImportTavernCardSuccess": "Character card imported.",
+  "gameImportTavernCardFailed": "Failed to import character card.",
+  "gameImportAnotherTavernCardButton": "Import Another Character Card",
+  "gameImportTavernCardEntryDescription": "Start from a character card and choose one opening to enter the game.",
+  "gameOpeningSelectionTitle": "Choose an Opening",
+  "gameOpeningSelectionSubtitle": "Pick one opening from this character card to begin inside game mode.",
+  "gameOpeningSelectionOption": "Opening {index}",
+  "@gameOpeningSelectionOption": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "gameOpeningStartButton": "Start from This Opening",
+  "gameOpeningChangeButton": "Change Opening",
+  "gameOpeningCurrentTitle": "Opening Active",
+  "gameOpeningCurrentSubtitle": "This opening anchors the current game state. You can switch to another opening later.",
+  "gameOpeningCurrentEmpty": "No opening has been selected yet.",
+  "gameOpeningUserTokenTitle": "User name",
+  "gameOpeningEditUserNameButton": "Edit user name",
+  "gameOpeningEditUserNameTitle": "Edit user name",
+  "gameOpeningPageIndicator": "{index} / {total}",
+  "@gameOpeningPageIndicator": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "gameSceneCardInstructionsTypeLabel": "Scene card type: ",
+  "gameSceneCardInstructionsTimeLabel": "Time: ",
+  "gameSceneCardInstructionsCharacterLabel": "Character: ",
+  "gameSceneCardInstructionsItemsLabel": "Scene items:",
+  "gameScriptStepStyle": "Tone",
+  "gameScriptStepDescribe": "Describe",
+  "gameScriptStepConfirm": "Confirm",
+  "gameScriptStyleTitle": "Choose narrative genre",
+  "gameScriptStyleSubtitle": "The genre decides story direction, event type, NPC roles, and narrative tone.",
+  "gameScriptSelectedToneLabel": "Selected tone",
+  "gameScriptStyleDailyHealing": "Daily Healing",
+  "gameScriptStyleDailyHealingDescription": "Slice-of-life details, small goals, low conflict, and slow-burn relationships.",
+  "gameScriptStyleDailyHealingRule": "Narrative genre: Daily Healing. Prioritize everyday details, small goals, warm interactions, and low-conflict events. NPC interactions should emphasize companionship, subtle emotion, and gradual relationship growth.",
+  "gameScriptStyleEpicAdventure": "Epic Adventure",
+  "gameScriptStyleEpicAdventureDescription": "Missions, challenges, danger, growth, and exploration.",
+  "gameScriptStyleEpicAdventureRule": "Narrative genre: Epic Adventure. Prioritize missions, challenges, crisis escalation, character growth, and exploration. NPCs should provide goals, obstacles, alliances, rivalries, or key clues.",
+  "gameScriptStyleSuspenseMystery": "Suspense Mystery",
+  "gameScriptStyleSuspenseMysteryDescription": "Clues, doubts, reversals, truth chains, and hidden motives.",
+  "gameScriptStyleSuspenseMysteryRule": "Narrative genre: Suspense Mystery. Prioritize clues, doubts, reversals, hidden motives, and a traceable truth chain. Avoid revealing the answer too early. NPCs should have suspicious behavior, secrets, or misleading information.",
+  "gameScriptStyleRomanceEnsemble": "Romance Ensemble",
+  "gameScriptStyleRomanceEnsembleDescription": "Multiple character relationships, ambiguity, tension, and emotional progression.",
+  "gameScriptStyleRomanceEnsembleRule": "Narrative genre: Romance Ensemble. Prioritize multi-character interaction, ambiguity, relationship tension, emotional choices, and gradual emotional progression. NPCs should carry distinct desires, boundaries, and relationship conflicts.",
+  "gameScriptStyleUrbanWeird": "Urban Weird",
+  "gameScriptStyleUrbanWeirdDescription": "Modern settings, rumors, abnormal rules, and hidden organizations.",
+  "gameScriptStyleUrbanWeirdRule": "Narrative genre: Urban Weird. Prioritize modern settings, urban rumors, abnormal rules, hidden organizations, and the contrast between everyday life and the uncanny. NPCs should connect to anomalies, rules, witnesses, or concealed factions.",
+  "gameScriptStyleAncientPower": "Ancient Power",
+  "gameScriptStyleAncientPowerDescription": "Factions, identity, schemes, probing, and restrained expression.",
+  "gameScriptStyleAncientPowerRule": "Narrative genre: Ancient Power. Prioritize factions, status, schemes, probing, alliances, betrayal, and restrained expression. NPCs should represent interests, secrets, leverage, or political pressure.",
+  "gameScriptStyleRomanceDrama": "Romance Drama",
+  "gameScriptStyleRomanceDramaDescription": "Emotion-led relationships, intimate tension, choices, and character bonds.",
+  "gameScriptStyleRomanceDramaRule": "Narrative genre: Romance Drama. Prioritize emotion-led relationships, intimate tension, meaningful choices, character bonds, and gradual emotional payoff. NPCs should have clear desires, boundaries, emotional history, and relationship pressure.",
+  "gameScriptInstructionsHint": "Write the world, gameplay, and rules",
+  "gameScriptInstructionsHelper": "Write the world, gameplay, and rules. When AI polish is enabled, AI will organize your instructions into narrative rules during generation (up to 10000 characters).",
+  "gameScriptUntitled": "Untitled",
+  "gameScriptEmptyInstructionsForPolish": "The user has not provided detailed settings yet. Please complete a playable text adventure opening based on the title and narrative tone.",
+  "gameScriptAiPolishInstruction": "AI polish is enabled.\nDo not change the user's core direction. Organize the user's settings into clear, executable text-adventure narrative rules.\n\nRequirements:\n1. Preserve the user's intent and do not change the genre without permission.\n2. Complete the world, gameplay goal, initial conflict, NPC direction, and event progression.\n3. The output should serve as long-term rules for future game generation, not a one-off reply.\n4. Narrative genre: {styleName}.\n5. Genre rule: {styleRule}\n6. Game title: {title}.\n\nUser's original settings:\n{base}",
+  "@gameScriptAiPolishInstruction": {
+    "placeholders": {
+      "styleName": {},
+      "styleRule": {},
+      "title": {},
+      "base": {}
+    }
+  },
+  "gameScriptNextButton": "Next",
+  "gameScriptChangeStyleButton": "Change",
+  "gameScriptTitleLabel": "Game title",
+  "gameScriptTitleHint": "Example: Coffee Shop Simulator",
+  "gameScriptInstructionsLabel": "Game instructions",
+  "gameScriptAllowAiPolishLabel": "Allow AI to polish instructions",
+  "gameScriptConfirmButton": "Confirm",
+  "gameScriptInstructionsPreviewLabel": "Game instructions preview",
+  "gameScriptBackToEditButton": "Back to edit",
+  "gameScriptStartGenerateButton": "Start generating",
+  "gameScriptImportTavernStyleTooltip": "Import tavern style",
+  "gameScriptImportTavernStyleSuccess": "Tavern style imported.",
+  "gameScriptImportTavernStyleFailed": "Failed to import tavern style.",
+  "gameSettingsAiModelSection": "AI Model",
+  "gameSettingsWorldBookSection": "World Book",
+  "gameSettingsImportWorldBook": "Import World Book",
+  "gameSettingsImportWorldBookDescription": "Import a JSON world book and enable it for this game.",
+  "gameSettingsImportWorldBookSuccess": "Imported world book: {name}",
+  "@gameSettingsImportWorldBookSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "gameSettingsScriptSection": "Script Management",
+  "gameSettingsModelNotSet": "Not set",
+  "gameSettingsDeleteCurrentScript": "Delete current script",
+  "gameSettingsDeleteIrreversible": "This cannot be undone",
+  "gameSettingsDeleteDialogTitle": "Delete script",
+  "gameSettingsDeleteDialogMessage": "Delete the current script? All game data will be lost.",
+  "gamePhoneFeatureTitle": "Phone Features",
+  "gamePhoneFeatureSubtitle": "Messages, inventory, diary, and more are coming soon.",
+  "gameWorldTitle": "{title} - World",
+  "@gameWorldTitle": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "gameWorldNpcCount": "Met {count} characters",
+  "@gameWorldNpcCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gameWorldImportFromFavorites": "Import from Favorites",
+  "gameWorldCreateNpc": "New NPC",
+  "gameWorldNoNpc": "No NPCs yet",
+  "desktopSettingsPresetsMenu": "Presets",
+  "desktopPresetsImportFailed": "Import failed or format mismatch.",
+  "desktopPresetsImportSuccess": "Imported preset: {name}",
+  "@desktopPresetsImportSuccess": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "desktopPresetsEditNameTitle": "Edit preset name",
+  "desktopPresetsNoApplicableAssistants": "No applicable characters. Create a character first.",
+  "desktopPresetsAppliedToAssistants": "Applied to {count} characters",
+  "@desktopPresetsAppliedToAssistants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "desktopPresetsSelectAssistantsTitle": "Choose characters to apply the preset",
+  "desktopPresetsSelectAll": "Select all",
+  "desktopPresetsApplyCount": "Apply ({count})",
+  "@desktopPresetsApplyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "desktopPresetsTitle": "Preset Management",
+  "desktopPresetsImportButton": "Import Preset",
+  "desktopPresetsEmpty": "No presets yet. Import one from the top right.",
+  "desktopPresetsEditNameTooltip": "Edit name",
+  "desktopPresetsApplyTooltip": "Apply to characters",
+  "desktopPresetsDeleteTooltip": "Delete preset",
+  "desktopPresetsMainPrompt": "Main Prompt",
+  "desktopPresetsEditMainPromptTooltip": "Edit main prompt",
+  "desktopPresetsRules": "Rules",
+  "desktopPresetsEditRuleTooltip": "Edit rule",
+  "desktopPresetsDeleteRuleTooltip": "Delete rule",
+  "desktopPresetsEditMainPromptTitle": "Edit main prompt",
   "codeBlockDefaultFileNameStem": "code",
   "markdownTableLabel": "Table",
   "markdownTableExportCsvTooltip": "Export CSV",
@@ -2046,6 +2232,16 @@
   "assistantEditPresetEditDialogTitle": "Edit preset message",
   "assistantEditPresetRoleUser": "User",
   "assistantEditPresetRoleAssistant": "Assistant",
+  "assistantEditRulesTitle": "Rules",
+  "assistantEditMainPromptLabel": "Main Prompt",
+  "assistantEditRulesEmpty": "No rules",
+  "assistantEditRuleAddTitle": "Add Rule",
+  "assistantEditRuleEditTitle": "Edit Rule",
+  "assistantEditRuleNameLabel": "Rule Name",
+  "assistantEditRuleContentLabel": "Content",
+  "assistantSettingsImportTavernCard": "Import Character Card (Tavern JSON)",
+  "assistantSettingsImportTavernPreset": "Import Preset Rules (JSON)",
+  "assistantSettingsImportParseFailed": "Parse failed or format mismatch.",
   "desktopTtsPleaseAddProvider": "Please add a TTS provider first",
   "settingsPageNetworkProxy": "Network Proxy",
   "networkProxyEnableLabel": "Enable Proxy",
@@ -2418,5 +2614,11 @@
   "newsGeneratorLocalPrompt": "Generate 3 local news items set in a fictional town or community. Describe everyday events with local color. Return in plain text, each on a new line starting with \"- \".",
   "newsGeneratorSocialPrompt": "Generate 4 social media posts from fictional characters reacting to recent events. Mix humor, drama, and casual observations. Return in plain text, each on a new line starting with \"- \".",
   "musicPlayerUnavailable": "Music player unavailable",
-  "desktopNavPhoneTooltip": "Virtual Phone"
+  "desktopNavPhoneTooltip": "Virtual Phone",
+  "gameStoryEmptyHint": "Tap the button below to start the adventure.",
+  "gameStoryActiveEventsTitle": "Current Events",
+  "gameStoryCompletedEventsTitle": "Completed",
+  "gameStoryAdvanceButton": "Advance Story",
+  "gameStoryPlayerFallbackName": "Traveler",
+  "gameStoryPlayerFallbackInitial": "T"
 }

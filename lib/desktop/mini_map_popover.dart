@@ -284,7 +284,7 @@ class _MiniMapListState extends State<_MiniMapList> {
     var t = s
         .replaceAll(
           RegExp(
-            r'<(?:think|thought)>[\s\S]*?<\/(?:think|thought)>',
+            r'<(?:thinking|think|thought)>[\s\S]*?<\/(?:thinking|think|thought)>',
             caseSensitive: false,
           ),
           '',

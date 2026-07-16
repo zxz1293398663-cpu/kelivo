@@ -14,7 +14,8 @@ class DesktopVirtualPhonePage extends StatefulWidget {
   final bool isOpen;
 
   @override
-  State<DesktopVirtualPhonePage> createState() => _DesktopVirtualPhonePageState();
+  State<DesktopVirtualPhonePage> createState() =>
+      _DesktopVirtualPhonePageState();
 }
 
 class _DesktopVirtualPhonePageState extends State<DesktopVirtualPhonePage> {
@@ -69,7 +70,9 @@ class _DesktopVirtualPhonePageState extends State<DesktopVirtualPhonePage> {
     final c = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(Colors.black);
-    await c.loadRequest(Uri.parse('https://ai-virtual-phone-zeta-black.vercel.app'));
+    await c.loadRequest(
+      Uri.parse('https://ai-virtual-phone-zeta-black.vercel.app'),
+    );
     _flutterCtrl = c;
   }
 
@@ -100,8 +103,12 @@ class _DesktopVirtualPhonePageState extends State<DesktopVirtualPhonePage> {
             borderRadius: BorderRadius.circular(44),
             border: Border.all(color: Colors.grey.shade800, width: 1.5),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.5), blurRadius: 20, spreadRadius: 5),
-            ]
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 20,
+                spreadRadius: 5,
+              ),
+            ],
           ),
           child: Stack(
             children: [
@@ -112,10 +119,10 @@ class _DesktopVirtualPhonePageState extends State<DesktopVirtualPhonePage> {
                   child: _buildScreen(),
                 ),
               ),
-              
+
               // Notch
               _buildNotch(),
-              
+
               // Drag Zone (Top 40px)
               Positioned(
                 top: 0,
@@ -137,8 +144,8 @@ class _DesktopVirtualPhonePageState extends State<DesktopVirtualPhonePage> {
                   size: 16,
                   color: Colors.white54,
                   onTap: _onClose,
-                )
-              )
+                ),
+              ),
             ],
           ),
         ),
@@ -158,7 +165,7 @@ class _DesktopVirtualPhonePageState extends State<DesktopVirtualPhonePage> {
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(16),
             bottomRight: Radius.circular(16),
-          )
+          ),
         ),
       ),
     );
@@ -166,19 +173,27 @@ class _DesktopVirtualPhonePageState extends State<DesktopVirtualPhonePage> {
 
   Widget _buildScreen() {
     if (!_ready) {
-      return const Center(child: CircularProgressIndicator(color: Colors.white));
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
     }
     if (_failed) {
-      return const Center(child: Text('Failed to load', style: TextStyle(color: Colors.white)));
+      return const Center(
+        child: Text('Failed to load', style: TextStyle(color: Colors.white)),
+      );
     }
     if (Platform.isWindows) {
-      return _winCtrl != null ? winweb.Webview(_winCtrl!) : const SizedBox.shrink();
+      return _winCtrl != null
+          ? winweb.Webview(_winCtrl!)
+          : const SizedBox.shrink();
     }
     return _flutterCtrl != null
         ? WebViewWidget(
             controller: _flutterCtrl!,
             gestureRecognizers: {
-              Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
+              Factory<OneSequenceGestureRecognizer>(
+                () => EagerGestureRecognizer(),
+              ),
             },
           )
         : const SizedBox.shrink();
